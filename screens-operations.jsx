@@ -943,7 +943,7 @@ function OCCScreen() {
 window.OCCScreen = OCCScreen;
 
 /* === OCC Module shell — sub-rail + topbar + main screen === */
-function OCCModule({ onBack }) {
+function OCCModule() {
   const [view, setView] = React.useState("timeline");
   const [navOpen, setNavOpen] = React.useState(false);
   const selectView = (v) => { setView(v); setNavOpen(false); };
@@ -1020,16 +1020,12 @@ function OCCModule({ onBack }) {
           </div>
         </div>
 
-        <div className="occ-side-item" style={{ borderTop: "1px solid var(--line)", marginTop: 12, paddingTop: 14, color: "var(--t-secondary)" }} onClick={onBack}>
-          <Icon name="arrowRight" size={14} style={{ transform: "rotate(180deg)" }}/>
-          <span>Quay lại E-Office</span>
-        </div>
       </aside>
       {navOpen && <div className="rail-backdrop" onClick={() => setNavOpen(false)} />}
 
       <main style={{ minWidth: 0, overflow: "hidden" }}>
         <Topbar
-          crumbs={["Vinalogistics", "TTOS", "OCC — Điều hành Vận hành", { timeline: "Timeline", jobs: "Job-tàu", berths: "Bến phao", tugs: "Đội tàu lai", cranes: "ICD" }[view]]}
+          crumbs={["Vinalogistics", "OCC — Điều hành Vận hành", { timeline: "Timeline", jobs: "Job-tàu", berths: "Bến phao", tugs: "Đội tàu lai", cranes: "ICD" }[view]]}
           onToggleNav={() => setNavOpen(o => !o)}
         />
         {view === "timeline" && <OCCScreen/>}
