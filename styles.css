@@ -2838,3 +2838,209 @@ html, body {
 .occ-side-stat .val { font-size: 22px; font-weight: 700; margin-top: 6px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .occ-side-stat .val small { font-size: 12px; opacity: 0.7; font-weight: 500; margin-left: 4px; }
 .occ-side-stat .footer { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 8px; display: flex; align-items: center; gap: 4px; }
+
+/* ============================================================
+ * Mobile responsive layer
+ * Everything below targets tablet/phone breakpoints. Kept at the
+ * end of the file so it wins the cascade over the desktop rules
+ * above without needing !important everywhere.
+ * ============================================================ */
+
+/* ----- Hamburger menu button (mobile-only) ----- */
+.mobile-menu-btn {
+  display: none;
+  width: 36px; height: 36px;
+  align-items: center; justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--bg-surface);
+  color: var(--t-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.mobile-menu-btn:hover { background: var(--bg-sunken); color: var(--t-primary); }
+
+/* ----- Off-canvas backdrop shared by Rail / SecurityRail / occ-side ----- */
+.rail-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(7, 24, 42, 0.55);
+  z-index: 150;
+  animation: fade-in .15s ease-out;
+}
+
+/* ----- New layout utility classes (base = previous inline desktop values) ----- */
+.today-strip        { display: grid; grid-template-columns: repeat(4, 1fr); }
+.task-summary-grid   { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; }
+.my-buckets-grid      { display: grid; grid-template-columns: repeat(4, 1fr); }
+.status-pills-grid    { display: grid; grid-template-columns: repeat(5, 1fr); }
+.kanban-grid           { display: grid; grid-template-columns: repeat(4, 1fr); }
+.kanban-col            { min-width: 0; }
+.docs-layout-grid      { display: grid; grid-template-columns: 240px 1fr; }
+.detail-grid-360       { display: grid; grid-template-columns: 1fr 360px; }
+.detail-grid-380       { display: grid; grid-template-columns: 1fr 380px; }
+.detail-grid-320       { display: grid; grid-template-columns: 1fr 320px; }
+.stat-3-grid           { display: grid; grid-template-columns: repeat(3, 1fr); }
+.people-pick-grid      { display: grid; grid-template-columns: 1fr 1fr; }
+.form-2col-grid        { display: grid; grid-template-columns: 1fr 1fr; }
+.task-analytics-grid   { display: grid; grid-template-columns: 320px 1fr 1.1fr; }
+.widget-grid-wide      { grid-template-columns: 1.5fr 1fr; }
+.kpi-grid-5            { grid-template-columns: repeat(5, 1fr); }
+.grid-3-eq             { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+.grid-main-side-16     { display: grid; grid-template-columns: 1.6fr 1fr; }
+
+/* ===== Tablet (≤ 1024px) — trim dense multi-column grids ===== */
+@media (max-width: 1024px) {
+  .kpi-grid, .kpi-grid-5      { grid-template-columns: repeat(2, 1fr) !important; }
+  .task-summary-grid          { grid-template-columns: 1fr 1fr !important; }
+  .status-pills-grid          { grid-template-columns: repeat(3, 1fr) !important; }
+  .my-buckets-grid             { grid-template-columns: repeat(2, 1fr) !important; }
+  .task-analytics-grid         { grid-template-columns: 1fr 1fr !important; }
+  .task-analytics-grid > :last-child { grid-column: 1 / -1; }
+  .cal-shell                   { grid-template-columns: 200px 1fr !important; }
+  .ttos-app-grid                { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* ===== Off-canvas nav (≤ 900px) — sidebar becomes a slide-in drawer ===== */
+@media (max-width: 900px) {
+  .mobile-menu-btn { display: inline-flex; }
+
+  .shell,
+  .shell[data-rail="mini"],
+  .shell[data-rail="top"],
+  .shell[data-rail="dual"] {
+    grid-template-columns: 1fr !important;
+  }
+  .shell[data-rail="top"] > .top-nav { display: none !important; }
+  .shell[data-rail="top"] .topbar { display: flex !important; }
+
+  .shell > .rail,
+  .shell > .sub-rail {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    height: 100vh;
+    width: 264px;
+    max-width: 84vw;
+    z-index: 160;
+    transform: translateX(-100%);
+    transition: transform .22s cubic-bezier(.2,.7,.2,1);
+    box-shadow: 12px 0 40px rgba(0,0,0,0.3);
+  }
+  .rail[data-mobile-open="1"] { transform: translateX(0); width: 264px; }
+  .sub-rail[data-mobile-open="1"] { transform: translateX(0); }
+
+  /* Force full labels inside the drawer even if desktop "mini" mode is on */
+  .rail[data-mini="1"][data-mobile-open="1"] { width: 264px; }
+  .rail[data-mini="1"][data-mobile-open="1"] .rail-brand .wordmark { display: flex !important; }
+  .rail[data-mini="1"][data-mobile-open="1"] .rail-module .mod-name,
+  .rail[data-mini="1"][data-mobile-open="1"] .rail-module .mod-sub,
+  .rail[data-mini="1"][data-mobile-open="1"] .rail-section-label,
+  .rail[data-mini="1"][data-mobile-open="1"] .rail-item span:not(.count),
+  .rail[data-mini="1"][data-mobile-open="1"] .rail-foot .who {
+    display: block !important;
+  }
+  .rail[data-mini="1"][data-mobile-open="1"] .rail-item { justify-content: flex-start !important; }
+  .rail[data-mini="1"][data-mobile-open="1"] .rail-item .count {
+    position: static !important; margin-left: auto !important; padding: 1px 7px !important;
+    min-width: 0 !important; height: auto !important; font-size: 11px !important; line-height: normal !important;
+  }
+
+  .occ-shell { grid-template-columns: 1fr !important; }
+  .occ-side {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    height: 100vh;
+    width: 280px;
+    max-width: 84vw;
+    z-index: 160;
+    transform: translateX(-100%);
+    transition: transform .22s cubic-bezier(.2,.7,.2,1);
+    box-shadow: 12px 0 40px rgba(0,0,0,0.3);
+    overflow-y: auto;
+  }
+  .occ-side.mobile-open { transform: translateX(0); }
+}
+
+/* ===== Phone (≤ 640px) ===== */
+@media (max-width: 640px) {
+  html, body { font-size: 13.5px; }
+
+  /* Topbar: hide breadcrumb trail (keep current page), collapse search to icon-only */
+  .topbar { padding: 0 var(--s-3); gap: var(--s-2); }
+  .crumb .sep, .crumb span:not(.b) { display: none; }
+  .crumb .b b { font-size: 13.5px; }
+  .topbar .search { margin-left: 0; max-width: 38px; min-width: 38px; padding: 0; justify-content: center; background: transparent; border-color: transparent; }
+  .topbar .search input, .topbar .search kbd { display: none; }
+  .topbar .search svg { position: static; }
+  .topbar-quick-btn span, .topbar-quick-btn { display: none; }
+  .top-actions { gap: 4px; }
+
+  .top-nav { padding: 0 var(--s-3); }
+  .top-nav .brand span { display: none; }
+  .top-nav nav { overflow-x: auto; }
+
+  /* Page shell */
+  .page { padding: var(--s-4) var(--s-4) var(--s-8); }
+  .page-head { flex-direction: column; align-items: flex-start; gap: var(--s-3); }
+  .page-head h1 { font-size: 19px; }
+  .page-head .actions { width: 100%; flex-wrap: wrap; }
+  .page-head .actions .btn { flex: 1 1 auto; justify-content: center; }
+
+  /* Grids collapse to a single column */
+  .kpi-grid, .kpi-grid-5,
+  .widget-grid, .widget-grid-wide,
+  .today-strip,
+  .task-summary-grid,
+  .my-buckets-grid,
+  .status-pills-grid,
+  .kanban-grid,
+  .docs-layout-grid,
+  .detail-grid-360, .detail-grid-380, .detail-grid-320,
+  .stat-3-grid,
+  .people-pick-grid,
+  .form-2col-grid,
+  .task-analytics-grid,
+  .task-analytics-grid > :last-child,
+  .grid-3-eq,
+  .grid-main-side-16,
+  .cal-shell,
+  .form-grid,
+  .split {
+    grid-template-columns: 1fr !important;
+  }
+  .today-strip button { border-right: none !important; padding: 10px 4px !important; }
+  .today-strip button:not(:last-child),
+  .my-buckets-grid button:not(:last-child) { border-bottom: 1px solid var(--line); }
+
+  .field-row, .field-row.three { grid-template-columns: 1fr !important; }
+  .priority-radio { grid-template-columns: 1fr !important; }
+
+  /* Tabs / toolbar scroll instead of wrapping awkwardly */
+  .tabs { overflow-x: auto; white-space: nowrap; padding: 0 var(--s-3); }
+  .tabs .tab { flex-shrink: 0; }
+  .toolbar { padding: var(--s-2) var(--s-3); }
+
+  /* Button/metadata rows: wrap instead of overflowing past the card edge
+     (.card has overflow:hidden, so an unwrapped .row would just get clipped) */
+  .row { flex-wrap: wrap; row-gap: 8px; }
+
+  /* Modals go near-full-width */
+  .modal, .modal.wide { max-width: 94vw; }
+  .modal-overlay { padding: 10px; }
+  .modal-body { padding: 16px; }
+  .modal-foot { flex-wrap: wrap; }
+
+  /* Kanban board: stacked columns, natural card width */
+  .kanban-grid { padding: 12px !important; gap: 12px !important; }
+
+  /* Chain steps / gantt / week views keep native horizontal scroll — no change needed */
+
+  .ttos-app-grid { grid-template-columns: 1fr !important; padding: 16px !important; }
+  .ttos-launcher-head { padding: 16px 18px !important; }
+  .ttos-launcher-foot { flex-wrap: wrap; gap: 8px; }
+
+  /* Off-canvas drawers (notifications / task detail) go full width */
+  .drawer, .drawer.wide { width: 100vw; max-width: 100vw; }
+
+  /* Tweaks dev panel shouldn't cover the whole viewport on tiny screens */
+  .twk-panel { width: min(280px, 88vw); }
+}

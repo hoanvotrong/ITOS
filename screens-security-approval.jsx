@@ -121,7 +121,7 @@ const SecApprovalDetailScreen = ({ go, ctx }) => {
         <div className="muted" style={{ fontSize: 12, marginLeft: 6 }}>Phê duyệt / <span className="mono">{a.id}</span></div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 24 }}>
+      <div className="detail-grid-360" style={{ gap: 24 }}>
         <div>
           <div className="card" style={{ marginBottom: 20 }}>
             <div style={{ padding: "24px 24px 18px" }}>
@@ -207,7 +207,7 @@ const SecApprovalDetailScreen = ({ go, ctx }) => {
             <div className="card-head"><h3>Chi tiết đăng ký</h3></div>
             <div className="card-body">
               <p style={{ margin: "0 0 16px", lineHeight: 1.6 }}>{a.purpose}</p>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, padding: 14, background: "var(--bg-canvas)", borderRadius: "var(--r-sm)", border: "1px solid var(--line)" }}>
+              <div className="stat-3-grid" style={{ padding: 14, background: "var(--bg-canvas)", borderRadius: "var(--r-sm)", border: "1px solid var(--line)" }}>
                 <div>
                   <div className="muted" style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 0.04, fontWeight: 600 }}>Hiệu lực từ</div>
                   <div style={{ fontSize: 14, fontWeight: 500, marginTop: 4 }} className="mono">{a.validFrom}</div>

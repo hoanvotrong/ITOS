@@ -75,7 +75,7 @@ function TaskAnalytics() {
   const maxWorkload = Math.max(...workload.map(w => w.total), 1);
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "320px 1fr 1.1fr", gap: 16, marginBottom: 20 }}>
+    <div className="task-analytics-grid" style={{ gap: 16, marginBottom: 20 }}>
       {/* Donut */}
       <div className="card">
         <div className="card-head">
@@ -144,7 +144,7 @@ function TaskAnalytics() {
         </div>
         <div style={{ padding: "12px 20px 18px" }}>
           <TrendChart />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
+          <div className="stat-3-grid" style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
             <div>
               <div className="muted" style={{ fontSize: 10.5, textTransform: "uppercase", fontWeight: 600, letterSpacing: 0.05 }}>Hoàn thành</div>
               <div style={{ fontSize: 18, fontWeight: 700, marginTop: 2, color: "var(--st-success)", fontVariantNumeric: "tabular-nums" }}>23<small style={{ fontSize: 11, color: "var(--t-tertiary)", fontWeight: 500, marginLeft: 4 }}>nv</small></div>
@@ -716,7 +716,7 @@ function TaskDetailPage({ go, ctx }) {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 24 }}>
+      <div className="detail-grid-320" style={{ gap: 24 }}>
         <div>
           {/* Title block */}
           <div className="card" style={{ marginBottom: 18 }}>

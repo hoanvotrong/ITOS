@@ -103,7 +103,7 @@ const TasksScreen = ({ go }) => {
       {scope === "mine" && (
         <>
           {/* Personal summary cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 1fr", gap: 12, marginBottom: 18 }}>
+          <div className="task-summary-grid" style={{ gap: 12, marginBottom: 18 }}>
             <div className="card" style={{
               padding: "16px 18px", borderLeft: myLate.length > 0 ? "3px solid var(--st-danger)" : "3px solid var(--st-success)",
               background: myLate.length > 0 ? "linear-gradient(180deg, rgba(185,28,28,0.04), transparent)" : "var(--bg-surface)"
@@ -153,8 +153,7 @@ const TasksScreen = ({ go }) => {
           </div>
 
           {/* My buckets — segmented tabs */}
-          <div style={{
-            display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0,
+          <div className="my-buckets-grid" style={{
             background: "var(--bg-surface)", border: "1px solid var(--line)",
             borderRadius: "var(--r-md)", overflow: "hidden", marginBottom: 16,
           }}>
@@ -195,7 +194,7 @@ const TasksScreen = ({ go }) => {
           {showAnalytics && <TaskAnalytics />}
 
           {/* Status pills */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 12, marginBottom: 20 }}>
+          <div className="status-pills-grid" style={{ gap: 12, marginBottom: 20 }}>
             {[
             { id: "all", label: "Tổng nhiệm vụ", val: counts.all, color: "var(--brand-ink)" },
             { id: "pending", label: "Chưa bắt đầu", val: counts.pending, color: "var(--t-secondary)" },
@@ -352,11 +351,11 @@ const KanbanBoard = ({ tasks }) => {
   { id: "done", label: "Hoàn thành", tone: "success" }];
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, padding: 20, background: "var(--bg-canvas)" }}>
+    <div className="kanban-grid" style={{ padding: 20, background: "var(--bg-canvas)" }}>
       {cols.map((c) => {
         const items = tasks.filter((t) => t.status === c.id);
         return (
-          <div key={c.id} style={{ background: "var(--bg-page)", borderRadius: "var(--r-md)", border: "1px solid var(--line)", display: "flex", flexDirection: "column" }}>
+          <div key={c.id} className="kanban-col" style={{ background: "var(--bg-page)", borderRadius: "var(--r-md)", border: "1px solid var(--line)", display: "flex", flexDirection: "column" }}>
             <div style={{ padding: "10px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--line)" }}>
               <div className="row" style={{ gap: 8 }}>
                 <span className={`badge ${c.tone}`}><span className="pip"></span>{c.label}</span>
@@ -417,7 +416,7 @@ const DocumentsScreen = ({ go }) => {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: 20 }}>
+      <div className="docs-layout-grid" style={{ gap: 20 }}>
         {/* Categories sidebar */}
         <aside className="card">
           <div className="card-head"><h3>Phân loại</h3></div>

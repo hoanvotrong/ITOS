@@ -22,6 +22,7 @@ function App() {
   const [route, setRoute] = React.useState({ screen: "dashboard", ctx: {} });
   const [drawer, setDrawer] = React.useState(false);
   const [taskDrawer, setTaskDrawer] = React.useState(null);
+  const [navOpen, setNavOpen] = React.useState(false);
   const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
 
   // Apply accent/density to document root
@@ -76,18 +77,21 @@ function App() {
         <Rail
           active={activeRail}
           mode={railMode === "mini" || railMode === "dual" ? "mini" : "expanded"}
-          onNav={(id) => go(id)}
+          mobileOpen={navOpen}
+          onNav={(id) => { go(id); setNavOpen(false); }}
         />
       )}
       {railMode === "dual" && (
         <SubRail active={activeRail} onNav={(id) => go(id)} />
       )}
+      {navOpen && <div className="rail-backdrop" onClick={() => setNavOpen(false)} />}
 
       <main style={{ minWidth: 0 }}>
         {railMode !== "top" && (
           <Topbar
             crumbs={crumbsByScreen[route.screen] || ["E-Office"]}
             onOpenNotif={() => setDrawer(true)}
+            onToggleNav={() => setNavOpen(o => !o)}
           />
         )}
         {route.screen === "dashboard"        && <DashboardScreen go={go} />}

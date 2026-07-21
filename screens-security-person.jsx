@@ -136,7 +136,7 @@ const PersonRegDetailScreen = ({ go, ctx }) => {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 24 }}>
+      <div className="detail-grid-380" style={{ gap: 24 }}>
         <div>
           <div className="card" style={{ marginBottom: 20 }}>
             <div className="card-head"><h3>Thông tin cá nhân</h3></div>

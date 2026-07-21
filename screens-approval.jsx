@@ -244,7 +244,7 @@ const ApprovalListScreen = ({ go }) => {
           onClick={() => { setBulkAction(null); setBulkComment(""); }}
           style={{ position: "fixed", inset: 0, background: "rgba(15,18,22,0.55)", backdropFilter: "blur(3px)", zIndex: 900, display: "grid", placeItems: "center" }}
         >
-          <div onClick={e => e.stopPropagation()} style={{ width: 520, background: "var(--bg-surface)", borderRadius: 12, boxShadow: "0 30px 80px rgba(0,0,0,0.35)", overflow: "hidden" }}>
+          <div onClick={e => e.stopPropagation()} style={{ width: "min(520px, 92vw)", maxHeight: "88vh", background: "var(--bg-surface)", borderRadius: 12, boxShadow: "0 30px 80px rgba(0,0,0,0.35)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
             <div style={{ padding: "18px 22px", borderBottom: "1px solid var(--line)" }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
                 {bulkAction === "approve" ? `Duyệt ${selected.length} phiếu cùng lúc` :
@@ -384,7 +384,7 @@ const ApprovalDetailScreen = ({ go, ctx }) => {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 24 }}>
+      <div className="detail-grid-360" style={{ gap: 24 }}>
         {/* Main column */}
         <div>
           {/* Title block */}
@@ -503,7 +503,7 @@ const ApprovalDetailScreen = ({ go, ctx }) => {
             </div>
             <div className="card-body">
               <p style={{ margin: "0 0 16px", lineHeight: 1.6 }}>{a.description}</p>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, padding: 14, background: "var(--bg-canvas)", borderRadius: "var(--r-sm)", border: "1px solid var(--line)" }}>
+              <div className="stat-3-grid" style={{ padding: 14, background: "var(--bg-canvas)", borderRadius: "var(--r-sm)", border: "1px solid var(--line)" }}>
                 <div>
                   <div className="muted" style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 0.04, fontWeight: 600 }}>Tổng chi phí</div>
                   <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4, fontFamily: "var(--font-mono)", letterSpacing: "-0.01em" }}>{a.amount}</div>
@@ -691,7 +691,7 @@ const ApprovalDetailScreen = ({ go, ctx }) => {
       {/* Delegate modal */}
       {delegateOpen && (
         <div onClick={() => setDelegateOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(15,18,22,0.55)", backdropFilter: "blur(3px)", zIndex: 900, display: "grid", placeItems: "center" }}>
-          <div onClick={e => e.stopPropagation()} style={{ width: 480, background: "var(--bg-surface)", borderRadius: 12, boxShadow: "0 30px 80px rgba(0,0,0,0.35)", overflow: "hidden" }}>
+          <div onClick={e => e.stopPropagation()} style={{ width: "min(480px, 92vw)", maxHeight: "88vh", background: "var(--bg-surface)", borderRadius: 12, boxShadow: "0 30px 80px rgba(0,0,0,0.35)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
             <div style={{ padding: "18px 22px", borderBottom: "1px solid var(--line)" }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>Uỷ quyền cho người khác</h3>
               <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>
@@ -700,7 +700,7 @@ const ApprovalDetailScreen = ({ go, ctx }) => {
             </div>
             <div style={{ padding: "16px 22px" }}>
               <label style={{ display: "block", fontSize: 12, fontWeight: 500, marginBottom: 8 }}>Chọn người nhận uỷ quyền</label>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, maxHeight: 180, overflowY: "auto", marginBottom: 14 }}>
+              <div className="people-pick-grid" style={{ gap: 8, maxHeight: 180, overflowY: "auto", marginBottom: 14 }}>
                 {PEOPLE.filter(p => p.id !== ME.id && (p.dept === ME.dept || p.role.includes("GĐ") || p.role.includes("TGD") || p.role.includes("TGĐ"))).map(p => (
                   <button
                     key={p.id}

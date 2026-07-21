@@ -118,7 +118,7 @@ function VehicleRegCreateScreen({ go }) {
 
       <div className="card">
         <div className="card-head"><h3>Tạo đăng ký xe ra/vào cảng</h3></div>
-        <div className="card-body" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+        <div className="card-body form-2col-grid" style={{ gap: 24 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div className="field">
               <label>Biển số xe <span className="req">*</span></label>

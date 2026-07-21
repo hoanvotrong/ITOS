@@ -56,8 +56,7 @@ const DashboardScreen = ({ go }) => {
       </div>
 
       {/* Today snapshot strip — what needs my attention right now */}
-      <div style={{
-        display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12,
+      <div className="today-strip" style={{
         marginBottom: 18, padding: 14, background: "var(--bg-surface)",
         border: "1px solid var(--line)", borderRadius: "var(--r-md)",
       }}>

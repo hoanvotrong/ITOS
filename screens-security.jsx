@@ -97,8 +97,7 @@ const SecurityDashboard = ({ go = () => {} }) => {
       </div>
 
       {/* Row 1 — alert cards */}
-      <div style={{
-        display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12,
+      <div className="today-strip" style={{
         marginBottom: 18, padding: 14, background: "var(--bg-surface)",
         border: "1px solid var(--line)", borderRadius: "var(--r-md)",
       }}>
@@ -158,7 +157,7 @@ const SecurityDashboard = ({ go = () => {} }) => {
       </div>
 
       {/* Row 3 — pending approvals (60%) + alerts (40%) */}
-      <div className="widget-grid" style={{ gridTemplateColumns: "1.5fr 1fr" }}>
+      <div className="widget-grid widget-grid-wide">
         <div className="card">
           <div className="card-head">
             <div>
@@ -247,7 +246,7 @@ const SecurityDashboard = ({ go = () => {} }) => {
 };
 
 /* Security module rail — same visual system as the E-Office Rail, own nav set */
-const SecurityRail = ({ active = "dashboard", onNav }) => {
+const SecurityRail = ({ active = "dashboard", onNav, mobileOpen = false }) => {
   const items = [
     { id: "dashboard",     label: "Tổng quan",       icon: "home",     count: null },
     { id: "approval",      label: "Phê duyệt",       icon: "approval", count: SEC_APPROVALS.filter(a => a.status === "current").length, urgent: true },
@@ -269,7 +268,7 @@ const SecurityRail = ({ active = "dashboard", onNav }) => {
     { id: "help",      label: "Trợ giúp", icon: "help" },
   ];
   return (
-    <aside className="rail">
+    <aside className="rail" data-mobile-open={mobileOpen ? "1" : "0"}>
       <div className="rail-brand">
         <div className="mark">V</div>
         <div className="wordmark">
@@ -333,7 +332,8 @@ const SecurityRail = ({ active = "dashboard", onNav }) => {
 /* Security module shell — Rail + Topbar + router across sub-screens */
 const SecurityModule = ({ onBack }) => {
   const [route, setRoute] = React.useState({ screen: "dashboard", ctx: {} });
-  const go = (screen, ctx = {}) => setRoute({ screen, ctx });
+  const [navOpen, setNavOpen] = React.useState(false);
+  const go = (screen, ctx = {}) => { setRoute({ screen, ctx }); setNavOpen(false); };
 
   const activeRail = route.screen.replace(/-detail$|-create$/, "").replace("incident", "incidents").replace("person", "person-list").replace("vehicle", "vehicle-list");
 
@@ -369,9 +369,10 @@ const SecurityModule = ({ onBack }) => {
 
   return (
     <div className="shell" data-rail="expanded">
-      <SecurityRail active={activeRail} onNav={(id) => go(id)} />
+      <SecurityRail active={activeRail} onNav={(id) => go(id)} mobileOpen={navOpen} />
+      {navOpen && <div className="rail-backdrop" onClick={() => setNavOpen(false)} />}
       <main style={{ minWidth: 0 }}>
-        <Topbar crumbs={crumbs} />
+        <Topbar crumbs={crumbs} onToggleNav={() => setNavOpen(o => !o)} />
         {route.screen === "dashboard"        && <SecurityDashboard go={go} />}
         {route.screen === "approval"         && <SecApprovalListScreen go={go} />}
         {route.screen === "approval-detail"  && <SecApprovalDetailScreen go={go} ctx={route.ctx} />}

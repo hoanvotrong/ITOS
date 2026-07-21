@@ -10,7 +10,7 @@ const Avatar = ({ person, size = 26, className = "" }) => {
   );
 };
 
-const Rail = ({ active, onNav, mode = "expanded", module = "eoffice" }) => {
+const Rail = ({ active, onNav, mode = "expanded", module = "eoffice", mobileOpen = false }) => {
   const mini = mode === "mini";
   // Counts derived from data so they stay in sync with ME
   const inboxCount = APPROVALS.filter(a => a.status === "current" && a.chain.find(s => s.state === "current")?.person === ME.id).length;
@@ -30,7 +30,7 @@ const Rail = ({ active, onNav, mode = "expanded", module = "eoffice" }) => {
     { id: "help",      label: "Trợ giúp",         icon: "help" },
   ];
   return (
-    <aside className="rail" data-mini={mini ? "1" : "0"}>
+    <aside className="rail" data-mini={mini ? "1" : "0"} data-mobile-open={mobileOpen ? "1" : "0"}>
       <div className="rail-brand">
         <div className="mark">V</div>
         {!mini && (
@@ -93,9 +93,12 @@ const Rail = ({ active, onNav, mode = "expanded", module = "eoffice" }) => {
   );
 };
 
-const Topbar = ({ crumbs = [], onOpenNotif, onOpenCreate }) => {
+const Topbar = ({ crumbs = [], onOpenNotif, onOpenCreate, onToggleNav }) => {
   return (
     <header className="topbar">
+      <button className="mobile-menu-btn" onClick={onToggleNav} title="Menu" aria-label="Mở menu">
+        <Icon name="panelLeft" size={18} />
+      </button>
       <div className="crumb">
         {crumbs.map((c, i) => (
           <React.Fragment key={i}>
@@ -114,7 +117,7 @@ const Topbar = ({ crumbs = [], onOpenNotif, onOpenCreate }) => {
       </div>
 
       <div className="top-actions">
-        <button className="btn ghost btn-sm">
+        <button className="btn ghost btn-sm topbar-quick-btn">
           <Icon name="plus" size={14} />
           Tạo nhanh
         </button>

@@ -35,7 +35,7 @@ function OCCKpis() {
     .reduce((sum, j) => sum + parseInt((j.cargo?.qty || "0").replace(/\D/g, ""), 10), 0);
   const tonnageDisp = (totalMT / 1000).toFixed(0) + " nghìn MT";
   return (
-    <div className="kpi-grid" style={{ gridTemplateColumns: "repeat(5, 1fr)" }}>
+    <div className="kpi-grid kpi-grid-5">
       <div className="kpi">
         <div className="lbl"><span className="swatch" style={{ background: "var(--st-success)" }} /> Đang khai thác</div>
         <div className="val">{inOp}<small>tàu</small></div>
@@ -407,7 +407,7 @@ function OCCJobDrawer({ jobId, dvhh, onClose }) {
             <div className="drawer-body" style={{ padding: 0, overflowY: "auto" }}>
               {/* Hero: cargo + berth + progress */}
               <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--line)", background: "var(--bg-canvas)" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+                <div className="grid-3-eq" style={{ gap: 16 }}>
                   <div>
                     <div className="muted" style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.05, fontWeight: 600 }}>Bến phao</div>
                     <div style={{ fontWeight: 600, fontSize: 14, marginTop: 4 }}>{berth?.group}</div>
@@ -827,7 +827,7 @@ function OCCScreen() {
       </div>
 
       {/* Bottom split: Active jobs list + Alerts */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 16, marginTop: 16 }}>
+      <div className="grid-main-side-16" style={{ gap: 16, marginTop: 16 }}>
         <div className="card">
           <div className="card-head">
             <div>
@@ -945,6 +945,8 @@ window.OCCScreen = OCCScreen;
 /* === OCC Module shell — sub-rail + topbar + main screen === */
 function OCCModule({ onBack }) {
   const [view, setView] = React.useState("timeline");
+  const [navOpen, setNavOpen] = React.useState(false);
+  const selectView = (v) => { setView(v); setNavOpen(false); };
 
   const win = OCC_WINDOW;
   const inOp = OCC_JOBS.filter(j => j.status === "in_progress").length;
@@ -954,7 +956,7 @@ function OCCModule({ onBack }) {
 
   return (
     <div className="occ-shell">
-      <aside className="occ-side">
+      <aside className={`occ-side ${navOpen ? "mobile-open" : ""}`}>
         <div className="occ-side-head">
           <span className="tag">OCC · BOD VIEW</span>
           <h2>Điều hành Vận hành</h2>
@@ -962,29 +964,29 @@ function OCCModule({ onBack }) {
         </div>
 
         <div className="occ-side-section">Bảng điều khiển</div>
-        <div className={`occ-side-item ${view === "timeline" ? "active" : ""}`} onClick={() => setView("timeline")}>
+        <div className={`occ-side-item ${view === "timeline" ? "active" : ""}`} onClick={() => selectView("timeline")}>
           <Icon name="activity" size={16}/>
           <span>Timeline</span>
           <span className="count">{inOp + delayed}</span>
         </div>
-        <div className={`occ-side-item ${view === "jobs" ? "active" : ""}`} onClick={() => setView("jobs")}>
+        <div className={`occ-side-item ${view === "jobs" ? "active" : ""}`} onClick={() => selectView("jobs")}>
           <Icon name="ship" size={16}/>
           <span>Job-tàu</span>
           <span className="count">{OCC_JOBS.length}</span>
         </div>
-        <div className={`occ-side-item ${view === "berths" ? "active" : ""}`} onClick={() => setView("berths")}>
+        <div className={`occ-side-item ${view === "berths" ? "active" : ""}`} onClick={() => selectView("berths")}>
           <Icon name="anchor" size={16}/>
           <span>Bến phao</span>
           <span className="count">{OCC_BERTHS.length}</span>
         </div>
 
         <div className="occ-side-section">Tài sản khai thác</div>
-        <div className={`occ-side-item ${view === "tugs" ? "active" : ""}`} onClick={() => setView("tugs")}>
+        <div className={`occ-side-item ${view === "tugs" ? "active" : ""}`} onClick={() => selectView("tugs")}>
           <Icon name="ship" size={16}/>
           <span>Đội tàu lai VNL</span>
           <span className="count">{OCC_TUGS.length}</span>
         </div>
-        <div className={`occ-side-item ${view === "cranes" ? "active" : ""}`} onClick={() => setView("cranes")}>
+        <div className={`occ-side-item ${view === "cranes" ? "active" : ""}`} onClick={() => selectView("cranes")}>
           <Icon name="crane" size={16}/>
           <span>ICD (Cẩu nổi)</span>
           <span className="count">{OCC_CRANES.length}</span>
@@ -1023,9 +1025,13 @@ function OCCModule({ onBack }) {
           <span>Quay lại E-Office</span>
         </div>
       </aside>
+      {navOpen && <div className="rail-backdrop" onClick={() => setNavOpen(false)} />}
 
       <main style={{ minWidth: 0, overflow: "hidden" }}>
-        <Topbar crumbs={["Vinalogistics", "TTOS", "OCC — Điều hành Vận hành", { timeline: "Timeline", jobs: "Job-tàu", berths: "Bến phao", tugs: "Đội tàu lai", cranes: "ICD" }[view]]} />
+        <Topbar
+          crumbs={["Vinalogistics", "TTOS", "OCC — Điều hành Vận hành", { timeline: "Timeline", jobs: "Job-tàu", berths: "Bến phao", tugs: "Đội tàu lai", cranes: "ICD" }[view]]}
+          onToggleNav={() => setNavOpen(o => !o)}
+        />
         {view === "timeline" && <OCCScreen/>}
         {view === "jobs"     && <OCCJobsView/>}
         {view === "berths"   && <OCCBerthsView/>}
