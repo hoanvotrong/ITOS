@@ -17,12 +17,14 @@
   .\export-occ-data.ps1
 
 .NOTES
-  Lấy toàn bộ job/DVHH/tug-task có ETA/ETD chồng lấn cửa sổ CUỘN 61 ngày
-  quanh hôm nay (45 ngày trước -> 15 ngày sau) — UI mặc định chỉ hiển thị
-  30 ngày (20 trước/9 sau) nhưng cho bấm lùi/tiến trong phạm vi 61 ngày đã
-  xuất. Loại các booking có trạng thái Reject/Cancel/Important/Accident.
-  Chạy lại bất cứ khi nào muốn làm mới dữ liệu hoặc mở rộng thêm phạm vi
-  xem — ghi đè trực tiếp lên data.jsx, bạn tự `git diff` / `git commit`
+  Lấy toàn bộ job/DVHH/tug-task có ETA/ETD chồng lấn với TRỌN VẸN 4 tháng
+  dương lịch quanh hôm nay (2 tháng đầy đủ trước + tháng hiện tại + 1 tháng
+  đầy đủ sau — xem $LookBackMonths/$LookForwardMonths). UI cho chọn xem
+  đúng 1 trong các tháng đó qua dropdown, mỗi tháng luôn đầy đủ từ ngày 1
+  đến ngày cuối, không bị cắt cụt giữa chừng. Loại các booking có trạng
+  thái Reject/Cancel/Important/Accident. Chạy lại bất cứ khi nào muốn làm
+  mới dữ liệu hoặc mở rộng thêm phạm vi xem — ghi đè trực tiếp lên data.jsx,
+  bạn tự `git diff` / `git commit`
   khi thấy dữ liệu ổn (đúng tinh thần "cập nhật thủ công" đã chọn).
 #>
 param(
@@ -85,20 +87,21 @@ function SafeInt($v) {
 $now = Get-Date
 
 # ============================================================
-# OCC_WINDOW — cửa sổ CUỘN 61 ngày quanh hôm nay (không khoá theo lịch
-# dương/1 tháng nữa). Trước đây cửa sổ = đúng 1 tháng dương lịch (ngày 1 ->
-# ngày cuối tháng) để né bug Gantt vẽ theo "ngày-trong-tháng" — bug đó đã
-# được sửa tận gốc (occDayFrac + occColToDate giờ tính theo ngày thực tế
-# so với OCC_WINDOW.refDate, không còn giả định mọi thứ nằm trong 1 tháng).
-# Nên giờ có thể tự do mở rộng cửa sổ để KHÔNG cắt cụt các job vắt qua
-# ranh giới tháng (vd ETA tháng trước, ETD tháng này).
-$LookBackDays    = 45   # số ngày nhìn lại quá khứ
-$LookForwardDays = 15   # số ngày nhìn tới tương lai (tổng cộng 61 ngày) — đủ rộng để
-                         # UI cho phép bấm lùi/tiến xem thêm ~1 tháng ngoài khung 30 ngày mặc định
-$refDate    = $now.Date.AddDays(-$LookBackDays)
+# OCC_WINDOW — lấy TRỌN VẸN từng tháng dương lịch (không cắt giữa tháng),
+# quanh tháng hiện tại: LookBackMonths tháng đầy đủ về trước + tháng hiện
+# tại + LookForwardMonths tháng đầy đủ về sau. Trước đây dùng cửa sổ theo
+# SỐ NGÀY cố định (vd -45/+15) nên khi chọn xem tháng hiện tại trên UI,
+# tháng đó bị cắt cụt giữa chừng (vd tháng 8 chỉ thấy tới ngày 18) do
+# range chỉ nhìn tới trước 15 ngày — không đủ hết tháng. Giờ tính theo
+# ranh giới THÁNG để mỗi tháng trong bộ chọn luôn đầy đủ từ ngày 1 đến
+# ngày cuối cùng.
+$LookBackMonths    = 2   # số tháng đầy đủ nhìn lại quá khứ (không tính tháng hiện tại)
+$LookForwardMonths = 1   # số tháng đầy đủ nhìn tới tương lai (không tính tháng hiện tại)
+$currentMonthStart = Get-Date -Year $now.Year -Month $now.Month -Day 1 -Hour 0 -Minute 0 -Second 0
+$refDate    = $currentMonthStart.AddMonths(-$LookBackMonths)
 $rangeStart = $refDate
-$rangeEnd   = $refDate.AddDays($LookBackDays + $LookForwardDays).AddSeconds(-1)   # 23:59:59 ngày cuối cửa sổ
-$windowDays = $LookBackDays + $LookForwardDays + 1
+$rangeEnd   = $currentMonthStart.AddMonths($LookForwardMonths + 1).AddSeconds(-1)   # 23:59:59 ngày cuối tháng cuối cùng
+$windowDays = [int]($rangeEnd.Date - $refDate.Date).TotalDays + 1
 
 $occWindow = [ordered]@{
   refDate   = $refDate.ToString("yyyy-MM-dd")   # ngày dương lịch thật của cột lưới số 1
@@ -107,7 +110,7 @@ $occWindow = [ordered]@{
   month     = $now.Month      # tháng/năm/ngày THẬT của hôm nay — chỉ dùng để hiển thị nhãn, không dùng để vẽ vị trí cột
   year      = $now.Year
   todayDate = $now.Day
-  todayCol  = $LookBackDays + 1   # cột lưới (offset) tương ứng với hôm nay
+  todayCol  = [int]($now.Date - $refDate.Date).TotalDays + 1   # cột lưới (offset) tương ứng với hôm nay
   todayHour = [math]::Round($now.Hour + $now.Minute / 60.0, 2)
 }
 
