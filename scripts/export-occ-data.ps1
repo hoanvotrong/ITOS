@@ -17,11 +17,13 @@
   .\export-occ-data.ps1
 
 .NOTES
-  Lấy toàn bộ job/DVHH/tug-task có ETA rơi trong THÁNG HIỆN TẠI (xem lý do ở
-  ghi chú ngay dưới param block), loại các booking có trạng thái
-  Reject/Cancel/Important/Accident. Chạy lại bất cứ khi nào muốn làm mới dữ
-  liệu — ghi đè trực tiếp lên data.jsx, bạn tự `git diff` / `git commit` khi
-  thấy dữ liệu ổn (đúng tinh thần "cập nhật thủ công" đã chọn).
+  Lấy toàn bộ job/DVHH/tug-task có ETA/ETD chồng lấn cửa sổ CUỘN 61 ngày
+  quanh hôm nay (45 ngày trước -> 15 ngày sau) — UI mặc định chỉ hiển thị
+  30 ngày (20 trước/9 sau) nhưng cho bấm lùi/tiến trong phạm vi 61 ngày đã
+  xuất. Loại các booking có trạng thái Reject/Cancel/Important/Accident.
+  Chạy lại bất cứ khi nào muốn làm mới dữ liệu hoặc mở rộng thêm phạm vi
+  xem — ghi đè trực tiếp lên data.jsx, bạn tự `git diff` / `git commit`
+  khi thấy dữ liệu ổn (đúng tinh thần "cập nhật thủ công" đã chọn).
 #>
 param(
   [string]$Server   = $(if ($env:OCC_DB_SERVER)   { $env:OCC_DB_SERVER }   else { "192.168.1.6" }),
@@ -30,12 +32,8 @@ param(
   [string]$Password = $(if ($env:OCC_DB_PASSWORD) { $env:OCC_DB_PASSWORD } else { $null }),
   [string]$OutFile  = "$PSScriptRoot\..\data.jsx"
 )
-# LƯU Ý: dashboard hiện chỉ vẽ Gantt/Timeline theo NGÀY-TRONG-THÁNG (bỏ qua tháng/năm khi
-# so sánh vị trí trên trục thời gian — giới hạn từ thiết kế gốc, viết cho tháng 5/2026 cố định).
-# Vì vậy script này CHỦ ĐỘNG giới hạn dữ liệu trong ĐÚNG 1 THÁNG DƯƠNG LỊCH (tháng hiện tại)
-# để tránh job/task bị vẽ sai vị trí khi vắt qua ranh giới tháng. Nếu cần xem nhiều tháng
-# cùng lúc, phải sửa lại phần vẽ Gantt trong screens-operations.jsx trước (tính theo ngày
-# tuyệt đối thay vì ngày-trong-tháng).
+# Gantt/Timeline vẽ theo ngày lệch (offset) so với OCC_WINDOW.refDate — không còn bị
+# khoá trong 1 tháng dương lịch, nên job/task vắt qua ranh giới tháng vẫn hiển thị đúng.
 
 if (-not $Password) {
   Write-Error "Thiếu mật khẩu. Truyền -Password '...' hoặc set `$env:OCC_DB_PASSWORD trước khi chạy."
@@ -85,18 +83,31 @@ function SafeInt($v) {
 }
 
 $now = Get-Date
-$rangeStart = Get-Date -Year $now.Year -Month $now.Month -Day 1 -Hour 0 -Minute 0 -Second 0
-$rangeEnd   = $rangeStart.AddMonths(1).AddSeconds(-1)   # 23:59:59 ngày cuối tháng hiện tại
 
 # ============================================================
-# OCC_WINDOW — tự tính theo tháng hiện tại (không hard-code nữa)
-# ============================================================
+# OCC_WINDOW — cửa sổ CUỘN 61 ngày quanh hôm nay (không khoá theo lịch
+# dương/1 tháng nữa). Trước đây cửa sổ = đúng 1 tháng dương lịch (ngày 1 ->
+# ngày cuối tháng) để né bug Gantt vẽ theo "ngày-trong-tháng" — bug đó đã
+# được sửa tận gốc (occDayFrac + occColToDate giờ tính theo ngày thực tế
+# so với OCC_WINDOW.refDate, không còn giả định mọi thứ nằm trong 1 tháng).
+# Nên giờ có thể tự do mở rộng cửa sổ để KHÔNG cắt cụt các job vắt qua
+# ranh giới tháng (vd ETA tháng trước, ETD tháng này).
+$LookBackDays    = 45   # số ngày nhìn lại quá khứ
+$LookForwardDays = 15   # số ngày nhìn tới tương lai (tổng cộng 61 ngày) — đủ rộng để
+                         # UI cho phép bấm lùi/tiến xem thêm ~1 tháng ngoài khung 30 ngày mặc định
+$refDate    = $now.Date.AddDays(-$LookBackDays)
+$rangeStart = $refDate
+$rangeEnd   = $refDate.AddDays($LookBackDays + $LookForwardDays).AddSeconds(-1)   # 23:59:59 ngày cuối cửa sổ
+$windowDays = $LookBackDays + $LookForwardDays + 1
+
 $occWindow = [ordered]@{
+  refDate   = $refDate.ToString("yyyy-MM-dd")   # ngày dương lịch thật của cột lưới số 1
   startDay  = 1
-  endDay    = $rangeEnd.Day
-  month     = $now.Month
+  endDay    = $windowDays
+  month     = $now.Month      # tháng/năm/ngày THẬT của hôm nay — chỉ dùng để hiển thị nhãn, không dùng để vẽ vị trí cột
   year      = $now.Year
-  todayDay  = $now.Day
+  todayDate = $now.Day
+  todayCol  = $LookBackDays + 1   # cột lưới (offset) tương ứng với hôm nay
   todayHour = [math]::Round($now.Hour + $now.Minute / 60.0, 2)
 }
 
@@ -406,19 +417,28 @@ function ToJs($obj) {
 }
 
 $occDayFracJs = @'
+// Mọi vị trí trên Gantt đều tính theo SỐ NGÀY LỆCH so với OCC_WINDOW.refDate
+// (ngày dương lịch thật của cột lưới số 1) — không giả định mọi thứ nằm
+// trong 1 tháng, nên job/task vắt qua ranh giới tháng vẫn vẽ đúng vị trí.
+const occRefEpoch = () => {
+  const [ry, rmo, rda] = OCC_WINDOW.refDate.split("-").map(Number);
+  return Date.UTC(ry, rmo - 1, rda);
+};
 const occDayFrac = (str) => {
   if (!str) return null;
   const [d, t] = str.split(" ");
   const [y, mo, da] = d.split("-").map(Number);
   const [h, m] = t.split(":").map(Number);
-  // Số ngày tính từ ngày 1 của THÁNG ĐANG XEM (OCC_WINDOW), có tính đúng năm/tháng
-  // thực của mốc thời gian — không chỉ lấy "ngày trong tháng" như trước (bug cũ
-  // khiến job/task vắt qua ranh giới tháng bị vẽ sai vị trí, ví dụ ETA 27/07 bị
-  // hiểu nhầm thành ngày 27 của tháng đang xem dù đó là tháng trước).
-  const refStart = Date.UTC(OCC_WINDOW.year, OCC_WINDOW.month - 1, 1);
-  const thisDay = Date.UTC(y, mo - 1, da);
-  const dayOffset = Math.round((thisDay - refStart) / 86400000);
+  const dayOffset = Math.round((Date.UTC(y, mo - 1, da) - occRefEpoch()) / 86400000);
   return (dayOffset + 1) + (h + m / 60) / 24;
+};
+// Đổi ngược: cột lưới (offset, có thể có phần thập phân giờ) -> Date thật (UTC)
+// để hiển thị nhãn ngày/tháng/thứ đúng cho từng cột, kể cả khi cửa sổ vắt qua
+// nhiều tháng khác nhau.
+const occColToDate = (col) => {
+  const dt = new Date(occRefEpoch());
+  dt.setUTCDate(dt.getUTCDate() + (Math.floor(col) - 1));
+  return dt;
 };
 '@
 
@@ -477,7 +497,7 @@ $out += ""
 $out += @'
 Object.assign(window, {
   PEOPLE, ME, personById,
-  OCC_WINDOW, OCC_BERTHS, OCC_TUGS, OCC_CRANES, OCC_JOBS, OCC_DVHH, occDayFrac,
+  OCC_WINDOW, OCC_BERTHS, OCC_TUGS, OCC_CRANES, OCC_JOBS, OCC_DVHH, occDayFrac, occColToDate,
   OCC_TUG_TASKS, OCC_TUG_TASK_TYPES,
 });
 '@

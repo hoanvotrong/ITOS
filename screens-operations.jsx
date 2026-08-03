@@ -5,9 +5,10 @@
 const OCC_ROW_H = 38;
 const OCC_LEFT_W = 256;  // sticky left column
 
-const OCC_RANGES = {
-  "30": { label: "30 ngày", startDay: OCC_WINDOW.startDay, endDay: OCC_WINDOW.endDay, dayW: 36 },
-};
+// UI luôn hiển thị 1 lát cắt 30 ngày, nhưng data xuất ra rộng hơn (xem
+// scripts/export-occ-data.ps1) nên cho phép bấm lùi/tiến trong phạm vi đó.
+const OCC_VIEW_SPAN = 30;
+const OCC_DAY_W = 36;
 
 const occStatusMeta = {
   in_progress: { label: "Đang khai thác",     cls: "occ-bar-active",   badge: "success" },
@@ -75,12 +76,15 @@ function OCCKpis() {
 function OCCRuler({ days, totalDays, dayW }) {
   return (
     <div className="occ-ruler" style={{ width: totalDays * dayW }}>
-      {days.map(d => (
-        <div key={d} className={`occ-ruler-day ${d === OCC_WINDOW.todayDay ? "today" : ""}`} style={{ width: dayW }}>
-          <div className="d-num">{d}</div>
-          <div className="d-dow">{["CN","T2","T3","T4","T5","T6","T7"][new Date(OCC_WINDOW.year, OCC_WINDOW.month - 1, d).getDay()]}</div>
-        </div>
-      ))}
+      {days.map(d => {
+        const dt = occColToDate(d);
+        return (
+          <div key={d} className={`occ-ruler-day ${d === OCC_WINDOW.todayCol ? "today" : ""}`} style={{ width: dayW }}>
+            <div className="d-num">{dt.getUTCDate()}{dt.getUTCDate() === 1 ? `/${dt.getUTCMonth() + 1}` : ""}</div>
+            <div className="d-dow">{["CN","T2","T3","T4","T5","T6","T7"][dt.getUTCDay()]}</div>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -88,7 +92,7 @@ function OCCRuler({ days, totalDays, dayW }) {
 /* === Gantt section (rows of bars) === */
 function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster, totalDays, win, dayW }) {
   const startDay = win.startDay;
-  const nowFrac = win.todayDay + win.todayHour / 24;
+  const nowFrac = win.todayCol + win.todayHour / 24;
   // Build bars per row
   const barsFor = (rowId, rowType) => {
     if (rowType === "berth") return jobs.filter(j => j.berthId === rowId);
@@ -150,13 +154,14 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
       .sort((a, b) => a._resFrom.localeCompare(b._resFrom))[0];
     if (upcoming) {
       const f = occDayFrac(upcoming._resFrom);
-      const day = Math.floor(f);
-      const hour = Math.floor((f - day) * 24);
-      const minute = Math.round(((f - day) * 24 - hour) * 60);
+      const col = Math.floor(f);
+      const hour = Math.floor((f - col) * 24);
+      const minute = Math.round(((f - col) * 24 - hour) * 60);
+      const dt = occColToDate(col);
       return {
         kind: "next",
         vessel: upcoming.vessel?.name || upcoming.title,
-        when: `${String(day).padStart(2, "0")}/${String(win.month).padStart(2, "0")} · ${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
+        when: `${String(dt.getUTCDate()).padStart(2, "0")}/${String(dt.getUTCMonth() + 1).padStart(2, "0")} · ${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
         role: upcoming._resRole,
         jobId: upcoming._linkedJob?.id || (upcoming._isTugTask ? null : upcoming.id),
         dvhh: upcoming._linkedDvhh || (upcoming._isDVHH ? upcoming : null),
@@ -167,7 +172,7 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
 
   // For tugs: today's task count + total active hours (utilization summary)
   const todayStatsFor = (bars) => {
-    const todayBars = bars.filter(b => Math.floor(occDayFrac(b._resFrom)) === win.todayDay);
+    const todayBars = bars.filter(b => Math.floor(occDayFrac(b._resFrom)) === win.todayCol);
     const totalHours = todayBars.reduce((sum, b) => {
       const s = occDayFrac(b._resFrom);
       const e = occDayFrac(b._resTo);
@@ -209,7 +214,7 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
                 {isTug && today && today.count > 0 && (
                   <div
                     className="occ-tug-today"
-                    onClick={(e) => onOpenRoster(e, row, win.todayDay, today.todayBars)}
+                    onClick={(e) => onOpenRoster(e, row, win.todayCol, today.todayBars)}
                     title="Xem lịch chi tiết hôm nay"
                   >
                     <div className="occ-tug-today-line">
@@ -252,7 +257,7 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
                 return (
                   <div
                     key={i}
-                    className={`occ-grid-line ${dayNum === win.todayDay ? "today" : ""} ${isTug && dayTasks?.length > 0 ? "tug-day" : ""}`}
+                    className={`occ-grid-line ${dayNum === win.todayCol ? "today" : ""} ${isTug && dayTasks?.length > 0 ? "tug-day" : ""}`}
                     style={{ left: i * dayW, width: dayW }}
                     onClick={isTug && dayTasks?.length > 0 ? (e) => onOpenRoster(e, row, dayNum, dayTasks) : undefined}
                   >
@@ -271,72 +276,104 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
                 if (fL + fW < 0 || fL > totalDays * dayW) return null;
                 return <div key={`m${i}`} className="occ-maint-band" style={{ left: fL, width: fW }} title="Bảo dưỡng"></div>;
               })}
-              {/* Bars */}
-              {bars.map((b, i) => {
-                const s = occDayFrac(b._resFrom || b.start);
-                const e = occDayFrac(b._resTo || b.end);
-                if (s == null || e == null) return null;
-                let left = (s - startDay) * dayW;
-                let width = Math.max(4, (e - s) * dayW);
-                if (left + width < 0 || left > totalDays * dayW) return null;
-                // Clip bars that start before the visible window so they don't slip under the sticky left panel
-                const clippedLeft = left < 0;
-                if (clippedLeft) { width += left; left = 0; }
-                if (width < 3) return null;
-                const meta = occStatusMeta[b.status] || occStatusMeta.planned;
-                const vesselName = b.vessel?.name || b.title;
-                const isPip = isTug && width < 14;
-                if (isPip) {
-                  // Pip mode: tiny colored tick — no label visible.
+              {/* Bars — tính hình học 1 lần cho mỗi bar; các task ngắn (pip) cùng ngày
+                  của cùng 1 hàng được GỘP thành 1 điểm đánh dấu duy nhất kèm số đếm,
+                  tránh cảnh nhiều pip đè khít lên nhau khi 1 tàu lai có nhiều task/ngày
+                  (dữ liệu thật có thể lên tới vài chục task/tháng cho 1 tàu). */}
+              {(() => {
+                const geo = bars.map((b, i) => {
+                  const s = occDayFrac(b._resFrom || b.start);
+                  const e = occDayFrac(b._resTo || b.end);
+                  if (s == null || e == null) return null;
+                  let left = (s - startDay) * dayW;
+                  let width = Math.max(4, (e - s) * dayW);
+                  if (left + width < 0 || left > totalDays * dayW) return null;
+                  // Clip bars that start before the visible window so they don't slip under the sticky left panel
+                  const clippedLeft = left < 0;
+                  if (clippedLeft) { width += left; left = 0; }
+                  if (width < 3) return null;
+                  return { b, i, s, left, width, clippedLeft, isPip: isTug && width < 14 };
+                }).filter(Boolean);
+
+                const pipsByDay = {};
+                geo.filter(g => g.isPip).forEach(g => {
+                  const day = Math.floor(g.s);
+                  (pipsByDay[day] = pipsByDay[day] || []).push(g);
+                });
+
+                const pipEls = Object.keys(pipsByDay).map(dayKey => {
+                  const day = Number(dayKey);
+                  const group = pipsByDay[dayKey];
+                  const left = Math.min(...group.map(g => g.left));
+                  if (group.length === 1) {
+                    const g = group[0], b = g.b;
+                    return (
+                      <div key={`pip${day}`}
+                        className={`occ-pip occ-pip-${b.status || "planned"}`}
+                        style={{ left: g.left + g.width / 2 - 2, background: b._typeColor }}
+                        onClick={(ev) => {
+                          ev.stopPropagation();
+                          if (b._linkedJob) onSelectJob(b._linkedJob.id, null);
+                          else if (b._linkedDvhh) onSelectJob(null, b._linkedDvhh);
+                          else onOpenRoster(ev, row, day, bars.filter(x => Math.floor(occDayFrac(x._resFrom)) === day));
+                        }}
+                        title={`${b.vessel?.name || b.title} · ${b._resRole} (${b._resFrom.slice(11)} → ${b._resTo.slice(11)})`}
+                      />
+                    );
+                  }
+                  const anyInProgress = group.some(g => g.b.status === "in_progress");
+                  const allDone = group.every(g => g.b.status === "done");
+                  const clusterStatus = anyInProgress ? "in_progress" : allDone ? "done" : "planned";
+                  return (
+                    <div key={`pipc${day}`}
+                      className={`occ-pip-cluster occ-pip-${clusterStatus}`}
+                      style={{ left }}
+                      onClick={(ev) => { ev.stopPropagation(); onOpenRoster(ev, row, day, group.map(g => g.b)); }}
+                      title={`${group.length} việc trong ngày — bấm để xem chi tiết`}
+                    >{group.length}</div>
+                  );
+                });
+
+                const barEls = geo.filter(g => !g.isPip).map(({ b, i, left, width, clippedLeft }) => {
+                  const meta = occStatusMeta[b.status] || occStatusMeta.planned;
+                  const vesselName = b.vessel?.name || b.title;
                   return (
                     <div
                       key={`b${i}`}
-                      className={`occ-pip occ-pip-${b.status || "planned"}`}
-                      style={{ left: left + width / 2 - 2, background: b._typeColor }}
+                      className={`occ-bar ${meta.cls} ${isResource ? "thin" : ""} ${row.type === "crane" ? "is-crane" : ""} ${row.type === "tug" ? "is-tug" : ""} ${clippedLeft ? "clip-left" : ""}`}
+                      style={{ left, width }}
                       onClick={(ev) => {
                         ev.stopPropagation();
                         if (b._linkedJob) onSelectJob(b._linkedJob.id, null);
                         else if (b._linkedDvhh) onSelectJob(null, b._linkedDvhh);
-                        else onOpenRoster(ev, row, Math.floor(s), bars.filter(x => Math.floor(occDayFrac(x._resFrom)) === Math.floor(s)));
+                        else if (b._isTugTask) onOpenRoster(ev, row, Math.floor(occDayFrac(b._resFrom || b.start)), bars.filter(x => Math.floor(occDayFrac(x._resFrom)) === Math.floor(occDayFrac(b._resFrom || b.start))));
+                        else onSelectJob(b._isDVHH ? null : b.id, b._isDVHH ? b : null);
                       }}
-                      title={`${vesselName} · ${b._resRole} (${b._resFrom.slice(11)} → ${b._resTo.slice(11)})`}
-                    />
-                  );
-                }
-                return (
-                  <div
-                    key={`b${i}`}
-                    className={`occ-bar ${meta.cls} ${isResource ? "thin" : ""} ${row.type === "crane" ? "is-crane" : ""} ${row.type === "tug" ? "is-tug" : ""} ${clippedLeft ? "clip-left" : ""}`}
-                    style={{ left, width }}
-                    onClick={(ev) => {
-                      ev.stopPropagation();
-                      if (b._linkedJob) onSelectJob(b._linkedJob.id, null);
-                      else if (b._linkedDvhh) onSelectJob(null, b._linkedDvhh);
-                      else if (b._isTugTask) onOpenRoster(ev, row, Math.floor(s), bars.filter(x => Math.floor(occDayFrac(x._resFrom)) === Math.floor(s)));
-                      else onSelectJob(b._isDVHH ? null : b.id, b._isDVHH ? b : null);
-                    }}
-                    title={`${vesselName} · ${b._resRole || (b.cargo?.op + " — " + b.cargo?.name)}`}
-                  >
-                    {b.status === "in_progress" && !isResource && (
-                      <div className="occ-bar-progress" style={{ width: `${b.progress}%` }} />
-                    )}
-                    <div className="occ-bar-label">
-                      <b>{vesselName}</b>
-                      {!isResource && b.cargo && (
-                        <span className="muted">· {b.cargo.qty} · {b.cargo.op}</span>
+                      title={`${vesselName} · ${b._resRole || (b.cargo?.op + " — " + b.cargo?.name)}`}
+                    >
+                      {b.status === "in_progress" && !isResource && (
+                        <div className="occ-bar-progress" style={{ width: `${b.progress}%` }} />
                       )}
-                      {isResource && <span className="muted">· {b._resRole}</span>}
-                    </div>
-                    {/* Outboard label for narrow resource bars (so vessel name is always readable) */}
-                    {isResource && !isTug && width < 80 && (
-                      <div className="occ-bar-outboard">
+                      <div className="occ-bar-label">
                         <b>{vesselName}</b>
-                        <span className="muted">· {b._resRole}</span>
+                        {!isResource && b.cargo && (
+                          <span className="muted">· {b.cargo.qty} · {b.cargo.op}</span>
+                        )}
+                        {isResource && <span className="muted">· {b._resRole}</span>}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+                      {/* Outboard label for narrow resource bars (so vessel name is always readable) */}
+                      {isResource && !isTug && width < 80 && (
+                        <div className="occ-bar-outboard">
+                          <b>{vesselName}</b>
+                          <span className="muted">· {b._resRole}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                });
+
+                return <>{barEls}{pipEls}</>;
+              })()}
             </div>
           </div>
         );
@@ -543,6 +580,7 @@ function OCCJobDrawer({ jobId, dvhh, onClose }) {
 function TugRoster({ roster, onClose, onSelectJob }) {
   if (!roster) return null;
   const { row, day, tasks, x, y } = roster;
+  const rosterDate = occColToDate(day);   // ngày dương lịch thật của cột lưới "day" (day là offset, không phải ngày-trong-tháng)
   // Sort tasks by start time
   const sorted = [...tasks].sort((a, b) => a._resFrom.localeCompare(b._resFrom));
   const totalHours = sorted.reduce((sum, t) => sum + (occDayFrac(t._resTo) - occDayFrac(t._resFrom)) * 24, 0);
@@ -568,7 +606,7 @@ function TugRoster({ roster, onClose, onSelectJob }) {
               <span className="mono" style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-accent)", letterSpacing: "-0.01em" }}>{row.id}</span>
               <span className="badge accent"><span className="pip"></span>Tàu lai DVHH</span>
             </div>
-            <h3 style={{ margin: "4px 0 0", fontSize: 15, fontWeight: 600 }}>Lịch điều phối ngày {String(day).padStart(2,"0")}/{String(OCC_WINDOW.month).padStart(2,"0")}/{OCC_WINDOW.year}</h3>
+            <h3 style={{ margin: "4px 0 0", fontSize: 15, fontWeight: 600 }}>Lịch điều phối ngày {String(rosterDate.getUTCDate()).padStart(2,"0")}/{String(rosterDate.getUTCMonth()+1).padStart(2,"0")}/{rosterDate.getUTCFullYear()}</h3>
             <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>
               <b>{sorted.length}</b> task · tổng <b>{totalHours.toFixed(1)} giờ khai thác</b>
             </div>
@@ -593,7 +631,7 @@ function TugRoster({ roster, onClose, onSelectJob }) {
             );
           })}
           {/* "now" marker if today */}
-          {day === OCC_WINDOW.todayDay && (
+          {day === OCC_WINDOW.todayCol && (
             <div className="occ-roster-now" style={{ left: `${(OCC_WINDOW.todayHour/24)*100}%` }} title="Hiện tại">
               <span>Hiện tại · {String(Math.floor(OCC_WINDOW.todayHour)).padStart(2,"0")}:{String(Math.round((OCC_WINDOW.todayHour%1)*60)).padStart(2,"0")}</span>
             </div>
@@ -649,15 +687,19 @@ function OCCScreen() {
   const [selected, setSelected] = React.useState(null); // jobId
   const [selectedDvhh, setSelectedDvhh] = React.useState(null);
   const [filter, setFilter] = React.useState("all");   // all | berth | service
-  const [range] = React.useState("30");                // chỉ còn xem theo tháng (30 ngày)
+  const [viewOffset, setViewOffset] = React.useState(0); // lùi/tiến theo bội số OCC_VIEW_SPAN ngày so với mặc định
   const [roster, setRoster] = React.useState(null);    // tug daily roster popover
 
-  const r = OCC_RANGES[range];
-  const dayW = r.dayW;
-  const win = { ...OCC_WINDOW, startDay: r.startDay, endDay: r.endDay };
+  const dayW = OCC_DAY_W;
+  const defaultStart = OCC_WINDOW.todayCol - 20; // mặc định: 20 ngày trước hôm nay -> 9 ngày sau
+  const maxStart = OCC_WINDOW.endDay - OCC_VIEW_SPAN + 1;
+  const clampedStart = Math.max(OCC_WINDOW.startDay, Math.min(maxStart, defaultStart + viewOffset));
+  const win = { ...OCC_WINDOW, startDay: clampedStart, endDay: clampedStart + OCC_VIEW_SPAN - 1 };
+  const canGoPrev = clampedStart > OCC_WINDOW.startDay;
+  const canGoNext = clampedStart < maxStart;
   const days = Array.from({ length: win.endDay - win.startDay + 1 }, (_, i) => win.startDay + i);
   const totalDays = days.length;
-  const todayLeft = (win.todayDay + win.todayHour/24 - win.startDay) * dayW;
+  const todayLeft = (win.todayCol + win.todayHour/24 - win.startDay) * dayW;
 
   // Build rows for each section
   const berthRows = OCC_BERTHS.map(b => ({
@@ -697,9 +739,12 @@ function OCCScreen() {
   const showBerths = filter === "all" || filter === "berth";
   const showServices = filter === "all" || filter === "service";
 
-  // Header label for current window
-  const winMonthStr = String(win.month).padStart(2, "0");
-  const rangeHeader = `${String(win.startDay).padStart(2,"0")}/${winMonthStr} → ${String(win.endDay).padStart(2,"0")}/${winMonthStr}/${win.year} · ${totalDays} ngày`;
+  // Header label for current window — startDay/endDay là cột lưới (offset), phải đổi
+  // sang ngày dương lịch thật qua occColToDate vì cửa sổ có thể vắt qua nhiều tháng.
+  const winStartDate = occColToDate(win.startDay);
+  const winEndDate = occColToDate(win.endDay);
+  const fmtDM = dt => `${String(dt.getUTCDate()).padStart(2,"0")}/${String(dt.getUTCMonth()+1).padStart(2,"0")}`;
+  const rangeHeader = `${fmtDM(winStartDate)} → ${fmtDM(winEndDate)}/${winEndDate.getUTCFullYear()} · ${totalDays} ngày`;
 
   return (
     <div className="page" style={{ maxWidth: "none" }}>
@@ -708,7 +753,7 @@ function OCCScreen() {
         <div>
           <div className="row" style={{ gap: 8, marginBottom: 4 }}>
             <span className="tag" style={{ background: "var(--bg-rail)", color: "#fff" }}>BOD VIEW</span>
-            <span className="muted" style={{ fontSize: 12 }}>Cập nhật lúc {win.todayDay}/{winMonthStr}/{win.year} · {String(Math.floor(win.todayHour)).padStart(2,"0")}:{String(Math.round((win.todayHour % 1) * 60)).padStart(2,"0")}</span>
+            <span className="muted" style={{ fontSize: 12 }}>Cập nhật lúc {win.todayDate}/{String(win.month).padStart(2,"0")}/{win.year} · {String(Math.floor(win.todayHour)).padStart(2,"0")}:{String(Math.round((win.todayHour % 1) * 60)).padStart(2,"0")}</span>
           </div>
           <h1>OCC — Trung tâm Điều hành Vận hành</h1>
           <div className="sub">Theo dõi tổng thể bến phao, dịch vụ hàng hải, đội tàu lai & cẩu nổi (ICD) trên một timeline thống nhất.</div>
@@ -747,6 +792,19 @@ function OCCScreen() {
             <span className="row" style={{ gap: 5 }}><i className="occ-leg-sw occ-bar-done"></i>Hoàn thành</span>
           </div>
 
+          <div style={{ width: 1, height: 22, background: "var(--line)" }}/>
+
+          {/* Lùi/tiến 30 ngày trong phạm vi data đã xuất (xem scripts/export-occ-data.ps1) */}
+          <div className="seg-bar">
+            <button onClick={() => setViewOffset(o => o - OCC_VIEW_SPAN)} disabled={!canGoPrev} title="Xem 30 ngày trước">
+              <Icon name="chevron" size={13} style={{ transform: "rotate(180deg)" }}/>
+            </button>
+            <button onClick={() => setViewOffset(0)} title="Về khung 30 ngày mặc định (quanh hôm nay)">Hôm nay</button>
+            <button onClick={() => setViewOffset(o => o + OCC_VIEW_SPAN)} disabled={!canGoNext} title="Xem 30 ngày sau">
+              <Icon name="chevron" size={13}/>
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -766,7 +824,7 @@ function OCCScreen() {
             </div>
 
             {/* TODAY line — only render if today is in visible range */}
-            {win.todayDay >= win.startDay && win.todayDay <= win.endDay && (
+            {win.todayCol >= win.startDay && win.todayCol <= win.endDay && (
               <div className="occ-today-line" style={{ left: OCC_LEFT_W + todayLeft }}>
                 <div className="occ-today-pin">HÔM NAY · {String(Math.floor(win.todayHour)).padStart(2,"0")}:{String(Math.round((win.todayHour % 1) * 60)).padStart(2,"0")}</div>
               </div>
@@ -945,14 +1003,23 @@ function OCCModule() {
 
   // Đồng hồ "hiện tại" (đường kẻ HIỆN TẠI, badge Sắp tới/Đang làm, "Cập nhật lúc")
   // phải chạy theo giờ thật của trình duyệt, không đứng yên tại thời điểm chạy
-  // script export — cập nhật OCC_WINDOW.todayDay/todayHour mỗi phút. Chỉ áp dụng
-  // khi vẫn đang xem đúng tháng/năm mà data đã xuất, tránh trỏ sai ngày khi data
-  // đã cũ sang tháng khác (lúc đó cần chạy lại script export, không thể tự vá bằng JS).
+  // script export — cập nhật OCC_WINDOW.todayCol/todayHour mỗi phút, tính lại từ
+  // OCC_WINDOW.refDate (ngày dương lịch thật của cột lưới số 1). Chỉ áp dụng khi
+  // "hôm nay" vẫn còn nằm trong cửa sổ data đã xuất (refDate .. refDate+endDay-1),
+  // tránh trỏ ra ngoài lưới khi data đã cũ (lúc đó cần chạy lại script export).
   React.useEffect(() => {
     const syncClock = () => {
       const now = new Date();
-      if (now.getMonth() + 1 === OCC_WINDOW.month && now.getFullYear() === OCC_WINDOW.year) {
-        OCC_WINDOW.todayDay = now.getDate();
+      const [ry, rmo, rda] = OCC_WINDOW.refDate.split("-").map(Number);
+      const refEpoch = Date.UTC(ry, rmo - 1, rda);
+      const todayEpoch = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+      const dayOffset = Math.round((todayEpoch - refEpoch) / 86400000);
+      const col = dayOffset + 1;
+      if (col >= OCC_WINDOW.startDay && col <= OCC_WINDOW.endDay) {
+        OCC_WINDOW.todayCol = col;
+        OCC_WINDOW.todayDate = now.getDate();
+        OCC_WINDOW.month = now.getMonth() + 1;
+        OCC_WINDOW.year = now.getFullYear();
         OCC_WINDOW.todayHour = now.getHours() + now.getMinutes() / 60;
         tick(t => t + 1);
       }
@@ -1215,7 +1282,7 @@ function OCCFleetView({ kind }) {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 14 }}>
         {(() => {
-          const nowStr = `${OCC_WINDOW.year}-${String(OCC_WINDOW.month).padStart(2,"0")}-${String(OCC_WINDOW.todayDay).padStart(2,"0")} ${String(Math.floor(OCC_WINDOW.todayHour)).padStart(2,"0")}:${String(Math.round((OCC_WINDOW.todayHour % 1) * 60)).padStart(2,"0")}`;
+          const nowStr = `${OCC_WINDOW.year}-${String(OCC_WINDOW.month).padStart(2,"0")}-${String(OCC_WINDOW.todayDate).padStart(2,"0")} ${String(Math.floor(OCC_WINDOW.todayHour)).padStart(2,"0")}:${String(Math.round((OCC_WINDOW.todayHour % 1) * 60)).padStart(2,"0")}`;
           return items.map(it => {
           // Find all bookings for this asset
           const bookings = [];

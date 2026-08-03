@@ -673,6 +673,8 @@ html, body {
   background: var(--bg-surface); color: var(--t-primary);
   box-shadow: var(--sh-1);
 }
+.seg-bar button:disabled { opacity: 0.35; cursor: not-allowed; }
+.seg-bar button:disabled:hover { background: transparent; }
 
 /* Dashboard widgets */
 .widget-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--s-5); }
@@ -1851,6 +1853,37 @@ html, body {
 @keyframes occ-pip-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(232,93,47,0.4); }
   50%      { box-shadow: 0 0 0 4px rgba(232,93,47,0); }
+}
+
+/* Cluster: nhiều task ngắn cùng ngày gộp thành 1 badge số đếm, tránh pip đè lên nhau */
+.occ-pip-cluster {
+  position: absolute;
+  top: 10px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  cursor: pointer;
+  z-index: 3;
+  background: var(--brand-accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--bg-surface);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform .12s, box-shadow .12s;
+}
+.occ-pip-cluster:hover {
+  transform: scale(1.15);
+  z-index: 6;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.occ-pip-cluster.occ-pip-done { background: var(--t-tertiary); opacity: 0.75; }
+.occ-pip-cluster.occ-pip-in_progress {
+  background: var(--brand-accent);
+  animation: occ-pip-pulse 1.8s infinite;
 }
 
 /* Clickable day cells on tug rows */
