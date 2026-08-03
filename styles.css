@@ -1641,15 +1641,24 @@ html, body {
   z-index: 5;
 }
 .occ-bar-label {
-  display: flex; align-items: baseline; gap: 4px;
   min-width: 0;
   width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   position: relative;
   z-index: 1;
   pointer-events: none;
+}
+/* Dính lại ngay sau panel trái (256px = OCC_LEFT_W) khi cuộn ngang qua đầu bar, để tên
+   tàu luôn đọc được thay vì bị panel trái che mất phần đầu chữ. Phải là 1 div CON riêng
+   (không phải chính .occ-bar-label, vốn là flex item của .occ-bar) vì position:sticky
+   không hoạt động ổn định khi chính nó là flex item — cần 1 ancestor bình thường ở giữa. */
+.occ-bar-label-sticky {
+  display: flex; align-items: baseline; gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: sticky;
+  left: 256px;
+  max-width: 100%;
 }
 .occ-bar-label b {
   font-weight: 600;

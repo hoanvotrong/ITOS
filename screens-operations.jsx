@@ -358,11 +358,13 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
                         <div className="occ-bar-progress" style={{ width: `${b.progress}%` }} />
                       )}
                       <div className="occ-bar-label">
-                        <b>{vesselName}</b>
-                        {!isResource && b.cargo && (
-                          <span className="muted">· {b.cargo.qty} · {b.cargo.op}</span>
-                        )}
-                        {isResource && <span className="muted">· {b._resRole}</span>}
+                        <div className="occ-bar-label-sticky">
+                          <b>{vesselName}</b>
+                          {!isResource && b.cargo && (
+                            <span className="muted">· {b.cargo.qty} · {b.cargo.op}</span>
+                          )}
+                          {isResource && <span className="muted">· {b._resRole}</span>}
+                        </div>
                       </div>
                       {/* Outboard label for narrow resource bars (so vessel name is always readable) */}
                       {isResource && !isTug && width < 80 && (
