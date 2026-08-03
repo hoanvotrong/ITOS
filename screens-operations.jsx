@@ -768,7 +768,7 @@ function OCCScreen() {
             {/* TODAY line — only render if today is in visible range */}
             {win.todayDay >= win.startDay && win.todayDay <= win.endDay && (
               <div className="occ-today-line" style={{ left: OCC_LEFT_W + todayLeft }}>
-                <div className="occ-today-pin">HÔM NAY · 10:30</div>
+                <div className="occ-today-pin">HÔM NAY · {String(Math.floor(win.todayHour)).padStart(2,"0")}:{String(Math.round((win.todayHour % 1) * 60)).padStart(2,"0")}</div>
               </div>
             )}
 
@@ -940,7 +940,27 @@ window.OCCScreen = OCCScreen;
 function OCCModule() {
   const [view, setView] = React.useState("timeline");
   const [navOpen, setNavOpen] = React.useState(false);
+  const [, tick] = React.useState(0);
   const selectView = (v) => { setView(v); setNavOpen(false); };
+
+  // Đồng hồ "hiện tại" (đường kẻ HIỆN TẠI, badge Sắp tới/Đang làm, "Cập nhật lúc")
+  // phải chạy theo giờ thật của trình duyệt, không đứng yên tại thời điểm chạy
+  // script export — cập nhật OCC_WINDOW.todayDay/todayHour mỗi phút. Chỉ áp dụng
+  // khi vẫn đang xem đúng tháng/năm mà data đã xuất, tránh trỏ sai ngày khi data
+  // đã cũ sang tháng khác (lúc đó cần chạy lại script export, không thể tự vá bằng JS).
+  React.useEffect(() => {
+    const syncClock = () => {
+      const now = new Date();
+      if (now.getMonth() + 1 === OCC_WINDOW.month && now.getFullYear() === OCC_WINDOW.year) {
+        OCC_WINDOW.todayDay = now.getDate();
+        OCC_WINDOW.todayHour = now.getHours() + now.getMinutes() / 60;
+        tick(t => t + 1);
+      }
+    };
+    syncClock();
+    const id = setInterval(syncClock, 60000);
+    return () => clearInterval(id);
+  }, []);
 
   const win = OCC_WINDOW;
   const inOp = OCC_JOBS.filter(j => j.status === "in_progress").length;

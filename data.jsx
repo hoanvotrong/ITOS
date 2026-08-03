@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-08-03 13:39 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-08-03 13:48 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -23,7 +23,7 @@ const OCC_WINDOW = {
     "month":  8,
     "year":  2026,
     "todayDay":  3,
-    "todayHour":  13.65
+    "todayHour":  13.8
 };
 
 const OCC_BERTHS = [
@@ -1016,7 +1016,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "DUC TRI 289",
         "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28085"
     },
@@ -1028,7 +1028,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VNL08",
         "customer":  "VINA LOGISTICS CORPORATION",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-331"
     },
@@ -1040,7 +1040,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VNL08",
         "customer":  "VINA LOGISTICS CORPORATION",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-331"
     },
@@ -1052,7 +1052,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "SEAWAY HAWK",
         "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28083"
     },
@@ -1064,7 +1064,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "SEAWAY HAWK",
         "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28083"
     },
@@ -1076,7 +1076,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "SEAWAY HAWK",
         "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28083"
     },
@@ -1088,7 +1088,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "SEAWAY HAWK",
         "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28083"
     },
@@ -1100,7 +1100,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "SEAWAY HAWK",
         "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28083"
     },
@@ -1112,7 +1112,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "MINH QUANG 01",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-154"
     },
@@ -1124,7 +1124,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "MINH QUANG 01",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-154"
     },
@@ -1136,7 +1136,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "LL RACHEL LUI \u0026 LL 3223",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI AN BÌNH",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28081"
     },
@@ -1172,7 +1172,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "JASPER",
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28079"
     },
@@ -1184,7 +1184,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "JASPER",
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28079"
     },
@@ -1196,7 +1196,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "COSCO SHIPPING CHANG SHENG",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28078"
     },
@@ -1208,7 +1208,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "COSCO SHIPPING CHANG SHENG",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28078"
     },
@@ -1220,7 +1220,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "SEA NOBLE",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28077"
     },
@@ -1232,7 +1232,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET TRUNG 135",
         "customer":  "CÔNG TY TNHH MAI NGÂN TRÍ",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28076"
     },
@@ -1244,7 +1244,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "GRAND WINNER 9",
         "customer":  "CÔNG TY TNHH MTV VẬN TẢI XĂNG DẦU DẦU KHÍ VIỆT NAM (PVOIL TRANS)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28075"
     },
@@ -1256,7 +1256,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "GRAND WINNER 9",
         "customer":  "CÔNG TY TNHH MTV VẬN TẢI XĂNG DẦU DẦU KHÍ VIỆT NAM (PVOIL TRANS)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28075"
     },
@@ -1268,7 +1268,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "TAN CANG 375",
         "customer":  "LIÊN DOANH VIỆT - NGA VIETSOVPETRO (VSP)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28074"
     },
@@ -1280,7 +1280,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "TAN CANG 375",
         "customer":  "LIÊN DOANH VIỆT - NGA VIETSOVPETRO (VSP)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28074"
     },
@@ -1292,7 +1292,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "MINH QUANG 01",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-154"
     },
@@ -1304,7 +1304,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "MINH QUANG 01",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-154"
     },
@@ -1316,7 +1316,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "H-401",
         "customer":  "CÔNG TY CẢNG DỊCH VỤ DẦU KHÍ (PTSC SB)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28072"
     },
@@ -1328,7 +1328,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "H-401",
         "customer":  "CÔNG TY CẢNG DỊCH VỤ DẦU KHÍ (PTSC SB)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28072"
     },
@@ -1340,7 +1340,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "H-401",
         "customer":  "CÔNG TY CẢNG DỊCH VỤ DẦU KHÍ (PTSC SB)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28072"
     },
@@ -1352,7 +1352,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "ORIENT U/ FC",
         "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ HÀNG HẢI SUNRISE",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1364,7 +1364,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "ORIENT U/ FC",
         "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ HÀNG HẢI SUNRISE",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1376,7 +1376,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VNL08",
         "customer":  "VINA LOGISTICS CORPORATION",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1388,7 +1388,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VNL08",
         "customer":  "VINA LOGISTICS CORPORATION",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1400,7 +1400,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "SEA NOBLE",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28069"
     },
@@ -1412,7 +1412,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "XINGHE EXPRESS",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28068"
     },
@@ -1424,7 +1424,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "SEAWAY SWAN",
         "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28067"
     },
@@ -1436,7 +1436,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET TRUNG 135",
         "customer":  "CÔNG TY TNHH MAI NGÂN TRÍ",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28066"
     },
@@ -1448,7 +1448,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "PAULA",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28065"
     },
@@ -1460,7 +1460,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "PAULA",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28065"
     },
@@ -1472,7 +1472,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "PAULA",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28065"
     },
@@ -1484,7 +1484,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "THANH DAT 86",
         "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28064"
     },
@@ -1496,7 +1496,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "LOUIS",
         "customer":  "CÔNG TY CẢNG DỊCH VỤ DẦU KHÍ (PTSC SB)",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28063"
     },
@@ -1508,7 +1508,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "LOUIS",
         "customer":  "CÔNG TY CẢNG DỊCH VỤ DẦU KHÍ (PTSC SB)",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28063"
     },
@@ -1520,7 +1520,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "LOUIS",
         "customer":  "CÔNG TY CẢNG DỊCH VỤ DẦU KHÍ (PTSC SB)",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28063"
     },
@@ -1532,7 +1532,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "TENMA",
         "customer":  "CTY CP SME WORLDWIDE LOGISTICS",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28062"
     },
@@ -1544,7 +1544,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "TENMA",
         "customer":  "CTY CP SME WORLDWIDE LOGISTICS",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28062"
     },
@@ -1556,7 +1556,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "LL RACHEL LUI \u0026 LL 3223",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI AN BÌNH",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28061"
     },
@@ -1568,7 +1568,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 10-05",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1580,7 +1580,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 10-05",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1592,7 +1592,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 10-05",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1604,7 +1604,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 10-05",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1616,7 +1616,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 10-05",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1628,7 +1628,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 10-05",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1640,7 +1640,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 215-02",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1652,7 +1652,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 215-02",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1664,7 +1664,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 80-06/ FC",
         "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ HÀNG HẢI SUNRISE",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-059"
     },
@@ -1676,7 +1676,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 80-06/ FC",
         "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ HÀNG HẢI SUNRISE",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-059"
     },
@@ -1688,7 +1688,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 80-07/ FC",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI TIÊN PHONG (TIMACO)",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-154"
     },
@@ -1700,7 +1700,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 80-07/ FC",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI TIÊN PHONG (TIMACO)",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-154"
     },
@@ -1736,7 +1736,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 80-05/ FC",
         "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ HÀNG HẢI SUNRISE",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-331"
     },
@@ -1748,7 +1748,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 80-05/ FC",
         "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ HÀNG HẢI SUNRISE",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-331"
     },
@@ -1760,7 +1760,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "SEAWAY HAWK",
         "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
-        "status":  "completed",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28021"
     },

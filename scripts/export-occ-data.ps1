@@ -353,6 +353,15 @@ foreach ($bkKey in $tugGroups.Keys) {
   # trong nhóm này = 1 task, dùng để vẽ Gantt chi tiết theo từng tàu lai.
   # Real DB KHÔNG có phân loại mooring/unmooring/tow_in/tow_out/anchor/shift/rescue
   # rõ ràng như OCC_TUG_TASK_TYPES — tạm gán "tow_in" cho tất cả.
+  # OCC_TUG_TASKS.status là trạng thái THEO THỜI GIAN THỰC (done/in_progress/planned
+  # theo DATA_SCHEMA.md), KHÁC với status hành chính của booking (planned/in_progress/
+  # delayed/completed dùng cho job/DVHH) — so ETA/ETD với giờ chạy script để tính,
+  # tránh việc 1 task đã qua giờ nhưng vẫn hiện "Sắp tới" chỉ vì booking status hành
+  # chính chưa được cập nhật trên hệ thống thật.
+  $taskStatus = if ($meta.ETD -lt $now) { "done" }
+                elseif ($meta.ETA -le $now -and $meta.ETD -ge $now) { "in_progress" }
+                else { "planned" }
+
   $assetIdx = 0
   foreach ($asset in $g.assets) {
     $assetIdx++
@@ -365,7 +374,7 @@ foreach ($bkKey in $tugGroups.Keys) {
       type     = "tow_in"   # placeholder — chưa xác định nguồn phân loại thật
       vessel   = $vesselOrVoyage
       customer = if ([System.DBNull]::Value.Equals($meta.CompanyName)) { "" } else { "$($meta.CompanyName)".Trim() }
-      status   = $status
+      status   = $taskStatus
       revenue  = "0 ₫"
     }
     if ($linkedJobId) { $task.linkJobId = $linkedJobId } else { $task.dvhhId = "DV-$bkId" }
