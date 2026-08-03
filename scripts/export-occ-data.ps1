@@ -162,54 +162,93 @@ foreach ($id in $craneById.Keys) {
 }
 
 # ============================================================
-# OCC_JOBS — lõi chính
+# OCC_JOBS + OCC_DVHH + OCC_TUG_TASKS
 # ============================================================
-# Trạng thái BookingStatus thật (id:tên) -> OCC status. Đã thống nhất với người dùng:
-#   New/Approved/Confirm/Temp -> planned | Loading/Unloading -> in_progress
-#   Finished -> completed | PostPone -> delayed | Reject/Cancel/Important/Accident -> loại bỏ
+# QUAN TRỌNG: bản đầu tự viết JOIN thẳng PonToonBerthBooking/TugboatBooking
+# cho ra SỐ LIỆU KHÔNG KHỚP với màn "Kế hoạch chung" thật của hệ thống
+# (thiếu rất nhiều booking). Lý do: hệ thống thật dùng model
+# BookingCenter/BookingCenterService — mỗi "job" (JobCode) có thể có nhiều
+# service con (Khai thác ở bến phao, DVHH tàu lai...), mỗi service lại ưu
+# tiên lấy ETA/ETD/trạng thái theo tầng Uploading > ReviewBooking > Booking,
+# và lọc theo khoảng ETA/ETD CHỒNG LẤN với kỳ xem chứ không chỉ ETA nằm
+# trong tháng. Thay vì tự viết lại đúng hết logic đó, ta gọi thẳng 2 stored
+# procedure mà hệ thống thật đang dùng cho màn Kế hoạch chung, đảm bảo khớp
+# 100%: SP_LoadAllBookingBerth (job ở bến phao) và SP_LoadAllBookingTugboat
+# (dịch vụ tàu lai/sà lan — vừa là DVHH độc lập, vừa là resource của job
+# bến phao khi cùng JobCode/BookingCenterId).
 $statusMap = @{ 1="planned"; 4="planned"; 5="planned"; 10="planned"; 7="in_progress"; 8="in_progress"; 9="completed"; 3="delayed" }
 $excludedStatus = @(2,6,11,12)
 
-$jobRows = Query @"
-SELECT b.Id, b.VoyageNumber, b.ETA, b.ETD, b.BookingStatusId, b.ShipPairLocation, b.CreatedBy,
-       v.ShipName, v.IMO, v.DeadweightTonnage, v.LengthOverallAll, v.FlagId, v.ShipType,
-       ci.CompanyName,
-       lu.LoadingUnloadingID, lu.TimeMooring, lu.ToLeave, lu.CargoStartTime, lu.CargoEndTime
-FROM PonToonBerthBooking b
-LEFT JOIN Vessel v ON v.Id = b.VesselId
-LEFT JOIN CompanyInfo ci ON ci.CompanyID = b.CompanyId
-LEFT JOIN LoadingUnloading lu ON lu.BerthBookingID = b.Id
-LEFT JOIN PonToonBerths p ON p.PonToonBerthID = b.ShipPairLocation
-WHERE b.ETA BETWEEN @start AND @end
-ORDER BY b.ETA
-"@ -params @{ "@start" = $rangeStart; "@end" = $rangeEnd }
+function ExecProc($name, $from, $to) {
+  $cmd = $conn.CreateCommand()
+  $cmd.CommandText = $name
+  $cmd.CommandType = [System.Data.CommandType]::StoredProcedure
+  $cmd.CommandTimeout = 60
+  $cmd.Parameters.AddWithValue("@FromDate", $from) | Out-Null
+  $cmd.Parameters.AddWithValue("@ToDate", $to) | Out-Null
+  $reader = $cmd.ExecuteReader()
+  $dt = New-Object System.Data.DataTable
+  $dt.Load($reader)
+  return ,$dt
+}
+
+$berthNameById = @{}
+foreach ($r in $berthRows.Rows) { $berthNameById[[int]$r.PonToonBerthID] = "$($r.PonToonBerthName)".Trim() }
+
+# TugboatBookingTugboat.TugboatId thường trống trên data thật — nguồn đáng tin
+# cậy là cột IDNo dạng "<loại>_<id>": loại 10 = Tugboat.Id, loại 11 = Barge.Id
+# (xác nhận bằng cách đối chiếu mẫu dữ liệu thật trước khi viết phần này).
+$bargeRows = Query "SELECT Id, BargeName FROM Barge"
+$bargeNameById = @{}
+foreach ($r in $bargeRows.Rows) { $bargeNameById[[int]$r.Id] = "$($r.BargeName)".Trim() }
+
+function ResolveIDNo($idno) {
+  if ([string]::IsNullOrWhiteSpace("$idno") -or "$idno" -notmatch '^(\d+)_(\d+)$') { return $null }
+  $kindCode = [int]$Matches[1]; $assetId = [int]$Matches[2]
+  if ($kindCode -eq 10 -and $tugIdByDbId.ContainsKey($assetId)) { return [ordered]@{ kind = "tug"; name = $tugIdByDbId[$assetId] } }
+  if ($kindCode -eq 11 -and $bargeNameById.ContainsKey($assetId)) { return [ordered]@{ kind = "barge"; name = $bargeNameById[$assetId] } }
+  return $null
+}
+
+$berthProcRows = ExecProc "SP_LoadAllBookingBerth" $rangeStart $rangeEnd
+$tugProcRows   = ExecProc "SP_LoadAllBookingTugboat" $rangeStart $rangeEnd
+
+# Proc chỉ trả VesselName (không trả VesselId) — lấy thêm chi tiết tàu +
+# mốc cập/rời thực tế (LoadingUnloading) theo BookingId riêng.
+$vesselByBookingId = @{}
+if ($berthProcRows.Rows.Count -gt 0) {
+  $bookingIds = ($berthProcRows.Rows | ForEach-Object { [int]$_.ID }) -join ","
+  $vRows = Query @"
+SELECT pb.Id AS BookingId, v.IMO, v.DeadweightTonnage, v.LengthOverallAll, v.FlagId, v.ShipType,
+       lu.LoadingUnloadingID, lu.TimeMooring, lu.ToLeave
+FROM PonToonBerthBooking pb
+LEFT JOIN Vessel v ON v.Id = pb.VesselId
+LEFT JOIN LoadingUnloading lu ON lu.BerthBookingID = pb.Id
+WHERE pb.Id IN ($bookingIds)
+"@
+  foreach ($r in $vRows.Rows) { $vesselByBookingId[[int]$r.BookingId] = $r }
+}
 
 $occJobs = @()
-$voyageToJobId = @{}   # VoyageNumber -> job id, dùng để loại các TugboatBooking đã gắn job khỏi OCC_DVHH
+$jobIdByBookingCenter = @{}   # IDBookingCenter -> job id, để gắn resource tàu lai đúng job
 
-foreach ($r in $jobRows.Rows) {
-  $statusId = if ($r.BookingStatusId -is [System.DBNull]) { $null } else { [int]$r.BookingStatusId }
+foreach ($r in $berthProcRows.Rows) {
+  $statusId = SafeInt $r.BookingStatusID
   if ($null -eq $statusId -or $excludedStatus -contains $statusId) { continue }
   $status = $statusMap[$statusId]
   if (-not $status) { continue }
 
-  $berthRow = $berthRows.Rows | Where-Object { $_.PonToonBerthID -eq $r.ShipPairLocation } | Select-Object -First 1
-  $berthId = if ($berthRow) { "$($berthRow.PonToonBerthName)".Trim() } else { "" }
-  $jobId = "JOB-$($r.Id)"
-  if (-not [System.DBNull]::Value.Equals($r.VoyageNumber)) { $voyageToJobId["$($r.VoyageNumber)"] = $jobId }
+  $bookingId = [int]$r.ID
+  $jobId = "$($r.JobCode)".Trim()
+  $jobIdByBookingCenter[[int]$r.IDBookingCenter] = $jobId
 
-  # cargo — gộp các dòng PonToonBerthBookingItem của booking này
-  $cargoRows = Query "SELECT Cargo, Qty FROM PonToonBerthBookingItem WHERE PonToonBerthBookingId = @id" -params @{ "@id" = [int]$r.Id }
-  $cargoName = ""; $cargoQty = 0
-  foreach ($cr in $cargoRows.Rows) {
-    if ([string]::IsNullOrWhiteSpace($cargoName) -and -not [System.DBNull]::Value.Equals($cr.Cargo)) { $cargoName = "$($cr.Cargo)".Trim() }
-    if (-not [System.DBNull]::Value.Equals($cr.Qty)) { $cargoQty += [decimal]$cr.Qty }
-  }
+  $vd = $vesselByBookingId[$bookingId]
+  $berthId = if ($berthNameById.ContainsKey([int]$r.ShipPairLocation)) { $berthNameById[[int]$r.ShipPairLocation] } else { "" }
 
   # resources: crane — từ LoadingUnloadingDetails (nếu có phiên LoadingUnloading gắn với job)
   $resources = @()
-  if (-not [System.DBNull]::Value.Equals($r.LoadingUnloadingID)) {
-    $craneDetailRows = Query "SELECT Crane, StartTime, EndTime FROM LoadingUnloadingDetails WHERE LoadingUnloadingID = @lid" -params @{ "@lid" = [int]$r.LoadingUnloadingID }
+  if ($vd -and -not [System.DBNull]::Value.Equals($vd.LoadingUnloadingID)) {
+    $craneDetailRows = Query "SELECT Crane, StartTime, EndTime FROM LoadingUnloadingDetails WHERE LoadingUnloadingID = @lid" -params @{ "@lid" = [int]$vd.LoadingUnloadingID }
     foreach ($cd in $craneDetailRows.Rows) {
       if ([System.DBNull]::Value.Equals($cd.Crane) -or [string]::IsNullOrWhiteSpace("$($cd.Crane)")) { continue }
       $resources += [ordered]@{
@@ -219,43 +258,31 @@ foreach ($r in $jobRows.Rows) {
       }
     }
   }
-  # resources: tug — TugboatBooking có cùng VoyageNumber (đã thống nhất: liên kết qua số chuyến trùng nhau)
-  if (-not [System.DBNull]::Value.Equals($r.VoyageNumber)) {
-    $tugBookRows = Query "SELECT Id, ETA, ETD FROM TugboatBooking WHERE VoyageNumber = @vn" -params @{ "@vn" = "$($r.VoyageNumber)" }
-    foreach ($tb in $tugBookRows.Rows) {
-      $tugAssignRows = Query "SELECT TugboatId FROM TugboatBookingTugboat WHERE TugboatBookingId = @tbid" -params @{ "@tbid" = [int]$tb.Id }
-      foreach ($ta in $tugAssignRows.Rows) {
-        $taTugId = SafeInt $ta.TugboatId
-        $tugName = if ($null -ne $taTugId) { $tugIdByDbId[$taTugId] } else { $null }
-        if (-not $tugName) { continue }
-        $resources += [ordered]@{
-          type = "tug"; id = $tugName
-          from = FmtDT $tb.ETA; to = FmtDT $tb.ETD
-          role = "Hỗ trợ cập/rời phao"
-        }
-      }
-    }
-  }
+  # resources: tug/barge — gắn sau khi duyệt xong $tugProcRows (cần biết jobIdByBookingCenter trước)
 
   $occJobs += [ordered]@{
     id       = $jobId
     vessel   = [ordered]@{
-      name = "$($r.ShipName)".Trim()
-      flag = if ([System.DBNull]::Value.Equals($r.FlagId)) { "" } else { "$($r.FlagId)" }
-      dwt  = if ([System.DBNull]::Value.Equals($r.DeadweightTonnage)) { "" } else { "$($r.DeadweightTonnage)".Trim() }
-      imo  = if ([System.DBNull]::Value.Equals($r.IMO)) { "" } else { "$($r.IMO)".Trim() }
-      loa  = if ([System.DBNull]::Value.Equals($r.LengthOverallAll)) { "" } else { "$($r.LengthOverallAll)".Trim() }
+      name = "$($r.VesselName)".Trim()
+      flag = if ($vd -and -not [System.DBNull]::Value.Equals($vd.FlagId)) { "$($vd.FlagId)" } else { "" }
+      dwt  = if ($vd -and -not [System.DBNull]::Value.Equals($vd.DeadweightTonnage)) { "$($vd.DeadweightTonnage)".Trim() } else { "" }
+      imo  = if ($vd -and -not [System.DBNull]::Value.Equals($vd.IMO)) { "$($vd.IMO)".Trim() } else { "" }
+      loa  = if ($vd -and -not [System.DBNull]::Value.Equals($vd.LengthOverallAll)) { "$($vd.LengthOverallAll)".Trim() } else { "" }
       type = ""   # ShipType là mã số, chưa map ra tên loại tàu — để trống, có thể bổ sung bảng tra cứu sau
     }
-    cargo    = [ordered]@{ name = $cargoName; qty = FmtQty $cargoQty; op = "" }
+    cargo    = [ordered]@{
+      name = if ([System.DBNull]::Value.Equals($r.NameCargo)) { "" } else { "$($r.NameCargo)".Trim() }
+      qty  = if ([System.DBNull]::Value.Equals($r.Cargo)) { FmtQty 0 } else { FmtQty $r.Cargo }
+      op   = ""
+    }
     berthId  = $berthId
     customer = if ([System.DBNull]::Value.Equals($r.CompanyName)) { "" } else { "$($r.CompanyName)".Trim() }
     contract = ""   # chưa tìm thấy field số hợp đồng tương ứng trong DB — để trống, UI ẩn dòng này
     pic      = ""   # PEOPLE hiện là bảng mock riêng, chưa map với UserAccounts — để trống tạm thời
     status   = $status
     progress = if ($status -eq "completed") { 100 } elseif ($status -eq "planned") { 0 } else { 50 }  # DB không có % tiến độ trực tiếp — ước lượng thô theo trạng thái, cần cải thiện sau
-    start    = if (-not [System.DBNull]::Value.Equals($r.TimeMooring)) { FmtDT $r.TimeMooring } else { FmtDT $r.ETA }
-    end      = if (-not [System.DBNull]::Value.Equals($r.ToLeave))    { FmtDT $r.ToLeave }    else { FmtDT $r.ETD }
+    start    = if ($vd -and -not [System.DBNull]::Value.Equals($vd.TimeMooring)) { FmtDT $vd.TimeMooring } else { FmtDT $r.ETA }
+    end      = if ($vd -and -not [System.DBNull]::Value.Equals($vd.ToLeave))    { FmtDT $vd.ToLeave }    else { FmtDT $r.ETD }
     eta      = FmtDT $r.ETA
     etd      = FmtDT $r.ETD
     revenue  = "0 ₫"   # chưa tìm thấy nguồn doanh thu/giá dịch vụ đáng tin cậy trong DB — cần xác nhận thêm
@@ -266,69 +293,83 @@ foreach ($r in $jobRows.Rows) {
   }
 }
 
-# ============================================================
-# OCC_DVHH — TugboatBooking KHÔNG có VoyageNumber trùng với job nào ở trên
-# ============================================================
-$tugStandaloneRows = Query "SELECT Id, VoyageNumber, ETA, ETD, Status FROM TugboatBooking WHERE ETA BETWEEN @start AND @end" -params @{ "@start" = $rangeStart; "@end" = $rangeEnd }
-$occDvhh = @()
-foreach ($r in $tugStandaloneRows.Rows) {
-  $vn = "$($r.VoyageNumber)"
-  if ($voyageToJobId.ContainsKey($vn)) { continue }   # đã thuộc 1 job rồi, không lặp lại ở DVHH
-  $tugAssignRows = Query "SELECT TugboatId FROM TugboatBookingTugboat WHERE TugboatBookingId = @tbid" -params @{ "@tbid" = [int]$r.Id }
-  $tugNames = @()
-  foreach ($ta in $tugAssignRows.Rows) {
-    $taTugId2 = SafeInt $ta.TugboatId
-    $n = if ($null -ne $taTugId2) { $tugIdByDbId[$taTugId2] } else { $null }
-    if ($n) { $tugNames += $n }
-  }
-  if ($tugNames.Count -eq 0) { continue }
-  $occDvhh += [ordered]@{
-    id       = "DV-$($r.Id)"
-    title    = "Dịch vụ tàu lai — chuyến $vn"
-    from     = FmtDT $r.ETA
-    to       = FmtDT $r.ETD
-    tugs     = $tugNames
-    customer = ""
-    status   = "planned"   # TugboatBooking.Status là mã số khác BookingStatus, chưa map rõ nghĩa — mặc định planned
-    revenue  = "0 ₫"
-  }
+# Gộp các dòng SP_LoadAllBookingTugboat theo TugboatBooking.Id (mỗi dòng = 1
+# tàu lai/sà lan được gán cho cùng 1 booking — 1 booking có thể có nhiều dòng).
+# LƯU Ý: dùng key kiểu string ("bk-<id>"), KHÔNG dùng int trực tiếp — OrderedDictionary
+# trong PowerShell coi indexer int là vị trí (positional), không phải key, gây lỗi
+# "argument out of range" khi gán vào dictionary rỗng.
+$tugGroups = [ordered]@{}
+foreach ($r in $tugProcRows.Rows) {
+  $asset = ResolveIDNo $r.ShipPairLocation2
+  if (-not $asset) { continue }   # không parse được / tài sản không nằm trong danh sách đang quản lý
+  $bkId = [int]$r.ID
+  $bkKey = "bk-$bkId"
+  if (-not $tugGroups.Contains($bkKey)) { $tugGroups[$bkKey] = [ordered]@{ bkId = $bkId; meta = $r; assets = @() } }
+  $tugGroups[$bkKey].assets += $asset
 }
 
-# ============================================================
-# OCC_TUG_TASKS — best-effort: mỗi TugboatBookingTugboat = 1 task.
-# Real DB KHÔNG có phân loại mooring/unmooring/tow_in/tow_out/anchor/shift/rescue
-# rõ ràng như OCC_TUG_TASK_TYPES — tạm gán "tow_in" cho tất cả, CẦN xác nhận thêm
-# nguồn phân loại thật (có thể từ TugboatBookingServiceType + bảng Service) trước
-# khi dùng số liệu Gantt chi tiết này để ra quyết định.
-# ============================================================
+$occDvhh = @()
 $occTugTasks = @()
-$taskCounter = 0
-$allTugAssignRows = Query @"
-SELECT tbt.Id AS AssignId, tbt.TugboatId, tb.Id AS BookingId, tb.VoyageNumber, tb.ETA, tb.ETD, tbs.ShipName
-FROM TugboatBookingTugboat tbt
-JOIN TugboatBooking tb ON tb.Id = tbt.TugboatBookingId
-LEFT JOIN TugboatBookingShip tbs ON tbs.TugboatBookingId = tb.Id
-WHERE tb.ETA BETWEEN @start AND @end
-"@ -params @{ "@start" = $rangeStart; "@end" = $rangeEnd }
+foreach ($bkKey in $tugGroups.Keys) {
+  $g = $tugGroups[$bkKey]
+  $bkId = $g.bkId
+  $meta = $g.meta
+  $statusId = SafeInt $meta.BookingStatusID
+  if ($null -ne $statusId -and $excludedStatus -contains $statusId) { continue }
+  $status = if ($statusId -and $statusMap[$statusId]) { $statusMap[$statusId] } else { "planned" }
+  $vesselOrVoyage = if ([System.DBNull]::Value.Equals($meta.VesselName) -or [string]::IsNullOrWhiteSpace("$($meta.VesselName)")) { "chuyến $($meta.VoyageNumber)" } else { "$($meta.VesselName)".Trim() }
+  $bcId = if ([System.DBNull]::Value.Equals($meta.IDBookingCenter)) { $null } else { [int]$meta.IDBookingCenter }
+  $linkedJobId = if ($bcId -and $jobIdByBookingCenter.ContainsKey($bcId)) { $jobIdByBookingCenter[$bcId] } else { $null }
 
-foreach ($r in $allTugAssignRows.Rows) {
-  $rTugId = SafeInt $r.TugboatId
-  $tugName = if ($null -ne $rTugId) { $tugIdByDbId[$rTugId] } else { $null }
-  if (-not $tugName) { continue }   # DB thực tế: TugboatBookingTugboat.TugboatId thường trống — chưa xác định nguồn gán tàu lai đáng tin cậy
-  $taskCounter++
-  $vn = "$($r.VoyageNumber)"
-  $occTugTasks += [ordered]@{
-    id       = "TT-$($r.AssignId)"
-    tugId    = $tugName
-    from     = FmtDT $r.ETA
-    to       = FmtDT $r.ETD
-    type     = "tow_in"   # placeholder — xem ghi chú phía trên
-    vessel   = if ([System.DBNull]::Value.Equals($r.ShipName) -or [string]::IsNullOrWhiteSpace("$($r.ShipName)")) { "Chuyến $vn" } else { "$($r.ShipName)".Trim() }
-    customer = ""
-    status   = "planned"
-    revenue  = "0 ₫"
+  if ($linkedJobId) {
+    # Là resource (tàu lai/sà lan) của 1 job bến phao đã có ở trên — gắn vào job.resources
+    $job = $occJobs | Where-Object { $_.id -eq $linkedJobId } | Select-Object -First 1
+    if ($job) {
+      foreach ($asset in $g.assets) {
+        $job.resources += [ordered]@{
+          type = $asset.kind; id = $asset.name
+          from = FmtDT $meta.ETA; to = FmtDT $meta.ETD
+          role = "Hỗ trợ cập/rời phao"
+        }
+      }
+    }
+  } else {
+    # Dịch vụ tàu lai độc lập, không gắn job bến phao nào ta đang quản lý -> OCC_DVHH
+    $tugNames = $g.assets | ForEach-Object { $_.name } | Select-Object -Unique
+    $occDvhh += [ordered]@{
+      id       = "DV-$bkId"
+      title    = "Lai dắt $vesselOrVoyage"
+      from     = FmtDT $meta.ETA
+      to       = FmtDT $meta.ETD
+      tugs     = @($tugNames)
+      customer = if ([System.DBNull]::Value.Equals($meta.CompanyName)) { "" } else { "$($meta.CompanyName)".Trim() }
+      status   = $status
+      revenue  = "0 ₫"
+    }
   }
-  if ($voyageToJobId.ContainsKey($vn)) { $occTugTasks[-1].linkJobId = $voyageToJobId[$vn] }
+
+  # OCC_TUG_TASKS: mỗi tàu lai (bỏ sà lan — schema chỉ cho phép tugId trỏ về OCC_TUGS)
+  # trong nhóm này = 1 task, dùng để vẽ Gantt chi tiết theo từng tàu lai.
+  # Real DB KHÔNG có phân loại mooring/unmooring/tow_in/tow_out/anchor/shift/rescue
+  # rõ ràng như OCC_TUG_TASK_TYPES — tạm gán "tow_in" cho tất cả.
+  $assetIdx = 0
+  foreach ($asset in $g.assets) {
+    $assetIdx++
+    if ($asset.kind -ne "tug") { continue }
+    $task = [ordered]@{
+      id       = "TT-$bkId-$assetIdx"
+      tugId    = $asset.name
+      from     = FmtDT $meta.ETA
+      to       = FmtDT $meta.ETD
+      type     = "tow_in"   # placeholder — chưa xác định nguồn phân loại thật
+      vessel   = $vesselOrVoyage
+      customer = if ([System.DBNull]::Value.Equals($meta.CompanyName)) { "" } else { "$($meta.CompanyName)".Trim() }
+      status   = $status
+      revenue  = "0 ₫"
+    }
+    if ($linkedJobId) { $task.linkJobId = $linkedJobId } else { $task.dvhhId = "DV-$bkId" }
+    $occTugTasks += $task
+  }
 }
 
 $conn.Close()
