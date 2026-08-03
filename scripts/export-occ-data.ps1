@@ -318,6 +318,15 @@ foreach ($bkKey in $tugGroups.Keys) {
   $statusId = SafeInt $meta.BookingStatusID
   if ($null -ne $statusId -and $excludedStatus -contains $statusId) { continue }
   $status = if ($statusId -and $statusMap[$statusId]) { $statusMap[$statusId] } else { "planned" }
+  # DVHH (đặc biệt lai dắt) thường là việc ngắn (15 phút - vài giờ) — nhân viên hay
+  # không quay lại cập nhật status hành chính thành "hoàn thành" sau khi xong việc,
+  # nên trạng thái hiển thị cho BOD phải suy theo GIỜ THỰC TẾ so với ETA/ETD, không
+  # thể tin tuyệt đối vào BookingStatusID (trừ khi hệ thống đã đánh dấu "delayed" —
+  # tín hiệu đó vẫn có giá trị dù chưa tới giờ bắt đầu).
+  $dvhhStatus = if ($meta.ETD -lt $now) { "completed" }
+                elseif ($meta.ETA -le $now -and $meta.ETD -ge $now) { "in_progress" }
+                elseif ($status -eq "delayed") { "delayed" }
+                else { "planned" }
   $vesselOrVoyage = if ([System.DBNull]::Value.Equals($meta.VesselName) -or [string]::IsNullOrWhiteSpace("$($meta.VesselName)")) { "chuyến $($meta.VoyageNumber)" } else { "$($meta.VesselName)".Trim() }
   $bcId = if ([System.DBNull]::Value.Equals($meta.IDBookingCenter)) { $null } else { [int]$meta.IDBookingCenter }
   $linkedJobId = if ($bcId -and $jobIdByBookingCenter.ContainsKey($bcId)) { $jobIdByBookingCenter[$bcId] } else { $null }
@@ -344,7 +353,7 @@ foreach ($bkKey in $tugGroups.Keys) {
       to       = FmtDT $meta.ETD
       tugs     = @($tugNames)
       customer = if ([System.DBNull]::Value.Equals($meta.CompanyName)) { "" } else { "$($meta.CompanyName)".Trim() }
-      status   = $status
+      status   = $dvhhStatus
       revenue  = "0 ₫"
     }
   }
@@ -400,9 +409,16 @@ $occDayFracJs = @'
 const occDayFrac = (str) => {
   if (!str) return null;
   const [d, t] = str.split(" ");
-  const day = parseInt(d.split("-")[2], 10);
+  const [y, mo, da] = d.split("-").map(Number);
   const [h, m] = t.split(":").map(Number);
-  return day + (h + m / 60) / 24;
+  // Số ngày tính từ ngày 1 của THÁNG ĐANG XEM (OCC_WINDOW), có tính đúng năm/tháng
+  // thực của mốc thời gian — không chỉ lấy "ngày trong tháng" như trước (bug cũ
+  // khiến job/task vắt qua ranh giới tháng bị vẽ sai vị trí, ví dụ ETA 27/07 bị
+  // hiểu nhầm thành ngày 27 của tháng đang xem dù đó là tháng trước).
+  const refStart = Date.UTC(OCC_WINDOW.year, OCC_WINDOW.month - 1, 1);
+  const thisDay = Date.UTC(y, mo - 1, da);
+  const dayOffset = Math.round((thisDay - refStart) / 86400000);
+  return (dayOffset + 1) + (h + m / 60) / 24;
 };
 '@
 

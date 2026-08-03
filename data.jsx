@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-08-03 13:48 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-08-03 13:55 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -23,7 +23,7 @@ const OCC_WINDOW = {
     "month":  8,
     "year":  2026,
     "todayDay":  3,
-    "todayHour":  13.8
+    "todayHour":  13.92
 };
 
 const OCC_BERTHS = [
@@ -270,9 +270,16 @@ const OCC_CRANES = [
 const occDayFrac = (str) => {
   if (!str) return null;
   const [d, t] = str.split(" ");
-  const day = parseInt(d.split("-")[2], 10);
+  const [y, mo, da] = d.split("-").map(Number);
   const [h, m] = t.split(":").map(Number);
-  return day + (h + m / 60) / 24;
+  // Số ngày tính từ ngày 1 của THÁNG ĐANG XEM (OCC_WINDOW), có tính đúng năm/tháng
+  // thực của mốc thời gian — không chỉ lấy "ngày trong tháng" như trước (bug cũ
+  // khiến job/task vắt qua ranh giới tháng bị vẽ sai vị trí, ví dụ ETA 27/07 bị
+  // hiểu nhầm thành ngày 27 của tháng đang xem dù đó là tháng trước).
+  const refStart = Date.UTC(OCC_WINDOW.year, OCC_WINDOW.month - 1, 1);
+  const thisDay = Date.UTC(y, mo - 1, da);
+  const dayOffset = Math.round((thisDay - refStart) / 86400000);
+  return (dayOffset + 1) + (h + m / 60) / 24;
 };
 
 const OCC_JOBS = [
@@ -724,7 +731,7 @@ const OCC_DVHH = [
                      "VNL 07"
                  ],
         "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -752,7 +759,7 @@ const OCC_DVHH = [
                      "VNL 05"
                  ],
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI AN BÌNH",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -778,7 +785,7 @@ const OCC_DVHH = [
                      "VNL RUBY"
                  ],
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -791,7 +798,7 @@ const OCC_DVHH = [
                      "Tàu lai ngoài"
                  ],
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -815,7 +822,7 @@ const OCC_DVHH = [
                      "VNL 07"
                  ],
         "customer":  "CÔNG TY TNHH MAI NGÂN TRÍ",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -828,7 +835,7 @@ const OCC_DVHH = [
                      "VNL VOYAGER"
                  ],
         "customer":  "CÔNG TY TNHH MTV VẬN TẢI XĂNG DẦU DẦU KHÍ VIỆT NAM (PVOIL TRANS)",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -841,7 +848,7 @@ const OCC_DVHH = [
                      "VNL RUBY"
                  ],
         "customer":  "LIÊN DOANH VIỆT - NGA VIETSOVPETRO (VSP)",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -855,7 +862,7 @@ const OCC_DVHH = [
                      "VNL VOYAGER"
                  ],
         "customer":  "CÔNG TY CẢNG DỊCH VỤ DẦU KHÍ (PTSC SB)",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -891,7 +898,7 @@ const OCC_DVHH = [
                      "VNL RUBY"
                  ],
         "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
