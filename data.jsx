@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-08-03 14:27 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-08-03 15:51 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  3,
     "todayCol":  46,
-    "todayHour":  14.45
+    "todayHour":  15.85
 };
 
 const OCC_BERTHS = [
@@ -291,6 +291,12 @@ const occColToDate = (col) => {
   const dt = new Date(occRefEpoch());
   dt.setUTCDate(dt.getUTCDate() + (Math.floor(col) - 1));
   return dt;
+};
+// Chiều ngược lại occColToDate: cho năm/tháng/ngày dương lịch thật -> cột lưới
+// tương ứng (offset so với refDate) — dùng để chọn hiển thị đúng 1 tháng cụ thể.
+const occColForDate = (y, mo, da) => {
+  const dayOffset = Math.round((Date.UTC(y, mo - 1, da) - occRefEpoch()) / 86400000);
+  return dayOffset + 1;
 };
 
 const OCC_JOBS = [
@@ -4551,8 +4557,11 @@ const OCC_DVHH = [
         "id":  "DV-28067",
         "title":  "Lai dắt SEAWAY SWAN",
         "from":  "2026-08-02 00:00",
-        "to":  "2026-08-02 12:00",
+        "to":  "2026-08-02 10:15",
         "tugs":  [
+                     "VNL RELIANCE",
+                     "VNL EXPLORER",
+                     "VNL VOYAGER",
                      "VNL RUBY"
                  ],
         "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
@@ -8438,9 +8447,45 @@ const OCC_TUG_TASKS = [
     },
     {
         "id":  "TT-28067-1",
+        "tugId":  "VNL RELIANCE",
+        "from":  "2026-08-02 00:00",
+        "to":  "2026-08-02 10:15",
+        "type":  "tow_in",
+        "vessel":  "SEAWAY SWAN",
+        "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-28067"
+    },
+    {
+        "id":  "TT-28067-2",
+        "tugId":  "VNL EXPLORER",
+        "from":  "2026-08-02 00:00",
+        "to":  "2026-08-02 10:15",
+        "type":  "tow_in",
+        "vessel":  "SEAWAY SWAN",
+        "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-28067"
+    },
+    {
+        "id":  "TT-28067-3",
+        "tugId":  "VNL VOYAGER",
+        "from":  "2026-08-02 00:00",
+        "to":  "2026-08-02 10:15",
+        "type":  "tow_in",
+        "vessel":  "SEAWAY SWAN",
+        "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-28067"
+    },
+    {
+        "id":  "TT-28067-4",
         "tugId":  "VNL RUBY",
         "from":  "2026-08-02 00:00",
-        "to":  "2026-08-02 12:00",
+        "to":  "2026-08-02 10:15",
         "type":  "tow_in",
         "vessel":  "SEAWAY SWAN",
         "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
@@ -19708,6 +19753,6 @@ const OCC_TUG_TASKS = [
 
 Object.assign(window, {
   PEOPLE, ME, personById,
-  OCC_WINDOW, OCC_BERTHS, OCC_TUGS, OCC_CRANES, OCC_JOBS, OCC_DVHH, occDayFrac, occColToDate,
+  OCC_WINDOW, OCC_BERTHS, OCC_TUGS, OCC_CRANES, OCC_JOBS, OCC_DVHH, occDayFrac, occColToDate, occColForDate,
   OCC_TUG_TASKS, OCC_TUG_TASK_TYPES,
 });

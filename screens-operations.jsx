@@ -5,9 +5,8 @@
 const OCC_ROW_H = 38;
 const OCC_LEFT_W = 256;  // sticky left column
 
-// UI luôn hiển thị 1 lát cắt 30 ngày, nhưng data xuất ra rộng hơn (xem
-// scripts/export-occ-data.ps1) nên cho phép bấm lùi/tiến trong phạm vi đó.
-const OCC_VIEW_SPAN = 30;
+// Timeline hiển thị đúng 1 tháng dương lịch mỗi lần, chọn được tháng nào
+// tuỳ theo phạm vi data đã xuất ra (xem scripts/export-occ-data.ps1).
 const OCC_DAY_W = 36;
 
 const occStatusMeta = {
@@ -298,8 +297,13 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
                   return { b, i, s, left, width, clippedLeft, isPip: isTug && width < 40 };
                 }).filter(Boolean);
 
+                // Pip đã bắt đầu TRƯỚC khu vực đang xem (clippedLeft) thì bỏ hẳn, không kẹp
+                // về mép trái rồi cố nhồi vào — nhồi kiểu đó làm nhiều ngày khác nhau (mỗi
+                // ngày bị kẹp về cùng 1 vị trí left=0) chồng đè lên nhau thành 1 đống số ở
+                // mép trái. Job/DVHH (bar thường) vẫn giữ nguyên kiểu "clip-left" vì đó là
+                // 1 việc ĐANG diễn ra kéo dài qua biên, còn pip là các việc rời rạc ngắn hạn.
                 const pipsByDay = {};
-                geo.filter(g => g.isPip).forEach(g => {
+                geo.filter(g => g.isPip && !g.clippedLeft).forEach(g => {
                   const day = Math.floor(g.s);
                   (pipsByDay[day] = pipsByDay[day] || []).push(g);
                 });
@@ -358,13 +362,11 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
                         <div className="occ-bar-progress" style={{ width: `${b.progress}%` }} />
                       )}
                       <div className="occ-bar-label">
-                        <div className="occ-bar-label-sticky">
-                          <b>{vesselName}</b>
-                          {!isResource && b.cargo && (
-                            <span className="muted">· {b.cargo.qty} · {b.cargo.op}</span>
-                          )}
-                          {isResource && <span className="muted">· {b._resRole}</span>}
-                        </div>
+                        <b>{vesselName}</b>
+                        {!isResource && b.cargo && (
+                          <span className="muted">· {b.cargo.qty} · {b.cargo.op}</span>
+                        )}
+                        {isResource && <span className="muted">· {b._resRole}</span>}
                       </div>
                       {/* Outboard label for narrow resource bars (so vessel name is always readable) */}
                       {isResource && !isTug && width < 80 && (
@@ -692,16 +694,40 @@ function OCCScreen() {
   const [selected, setSelected] = React.useState(null); // jobId
   const [selectedDvhh, setSelectedDvhh] = React.useState(null);
   const [filter, setFilter] = React.useState("all");   // all | berth | service
-  const [viewOffset, setViewOffset] = React.useState(0); // lùi/tiến theo bội số OCC_VIEW_SPAN ngày so với mặc định
   const [roster, setRoster] = React.useState(null);    // tug daily roster popover
 
   const dayW = OCC_DAY_W;
-  const defaultStart = OCC_WINDOW.todayCol - 20; // mặc định: 20 ngày trước hôm nay -> 9 ngày sau
-  const maxStart = OCC_WINDOW.endDay - OCC_VIEW_SPAN + 1;
-  const clampedStart = Math.max(OCC_WINDOW.startDay, Math.min(maxStart, defaultStart + viewOffset));
-  const win = { ...OCC_WINDOW, startDay: clampedStart, endDay: clampedStart + OCC_VIEW_SPAN - 1 };
-  const canGoPrev = clampedStart > OCC_WINDOW.startDay;
-  const canGoNext = clampedStart < maxStart;
+
+  // Danh sách các tháng dương lịch thật mà data đã xuất ra bao phủ (dựa theo
+  // OCC_WINDOW.refDate .. endDay), để chọn xem đúng 1 tháng cụ thể thay vì cuộn
+  // theo cửa sổ ngày cố định.
+  const monthOptions = React.useMemo(() => {
+    const opts = [];
+    const seen = {};
+    for (let col = OCC_WINDOW.startDay; col <= OCC_WINDOW.endDay; col++) {
+      const d = occColToDate(col);
+      const key = `${d.getUTCFullYear()}-${d.getUTCMonth() + 1}`;
+      if (!seen[key]) {
+        seen[key] = true;
+        opts.push({ key, year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 });
+      }
+    }
+    return opts;
+  }, []);
+  const defaultMonthKey = `${OCC_WINDOW.year}-${OCC_WINDOW.month}`;
+  const [selectedMonth, setSelectedMonth] = React.useState(
+    monthOptions.some(o => o.key === defaultMonthKey) ? defaultMonthKey : (monthOptions[monthOptions.length - 1]?.key || defaultMonthKey)
+  );
+  const monthIdx = Math.max(0, monthOptions.findIndex(o => o.key === selectedMonth));
+  const { year: selYear, month: selMonthNum } = monthOptions[monthIdx] || { year: OCC_WINDOW.year, month: OCC_WINDOW.month };
+  const daysInSelMonth = new Date(Date.UTC(selYear, selMonthNum, 0)).getUTCDate();
+  const rawMonthStart = occColForDate(selYear, selMonthNum, 1);
+  const rawMonthEnd = occColForDate(selYear, selMonthNum, daysInSelMonth);
+  const monthStart = Math.max(OCC_WINDOW.startDay, rawMonthStart);
+  const monthEnd = Math.min(OCC_WINDOW.endDay, rawMonthEnd);
+  const win = { ...OCC_WINDOW, startDay: monthStart, endDay: monthEnd };
+  const canGoPrevMonth = monthIdx > 0;
+  const canGoNextMonth = monthIdx < monthOptions.length - 1;
   const days = Array.from({ length: win.endDay - win.startDay + 1 }, (_, i) => win.startDay + i);
   const totalDays = days.length;
   const todayLeft = (win.todayCol + win.todayHour/24 - win.startDay) * dayW;
@@ -799,13 +825,29 @@ function OCCScreen() {
 
           <div style={{ width: 1, height: 22, background: "var(--line)" }}/>
 
-          {/* Lùi/tiến 30 ngày trong phạm vi data đã xuất (xem scripts/export-occ-data.ps1) */}
+          {/* Chọn xem đúng 1 tháng dương lịch, trong phạm vi tháng mà data đã xuất ra */}
           <div className="seg-bar">
-            <button onClick={() => setViewOffset(o => o - OCC_VIEW_SPAN)} disabled={!canGoPrev} title="Xem 30 ngày trước">
+            <button
+              onClick={() => canGoPrevMonth && setSelectedMonth(monthOptions[monthIdx - 1].key)}
+              disabled={!canGoPrevMonth}
+              title="Tháng trước"
+            >
               <Icon name="chevron" size={13} style={{ transform: "rotate(180deg)" }}/>
             </button>
-            <button onClick={() => setViewOffset(0)} title="Về khung 30 ngày mặc định (quanh hôm nay)">Hôm nay</button>
-            <button onClick={() => setViewOffset(o => o + OCC_VIEW_SPAN)} disabled={!canGoNext} title="Xem 30 ngày sau">
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              style={{ border: "none", background: "transparent", font: "inherit", fontSize: 12.5, fontWeight: 500, color: "var(--t-primary)", padding: "5px 6px", cursor: "pointer" }}
+            >
+              {monthOptions.map(o => (
+                <option key={o.key} value={o.key}>Tháng {o.month}/{o.year}</option>
+              ))}
+            </select>
+            <button
+              onClick={() => canGoNextMonth && setSelectedMonth(monthOptions[monthIdx + 1].key)}
+              disabled={!canGoNextMonth}
+              title="Tháng sau"
+            >
               <Icon name="chevron" size={13}/>
             </button>
           </div>

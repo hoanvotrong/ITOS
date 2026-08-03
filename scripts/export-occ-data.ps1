@@ -440,6 +440,12 @@ const occColToDate = (col) => {
   dt.setUTCDate(dt.getUTCDate() + (Math.floor(col) - 1));
   return dt;
 };
+// Chiều ngược lại occColToDate: cho năm/tháng/ngày dương lịch thật -> cột lưới
+// tương ứng (offset so với refDate) — dùng để chọn hiển thị đúng 1 tháng cụ thể.
+const occColForDate = (y, mo, da) => {
+  const dayOffset = Math.round((Date.UTC(y, mo - 1, da) - occRefEpoch()) / 86400000);
+  return dayOffset + 1;
+};
 '@
 
 $peopleBlock = @'
@@ -497,7 +503,7 @@ $out += ""
 $out += @'
 Object.assign(window, {
   PEOPLE, ME, personById,
-  OCC_WINDOW, OCC_BERTHS, OCC_TUGS, OCC_CRANES, OCC_JOBS, OCC_DVHH, occDayFrac, occColToDate,
+  OCC_WINDOW, OCC_BERTHS, OCC_TUGS, OCC_CRANES, OCC_JOBS, OCC_DVHH, occDayFrac, occColToDate, occColForDate,
   OCC_TUG_TASKS, OCC_TUG_TASK_TYPES,
 });
 '@
