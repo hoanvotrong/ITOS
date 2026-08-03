@@ -6,9 +6,7 @@ const OCC_ROW_H = 38;
 const OCC_LEFT_W = 256;  // sticky left column
 
 const OCC_RANGES = {
-  "7":  { label: "7 ngày",  startDay: 17, endDay: 23, dayW: 130 },
-  "14": { label: "14 ngày", startDay: 18, endDay: 31, dayW: 80  },
-  "30": { label: "30 ngày", startDay: 1,  endDay: 31, dayW: 36  },
+  "30": { label: "30 ngày", startDay: OCC_WINDOW.startDay, endDay: OCC_WINDOW.endDay, dayW: 36 },
 };
 
 const occStatusMeta = {
@@ -651,7 +649,7 @@ function OCCScreen() {
   const [selected, setSelected] = React.useState(null); // jobId
   const [selectedDvhh, setSelectedDvhh] = React.useState(null);
   const [filter, setFilter] = React.useState("all");   // all | berth | service
-  const [range, setRange] = React.useState("14");      // 7 | 14 | 30
+  const [range] = React.useState("30");                // chỉ còn xem theo tháng (30 ngày)
   const [roster, setRoster] = React.useState(null);    // tug daily roster popover
 
   const r = OCC_RANGES[range];
@@ -749,13 +747,6 @@ function OCCScreen() {
             <span className="row" style={{ gap: 5 }}><i className="occ-leg-sw occ-bar-done"></i>Hoàn thành</span>
           </div>
 
-          <div style={{ width: 1, height: 22, background: "var(--line)" }}/>
-
-          <div className="seg-bar">
-            <button className={range === "7"  ? "on" : ""} onClick={() => setRange("7")}>7 ngày</button>
-            <button className={range === "14" ? "on" : ""} onClick={() => setRange("14")}>14 ngày</button>
-            <button className={range === "30" ? "on" : ""} onClick={() => setRange("30")}>30 ngày</button>
-          </div>
         </div>
       </div>
 
