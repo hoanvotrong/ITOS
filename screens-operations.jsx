@@ -80,7 +80,7 @@ function OCCRuler({ days, totalDays, dayW }) {
       {days.map(d => (
         <div key={d} className={`occ-ruler-day ${d === OCC_WINDOW.todayDay ? "today" : ""}`} style={{ width: dayW }}>
           <div className="d-num">{d}</div>
-          <div className="d-dow">{["CN","T2","T3","T4","T5","T6","T7"][new Date(2026, 4, d).getDay()]}</div>
+          <div className="d-dow">{["CN","T2","T3","T4","T5","T6","T7"][new Date(OCC_WINDOW.year, OCC_WINDOW.month - 1, d).getDay()]}</div>
         </div>
       ))}
     </div>
@@ -158,7 +158,7 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
       return {
         kind: "next",
         vessel: upcoming.vessel?.name || upcoming.title,
-        when: `${String(day).padStart(2, "0")}/05 · ${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
+        when: `${String(day).padStart(2, "0")}/${String(win.month).padStart(2, "0")} · ${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
         role: upcoming._resRole,
         jobId: upcoming._linkedJob?.id || (upcoming._isTugTask ? null : upcoming.id),
         dvhh: upcoming._linkedDvhh || (upcoming._isDVHH ? upcoming : null),
@@ -375,7 +375,7 @@ function OCCJobDrawer({ jobId, dvhh, onClose }) {
               </div>
               <div className="info-block"><span className="muted">Khách hàng</span><b>{dvhh.customer}</b></div>
               <div className="info-block"><span className="muted">Thời gian</span>
-                <span><b>{dvhh._resFrom.slice(11)}</b> → <b>{dvhh._resTo.slice(11)}</b> ngày {dvhh._resFrom.slice(8,10)}/05</span>
+                <span><b>{dvhh._resFrom.slice(11)}</b> → <b>{dvhh._resTo.slice(11)}</b> ngày {dvhh._resFrom.slice(8,10)}/{dvhh._resFrom.slice(5,7)}</span>
               </div>
               <div className="info-block"><span className="muted">Tàu lai</span>
                 <div className="row" style={{ gap: 6, flexWrap: "wrap" }}>
@@ -411,18 +411,20 @@ function OCCJobDrawer({ jobId, dvhh, onClose }) {
                   <div>
                     <div className="muted" style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.05, fontWeight: 600 }}>Bến phao</div>
                     <div style={{ fontWeight: 600, fontSize: 14, marginTop: 4 }}>{berth?.group}</div>
-                    <div className="mono" style={{ fontSize: 12, color: "var(--brand-ink)", fontWeight: 600 }}>{berth?.label} · {berth?.cap}</div>
+                    <div className="mono" style={{ fontSize: 12, color: "var(--brand-ink)", fontWeight: 600 }}>{berth?.label}{berth?.cap ? ` · ${berth.cap}` : ""}</div>
                   </div>
                   <div>
                     <div className="muted" style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.05, fontWeight: 600 }}>Hàng hoá</div>
                     <div style={{ fontWeight: 600, fontSize: 14, marginTop: 4 }}>{job.cargo.name}</div>
                     <div className="muted" style={{ fontSize: 12 }}>{job.cargo.qty} · {job.cargo.op}</div>
                   </div>
-                  <div>
-                    <div className="muted" style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.05, fontWeight: 600 }}>Hợp đồng</div>
-                    <div style={{ fontWeight: 600, fontSize: 13.5, marginTop: 4, fontFamily: "var(--font-mono)" }}>{job.contract}</div>
-                    <div className="muted" style={{ fontSize: 12 }}>Khách hàng đã ký</div>
-                  </div>
+                  {job.contract && (
+                    <div>
+                      <div className="muted" style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.05, fontWeight: 600 }}>Hợp đồng</div>
+                      <div style={{ fontWeight: 600, fontSize: 13.5, marginTop: 4, fontFamily: "var(--font-mono)" }}>{job.contract}</div>
+                      <div className="muted" style={{ fontSize: 12 }}>Khách hàng đã ký</div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Progress */}
@@ -435,8 +437,8 @@ function OCCJobDrawer({ jobId, dvhh, onClose }) {
                     <div className="pbar" style={{ width: `${job.progress}%` }}></div>
                   </div>
                   <div className="row between" style={{ marginTop: 6, fontSize: 11.5, color: "var(--t-tertiary)" }}>
-                    <span>ETA <b style={{ color: "var(--t-primary)" }}>{job.eta.slice(8,10)}/05 {job.eta.slice(11)}</b></span>
-                    <span>ETD <b style={{ color: "var(--t-primary)" }}>{job.etd.slice(8,10)}/05 {job.etd.slice(11)}</b></span>
+                    <span>ETA <b style={{ color: "var(--t-primary)" }}>{job.eta.slice(8,10)}/{job.eta.slice(5,7)} {job.eta.slice(11)}</b></span>
+                    <span>ETD <b style={{ color: "var(--t-primary)" }}>{job.etd.slice(8,10)}/{job.etd.slice(5,7)} {job.etd.slice(11)}</b></span>
                   </div>
                 </div>
               </div>
@@ -501,8 +503,8 @@ function OCCJobDrawer({ jobId, dvhh, onClose }) {
                           <div style={{ fontSize: 12, color: "var(--t-secondary)", marginTop: 2 }}>{r.role}</div>
                         </div>
                         <div style={{ textAlign: "right", fontSize: 11.5, fontFamily: "var(--font-mono)", color: "var(--t-secondary)" }}>
-                          <div>{r.from.slice(8,10)}/05 {r.from.slice(11)}</div>
-                          <div>→ {r.to.slice(8,10)}/05 {r.to.slice(11)}</div>
+                          <div>{r.from.slice(8,10)}/{r.from.slice(5,7)} {r.from.slice(11)}</div>
+                          <div>→ {r.to.slice(8,10)}/{r.to.slice(5,7)} {r.to.slice(11)}</div>
                         </div>
                       </div>
                     );
@@ -568,7 +570,7 @@ function TugRoster({ roster, onClose, onSelectJob }) {
               <span className="mono" style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-accent)", letterSpacing: "-0.01em" }}>{row.id}</span>
               <span className="badge accent"><span className="pip"></span>Tàu lai DVHH</span>
             </div>
-            <h3 style={{ margin: "4px 0 0", fontSize: 15, fontWeight: 600 }}>Lịch điều phối ngày {String(day).padStart(2,"0")}/05/2026</h3>
+            <h3 style={{ margin: "4px 0 0", fontSize: 15, fontWeight: 600 }}>Lịch điều phối ngày {String(day).padStart(2,"0")}/{String(OCC_WINDOW.month).padStart(2,"0")}/{OCC_WINDOW.year}</h3>
             <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>
               <b>{sorted.length}</b> task · tổng <b>{totalHours.toFixed(1)} giờ khai thác</b>
             </div>
@@ -698,7 +700,8 @@ function OCCScreen() {
   const showServices = filter === "all" || filter === "service";
 
   // Header label for current window
-  const rangeHeader = `${String(win.startDay).padStart(2,"0")}/05 → ${String(win.endDay).padStart(2,"0")}/05/2026 · ${totalDays} ngày`;
+  const winMonthStr = String(win.month).padStart(2, "0");
+  const rangeHeader = `${String(win.startDay).padStart(2,"0")}/${winMonthStr} → ${String(win.endDay).padStart(2,"0")}/${winMonthStr}/${win.year} · ${totalDays} ngày`;
 
   return (
     <div className="page" style={{ maxWidth: "none" }}>
@@ -707,7 +710,7 @@ function OCCScreen() {
         <div>
           <div className="row" style={{ gap: 8, marginBottom: 4 }}>
             <span className="tag" style={{ background: "var(--bg-rail)", color: "#fff" }}>BOD VIEW</span>
-            <span className="muted" style={{ fontSize: 12 }}>Cập nhật lúc {win.todayDay}/05/2026 · 10:30</span>
+            <span className="muted" style={{ fontSize: 12 }}>Cập nhật lúc {win.todayDay}/{winMonthStr}/{win.year} · {String(Math.floor(win.todayHour)).padStart(2,"0")}:{String(Math.round((win.todayHour % 1) * 60)).padStart(2,"0")}</span>
           </div>
           <h1>OCC — Trung tâm Điều hành Vận hành</h1>
           <div className="sub">Theo dõi tổng thể bến phao, dịch vụ hàng hải, đội tàu lai & cẩu nổi (ICD) trên một timeline thống nhất.</div>
@@ -922,7 +925,7 @@ function OCCScreen() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <b style={{ fontSize: 13, display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.title}</b>
                   <div className="muted" style={{ fontSize: 11.5, marginTop: 2, fontFamily: "var(--font-mono)" }}>
-                    {d.from.slice(8,10)}/05 {d.from.slice(11)} → {d.to.slice(11)} · {d.customer}
+                    {d.from.slice(8,10)}/{d.from.slice(5,7)} {d.from.slice(11)} → {d.to.slice(11)} · {d.customer}
                   </div>
                 </div>
                 <span className={`badge ${occStatusMeta[d.status].badge}`} style={{ height: 18, fontSize: 10.5 }}>
@@ -1100,8 +1103,8 @@ function OCCJobsView() {
                         <div>{j.cargo.qty}</div>
                         <div className="sub">{j.cargo.name} · {j.cargo.op}</div>
                       </td>
-                      <td className="mono" style={{ fontSize: 12 }}>{j.start.slice(8,10)}/05 {j.start.slice(11)}</td>
-                      <td className="mono" style={{ fontSize: 12 }}>{j.end.slice(8,10)}/05 {j.end.slice(11)}</td>
+                      <td className="mono" style={{ fontSize: 12 }}>{j.start.slice(8,10)}/{j.start.slice(5,7)} {j.start.slice(11)}</td>
+                      <td className="mono" style={{ fontSize: 12 }}>{j.end.slice(8,10)}/{j.end.slice(5,7)} {j.end.slice(11)}</td>
                       <td>
                         <div className="row" style={{ gap: 3, flexWrap: "wrap" }}>
                           {tugs.map(t => <span key={t.id} className="tag mono" style={{ background: "var(--brand-accent-bg)", color: "var(--brand-accent)", fontSize: 10, height: 18 }}>{t.id}</span>)}
@@ -1152,7 +1155,7 @@ function OCCBerthsView() {
                 <div>
                   <div className="muted" style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 0.05, fontWeight: 600 }}>{b.group}</div>
                   <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--brand-ink)", letterSpacing: "-0.02em", marginTop: 4 }}>{b.label}</div>
-                  <div className="muted" style={{ fontSize: 11.5 }}>Sức chứa: {b.cap}</div>
+                  {b.cap && <div className="muted" style={{ fontSize: 11.5 }}>Sức chứa: {b.cap}</div>}
                 </div>
                 <span className={`badge ${isUsed ? "success" : "neutral"}`}><span className="pip"></span>{isUsed ? "Đang dùng" : "Trống"}</span>
               </div>
@@ -1173,7 +1176,7 @@ function OCCBerthsView() {
                 <div style={{ padding: 10, background: "var(--bg-canvas)", borderRadius: 6, marginTop: 10, border: "1px dashed var(--line-strong)" }}>
                   <div className="muted" style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.05, fontWeight: 600 }}>Tàu sắp đến</div>
                   <div style={{ fontWeight: 600, fontSize: 13.5, marginTop: 4 }}>{nextJob.vessel.name}</div>
-                  <div className="muted" style={{ fontSize: 11.5, marginTop: 1, fontFamily: "var(--font-mono)" }}>ETA {nextJob.eta.slice(8,10)}/05 {nextJob.eta.slice(11)}</div>
+                  <div className="muted" style={{ fontSize: 11.5, marginTop: 1, fontFamily: "var(--font-mono)" }}>ETA {nextJob.eta.slice(8,10)}/{nextJob.eta.slice(5,7)} {nextJob.eta.slice(11)}</div>
                 </div>
               )}
             </div>
@@ -1200,7 +1203,9 @@ function OCCFleetView({ kind }) {
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 14 }}>
-        {items.map(it => {
+        {(() => {
+          const nowStr = `${OCC_WINDOW.year}-${String(OCC_WINDOW.month).padStart(2,"0")}-${String(OCC_WINDOW.todayDay).padStart(2,"0")} ${String(Math.floor(OCC_WINDOW.todayHour)).padStart(2,"0")}:${String(Math.round((OCC_WINDOW.todayHour % 1) * 60)).padStart(2,"0")}`;
+          return items.map(it => {
           // Find all bookings for this asset
           const bookings = [];
           OCC_JOBS.forEach(j => {
@@ -1212,8 +1217,8 @@ function OCCFleetView({ kind }) {
             OCC_DVHH.forEach(d => { if (d.tugs.includes(it.id)) bookings.push({ id: d.id, role: d.title, from: d.from, to: d.to, vessel: d.title, status: d.status }); });
           }
           bookings.sort((a, b) => a.from.localeCompare(b.from));
-          const upcoming = bookings.filter(b => b.from > "2026-05-20 10:30");
-          const current = bookings.find(b => b.from <= "2026-05-20 10:30" && b.to >= "2026-05-20 10:30");
+          const upcoming = bookings.filter(b => b.from > nowStr);
+          const current = bookings.find(b => b.from <= nowStr && b.to >= nowStr);
 
           return (
             <div key={it.id} className="card" style={{ padding: 14 }}>
@@ -1230,7 +1235,7 @@ function OCCFleetView({ kind }) {
                   <div style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.05, fontWeight: 700, color: kind === "tug" ? "var(--brand-accent)" : "#7C5BE0" }}>Đang triển khai</div>
                   <div style={{ fontWeight: 600, fontSize: 13, marginTop: 4 }}>{current.vessel}</div>
                   <div className="muted" style={{ fontSize: 11.5, marginTop: 1, fontFamily: "var(--font-mono)" }}>
-                    {current.from.slice(8,10)}/05 {current.from.slice(11)} → {current.to.slice(8,10)}/05 {current.to.slice(11)}
+                    {current.from.slice(8,10)}/{current.from.slice(5,7)} {current.from.slice(11)} → {current.to.slice(8,10)}/{current.to.slice(5,7)} {current.to.slice(11)}
                   </div>
                 </div>
               )}
@@ -1249,7 +1254,7 @@ function OCCFleetView({ kind }) {
                     <div key={i} className="row between" style={{ padding: "6px 0", borderTop: "1px solid var(--line)", fontSize: 12 }}>
                       <div style={{ minWidth: 0 }}>
                         <b style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.vessel}</b>
-                        <div className="muted" style={{ fontSize: 10.5, fontFamily: "var(--font-mono)" }}>{b.from.slice(8,10)}/05 {b.from.slice(11)}</div>
+                        <div className="muted" style={{ fontSize: 10.5, fontFamily: "var(--font-mono)" }}>{b.from.slice(8,10)}/{b.from.slice(5,7)} {b.from.slice(11)}</div>
                       </div>
                     </div>
                   ))}
@@ -1263,7 +1268,8 @@ function OCCFleetView({ kind }) {
               )}
             </div>
           );
-        })}
+          });
+        })()}
       </div>
     </div>
   );
