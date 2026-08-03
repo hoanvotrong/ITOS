@@ -364,7 +364,7 @@ function OCCJobDrawer({ jobId, dvhh, onClose }) {
             <div className="drawer-head">
               <div>
                 <div className="muted mono" style={{ fontSize: 11 }}>{dvhh.id}</div>
-                <h3>{dvhh.vessel.name}</h3>
+                <h3>{dvhh.title}</h3>
               </div>
               <button className="icon-btn" onClick={onClose}><Icon name="x" size={16}/></button>
             </div>
@@ -375,7 +375,7 @@ function OCCJobDrawer({ jobId, dvhh, onClose }) {
               </div>
               <div className="info-block"><span className="muted">Khách hàng</span><b>{dvhh.customer}</b></div>
               <div className="info-block"><span className="muted">Thời gian</span>
-                <span><b>{dvhh._resFrom.slice(11)}</b> → <b>{dvhh._resTo.slice(11)}</b> ngày {dvhh._resFrom.slice(8,10)}/{dvhh._resFrom.slice(5,7)}</span>
+                <span><b>{dvhh.from.slice(11)}</b> → <b>{dvhh.to.slice(11)}</b> ngày {dvhh.from.slice(8,10)}/{dvhh.from.slice(5,7)}</span>
               </div>
               <div className="info-block"><span className="muted">Tàu lai</span>
                 <div className="row" style={{ gap: 6, flexWrap: "wrap" }}>
@@ -1107,8 +1107,8 @@ function OCCJobsView() {
                       <td className="mono" style={{ fontSize: 12 }}>{j.end.slice(8,10)}/{j.end.slice(5,7)} {j.end.slice(11)}</td>
                       <td>
                         <div className="row" style={{ gap: 3, flexWrap: "wrap" }}>
-                          {tugs.map(t => <span key={t.id} className="tag mono" style={{ background: "var(--brand-accent-bg)", color: "var(--brand-accent)", fontSize: 10, height: 18 }}>{t.id}</span>)}
-                          {cranes.map(c => <span key={c.id} className="tag mono" style={{ background: "#EFEBFB", color: "#7C5BE0", fontSize: 10, height: 18 }}>{c.id}</span>)}
+                          {tugs.map((t, i) => <span key={`${t.id}-${i}`} className="tag mono" style={{ background: "var(--brand-accent-bg)", color: "var(--brand-accent)", fontSize: 10, height: 18 }}>{t.id}</span>)}
+                          {cranes.map((c, i) => <span key={`${c.id}-${i}`} className="tag mono" style={{ background: "#EFEBFB", color: "#7C5BE0", fontSize: 10, height: 18 }}>{c.id}</span>)}
                           {barges.length > 0 && <span className="tag mono" style={{ background: "var(--st-info-bg)", color: "var(--st-info)", fontSize: 10, height: 18 }}>+{barges.length} sà lan</span>}
                         </div>
                       </td>
