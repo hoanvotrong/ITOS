@@ -292,7 +292,10 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
                   const clippedLeft = left < 0;
                   if (clippedLeft) { width += left; left = 0; }
                   if (width < 3) return null;
-                  return { b, i, s, left, width, clippedLeft, isPip: isTug && width < 14 };
+                  // Ngưỡng 40px (không phải 14px): bar hẹp hơn mức đó không đủ chỗ hiện tên
+                  // tàu (label bị ellipsis về rỗng), chỉ còn khung viền trống (dashed cho status
+                  // "planned") trông như lỗi hiển thị — nên gộp về pip/cluster thay vì vẽ dở dang.
+                  return { b, i, s, left, width, clippedLeft, isPip: isTug && width < 40 };
                 }).filter(Boolean);
 
                 const pipsByDay = {};
