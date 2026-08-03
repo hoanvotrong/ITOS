@@ -138,6 +138,7 @@ $craneRows = Query @"
 SELECT c.CraneID, c.CraneName, ct.CapacityNormal
 FROM Cranes c
 LEFT JOIN CraneTechnicals ct ON ct.CraneID = c.CraneID
+WHERE c.IsDelete = 0 OR c.IsDelete IS NULL
 ORDER BY c.CraneName
 "@
 # CraneTechnicals có thể có nhiều dòng / 1 cẩu (lịch sử thông số) -> gộp về 1 dòng/cẩu,

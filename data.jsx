@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-08-03 11:31 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-08-03 13:39 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -23,7 +23,7 @@ const OCC_WINDOW = {
     "month":  8,
     "year":  2026,
     "todayDay":  3,
-    "todayHour":  11.52
+    "todayHour":  13.65
 };
 
 const OCC_BERTHS = [
@@ -196,11 +196,6 @@ const OCC_TUGS = [
 
 const OCC_CRANES = [
     {
-        "id":  "123",
-        "cap":  "",
-        "status":  "active"
-    },
-    {
         "id":  "Cẩu bờ VNL 01",
         "cap":  "152 Kw – cont (260 Kw at 40%ED)",
         "status":  "active"
@@ -268,16 +263,6 @@ const OCC_CRANES = [
     {
         "id":  "Cẩu tàu",
         "cap":  "",
-        "status":  "active"
-    },
-    {
-        "id":  "Test",
-        "cap":  "",
-        "status":  "active"
-    },
-    {
-        "id":  "Tét",
-        "cap":  "585.56",
         "status":  "active"
     }
 ];
@@ -818,7 +803,7 @@ const OCC_DVHH = [
                      "VNL 05"
                  ],
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -882,7 +867,7 @@ const OCC_DVHH = [
                      "VNL 05"
                  ],
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -894,7 +879,7 @@ const OCC_DVHH = [
                      "VNL 05"
                  ],
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -1235,7 +1220,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "SEA NOBLE",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28077"
     },
@@ -1307,7 +1292,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "MINH QUANG 01",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-154"
     },
@@ -1319,7 +1304,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "MINH QUANG 01",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-154"
     },
@@ -1391,7 +1376,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VNL08",
         "customer":  "VINA LOGISTICS CORPORATION",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1403,7 +1388,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VNL08",
         "customer":  "VINA LOGISTICS CORPORATION",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1415,7 +1400,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "SEA NOBLE",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28069"
     },
@@ -1427,7 +1412,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "XINGHE EXPRESS",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-28068"
     },
@@ -1583,7 +1568,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 10-05",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1595,7 +1580,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 10-05",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1607,7 +1592,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 10-05",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
@@ -1619,7 +1604,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 10-05",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫",
         "linkJobId":  "2607-136"
     },
