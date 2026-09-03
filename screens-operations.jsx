@@ -598,14 +598,15 @@ function OCCJobDrawer({ jobId, dvhh, onClose }) {
                 </div>
               )}
 
-              {/* Resources */}
+              {/* Nhật ký tàu lai — mỗi dòng là 1 LƯỢT hỗ trợ (cùng 1 tàu lai xuất hiện
+                  nhiều lần), nên đếm theo lượt chứ không phải theo số thiết bị. */}
               <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--line)" }}>
                 <h4 style={{ margin: "0 0 12px", fontSize: 13, fontWeight: 600, letterSpacing: -0.005 }}>
-                  Tài nguyên đang sử dụng
-                  <span className="muted" style={{ fontWeight: 500, marginLeft: 6, fontSize: 12 }}>({job.resources.length} thiết bị)</span>
+                  Nhật ký tàu lai
+                  <span className="muted" style={{ fontWeight: 500, marginLeft: 6, fontSize: 12 }}>({job.resources.length})</span>
                 </h4>
                 <div className="occ-res-list">
-                  {job.resources.map((r, i) => {
+                  {[...job.resources].sort((a, b) => (b.from || "").localeCompare(a.from || "")).map((r, i) => {
                     const typeMeta = {
                       tug:   { lbl: "Tàu lai",  icon: "ship",   tone: "var(--brand-accent)",   bg: "var(--brand-accent-bg)" },
                       crane: { lbl: "ICD",  icon: "crane",  tone: "#7C5BE0",               bg: "#EFEBFB" },
