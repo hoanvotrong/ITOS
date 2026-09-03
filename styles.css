@@ -2414,3 +2414,15 @@ html, body {
   .occ-gantt-scroll { max-height: calc(100vh - 110px); }
 }
 
+
+/* ===== Bản in (Báo cáo ngày) — bỏ khung điều hướng, chỉ in phần nội dung ===== */
+@media print {
+  .occ-side, .rail-backdrop, .topbar, .seg-bar, .btn, .page-head .actions { display: none !important; }
+  .occ-shell { display: block !important; }
+  main { overflow: visible !important; }
+  .page { padding: 0 !important; }
+  .card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ddd !important; }
+  .kpi-grid, .kpi-grid-5 { grid-template-columns: repeat(5, 1fr) !important; }
+  .grid-main-side-16 { grid-template-columns: 1fr 1fr !important; }
+  body { background: #fff !important; }
+}

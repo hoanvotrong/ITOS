@@ -1204,6 +1204,192 @@ function OCCScreen() {
 
 window.OCCScreen = OCCScreen;
 
+/* === Báo cáo ngày — tổng hợp toàn bộ hoạt động của MỘT ngày cụ thể ===
+   Mọi số liệu đều suy ra từ data đã xuất (không cần query thêm):
+   - sản lượng: OCC_JOBS[].cargoOps (từng ca làm hàng, có mốc giờ + thiết bị)
+   - tàu lai:   OCC_TUG_TASKS (từng lượt hỗ trợ)
+   - cập/rời:   OCC_JOBS[].eta / .etd */
+function OCCDailyReport() {
+  const pad = n => String(n).padStart(2, "0");
+  const todayStr = `${OCC_WINDOW.year}-${pad(OCC_WINDOW.month)}-${pad(OCC_WINDOW.todayDate)}`;
+  const [day, setDay] = React.useState(todayStr);
+
+  const shiftDay = delta => {
+    const [y, m, d] = day.split("-").map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d + delta));
+    setDay(`${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`);
+  };
+  const onDay = ts => (ts || "").slice(0, 10) === day;
+  const hoursBetween = (a, b) => {
+    const f = occDayFrac(a), t = occDayFrac(b);
+    return f != null && t != null ? Math.max(0, (t - f) * 24) : 0;
+  };
+  const num = s => parseInt((s || "0").replace(/\D/g, ""), 10) || 0;
+
+  // --- Gom dữ liệu của ngày đang chọn
+  const ops = [];
+  OCC_JOBS.forEach(j => (j.cargoOps || []).forEach(o => {
+    if (onDay(o.from)) ops.push({ ...o, jobId: j.id, berthId: j.berthId, vessel: j.vessel.name, cargo: j.cargo.name });
+  }));
+  const tugTasks = OCC_TUG_TASKS.filter(t => onDay(t.from));
+  const arrivals = OCC_JOBS.filter(j => onDay(j.eta));
+  const departures = OCC_JOBS.filter(j => onDay(j.etd));
+  const working = OCC_JOBS.filter(j => (j.start || "").slice(0, 10) <= day && day <= (j.end || "").slice(0, 10));
+
+  const totalQty = ops.reduce((s, o) => s + num(o.qty), 0);
+  const tugHours = tugTasks.reduce((s, t) => s + hoursBetween(t.from, t.to), 0);
+
+  // Hoạt động theo từng tàu lai
+  const byTug = {};
+  tugTasks.forEach(t => {
+    const k = t.tugId;
+    if (!byTug[k]) byTug[k] = { tugId: k, count: 0, hours: 0, vessels: [] };
+    byTug[k].count++;
+    byTug[k].hours += hoursBetween(t.from, t.to);
+    if (t.vessel && byTug[k].vessels.indexOf(t.vessel) === -1) byTug[k].vessels.push(t.vessel);
+  });
+  const tugRows = Object.values(byTug).sort((a, b) => b.count - a.count);
+
+  const dLabel = `${day.slice(8, 10)}/${day.slice(5, 7)}/${day.slice(0, 4)}`;
+  const fmtNum = n => n.toLocaleString("vi-VN");
+
+  return (
+    <div className="page" style={{ maxWidth: "none" }}>
+      <div className="page-head">
+        <div>
+          <div className="row" style={{ gap: 8, marginBottom: 4 }}>
+            <span className="tag" style={{ background: "var(--bg-rail)", color: "#fff" }}>BOD VIEW</span>
+            {day === todayStr && <span className="badge success"><span className="pip"></span>Hôm nay</span>}
+          </div>
+          <h1>Báo cáo ngày {dLabel}</h1>
+          <div className="sub">Tổng hợp sản lượng khai thác, tàu cập/rời và hoạt động đội tàu lai trong ngày.</div>
+        </div>
+        <div className="actions">
+          <div className="seg-bar">
+            <button onClick={() => shiftDay(-1)} title="Ngày trước"><Icon name="chevron" size={13} style={{ transform: "rotate(180deg)" }}/></button>
+            <button onClick={() => setDay(todayStr)}>Hôm nay</button>
+            <button onClick={() => shiftDay(1)} title="Ngày sau"><Icon name="chevron" size={13}/></button>
+          </div>
+          <button className="btn" onClick={() => window.print()}><Icon name="document" size={14}/> In báo cáo</button>
+        </div>
+      </div>
+
+      <div className="kpi-grid kpi-grid-5">
+        <div className="kpi">
+          <div className="lbl"><span className="swatch" style={{ background: "var(--st-success)" }}/> Sản lượng trong ngày</div>
+          <div className="val" style={{ fontSize: 24 }}>{fmtNum(totalQty)}<small>MT</small></div>
+          <div className="delta">{ops.length} ca làm hàng</div>
+        </div>
+        <div className="kpi">
+          <div className="lbl"><span className="swatch" style={{ background: "var(--st-info)" }}/> Tàu tại bến</div>
+          <div className="val">{working.length}<small>tàu</small></div>
+          <div className="delta">{arrivals.length} cập · {departures.length} rời</div>
+        </div>
+        <div className="kpi">
+          <div className="lbl"><span className="swatch" style={{ background: "var(--brand-accent)" }}/> Lượt tàu lai</div>
+          <div className="val">{tugTasks.length}<small>lượt</small></div>
+          <div className="delta">{tugRows.length} tàu hoạt động</div>
+        </div>
+        <div className="kpi">
+          <div className="lbl"><span className="swatch" style={{ background: "var(--brand-ink)" }}/> Giờ tàu lai</div>
+          <div className="val">{tugHours.toFixed(1)}<small>giờ</small></div>
+          <div className="delta">TB {tugTasks.length ? (tugHours / tugTasks.length * 60).toFixed(0) : 0} phút/lượt</div>
+        </div>
+        <div className="kpi">
+          <div className="lbl"><span className="swatch" style={{ background: "#7C5BE0" }}/> Thiết bị khai thác</div>
+          <div className="val">{new Set(ops.map(o => o.device).filter(Boolean)).size}<small>cẩu</small></div>
+          <div className="delta">đang phục vụ làm hàng</div>
+        </div>
+      </div>
+
+      {/* Sản lượng khai thác trong ngày */}
+      <div className="card" style={{ marginTop: 16 }}>
+        <div className="card-head"><h3>Sản lượng khai thác</h3><span className="muted">{ops.length} ca</span></div>
+        {ops.length === 0 ? (
+          <div className="muted" style={{ padding: 20, textAlign: "center" }}>Không có ca làm hàng nào trong ngày này.</div>
+        ) : (
+          <table className="tbl">
+            <thead><tr><th>Job ID</th><th>Tàu</th><th>Bến phao</th><th>Ca</th><th>Thiết bị</th><th style={{ textAlign: "right" }}>Sản lượng</th></tr></thead>
+            <tbody>
+              {ops.map((o, i) => (
+                <tr key={i}>
+                  <td className="id">{o.jobId}</td>
+                  <td>{o.vessel}<div className="sub">{o.cargo}</div></td>
+                  <td className="mono" style={{ color: "var(--brand-ink)" }}>{o.berthId}</td>
+                  <td className="mono" style={{ fontSize: 11.5 }}>{o.from.slice(11)} → {o.to ? o.to.slice(11) : "…"}</td>
+                  <td className="mono" style={{ color: "#7C5BE0" }}>{o.device || "—"}</td>
+                  <td className="mono" style={{ textAlign: "right", fontWeight: 700 }}>{o.qty}</td>
+                </tr>
+              ))}
+              <tr style={{ background: "var(--bg-canvas)" }}>
+                <td colSpan={5} style={{ fontWeight: 600 }}>Tổng cộng</td>
+                <td className="mono" style={{ textAlign: "right", fontWeight: 700, color: "var(--st-success)" }}>{fmtNum(totalQty)} MT</td>
+              </tr>
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Tàu cập / rời */}
+      <div className="grid-main-side-16" style={{ gap: 16, marginTop: 16 }}>
+        <div className="card">
+          <div className="card-head"><h3>Tàu cập / rời trong ngày</h3></div>
+          {arrivals.length + departures.length === 0 ? (
+            <div className="muted" style={{ padding: 20, textAlign: "center" }}>Không có tàu cập hoặc rời bến.</div>
+          ) : (
+            <table className="tbl">
+              <thead><tr><th>Loại</th><th>Job ID</th><th>Tàu</th><th>Bến phao</th><th>Giờ</th></tr></thead>
+              <tbody>
+                {arrivals.map(j => (
+                  <tr key={`a${j.id}`}>
+                    <td><span className="badge success"><span className="pip"></span>Cập bến</span></td>
+                    <td className="id">{j.id}</td><td>{j.vessel.name}</td>
+                    <td className="mono" style={{ color: "var(--brand-ink)" }}>{j.berthId}</td>
+                    <td className="mono">{j.eta.slice(11)}</td>
+                  </tr>
+                ))}
+                {departures.map(j => (
+                  <tr key={`d${j.id}`}>
+                    <td><span className="badge neutral"><span className="pip"></span>Rời bến</span></td>
+                    <td className="id">{j.id}</td><td>{j.vessel.name}</td>
+                    <td className="mono" style={{ color: "var(--brand-ink)" }}>{j.berthId}</td>
+                    <td className="mono">{j.etd.slice(11)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        {/* Hoạt động đội tàu lai */}
+        <div className="card">
+          <div className="card-head"><h3>Đội tàu lai</h3><span className="muted">{tugRows.length} tàu</span></div>
+          {tugRows.length === 0 ? (
+            <div className="muted" style={{ padding: 20, textAlign: "center" }}>Không có hoạt động tàu lai.</div>
+          ) : (
+            <table className="tbl">
+              <thead><tr><th>Tàu lai</th><th style={{ textAlign: "right" }}>Lượt</th><th style={{ textAlign: "right" }}>Giờ</th></tr></thead>
+              <tbody>
+                {tugRows.map(t => (
+                  <tr key={t.tugId}>
+                    <td className="mono" style={{ color: "var(--brand-accent)", fontWeight: 600 }}>
+                      {t.tugId}
+                      <div className="sub" style={{ fontFamily: "var(--font-sans)" }}>{t.vessels.slice(0, 2).join(", ")}{t.vessels.length > 2 ? `, +${t.vessels.length - 2}` : ""}</div>
+                    </td>
+                    <td className="mono" style={{ textAlign: "right", fontWeight: 600 }}>{t.count}</td>
+                    <td className="mono" style={{ textAlign: "right" }}>{t.hours.toFixed(1)}h</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+window.OCCDailyReport = OCCDailyReport;
+
 /* === OCC Module shell — sub-rail + topbar + main screen === */
 function OCCModule() {
   const [view, setView] = React.useState("timeline");
@@ -1284,7 +1470,7 @@ function OCCModule() {
         </div>
 
         <div className="occ-side-section">Báo cáo</div>
-        <div className="occ-side-item">
+        <div className={`occ-side-item ${view === "daily" ? "active" : ""}`} onClick={() => selectView("daily")}>
           <Icon name="document" size={16}/>
           <span>Báo cáo ngày</span>
         </div>
@@ -1316,7 +1502,7 @@ function OCCModule() {
 
       <main style={{ minWidth: 0, overflow: "hidden" }}>
         <Topbar
-          crumbs={["Vinalogistics", "OCC — Điều hành Vận hành", { timeline: "Timeline", jobs: "Job-tàu", berths: "Bến phao", tugs: "Đội tàu lai", cranes: "ICD" }[view]]}
+          crumbs={["Vinalogistics", "OCC — Điều hành Vận hành", { timeline: "Timeline", jobs: "Job-tàu", berths: "Bến phao", tugs: "Đội tàu lai", cranes: "ICD", daily: "Báo cáo ngày" }[view]]}
           onToggleNav={() => setNavOpen(o => !o)}
         />
         {view === "timeline" && <OCCScreen/>}
@@ -1324,6 +1510,7 @@ function OCCModule() {
         {view === "berths"   && <OCCBerthsView/>}
         {view === "tugs"     && <OCCFleetView kind="tug"/>}
         {view === "cranes"   && <OCCFleetView kind="crane"/>}
+        {view === "daily"    && <OCCDailyReport/>}
       </main>
     </div>
   );
