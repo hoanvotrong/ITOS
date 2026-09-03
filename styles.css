@@ -1444,10 +1444,12 @@ html, body {
 .occ-legend { gap: 14px; font-size: 11.5px; color: var(--t-secondary); }
 .occ-leg-sw { display: inline-block; width: 22px; height: 10px; border-radius: 3px; }
 
-.occ-gantt-wrap { padding: 0; overflow: hidden; }
+.occ-gantt-wrap { padding: 0; overflow: hidden; position: relative; }
 .occ-gantt-scroll {
-  overflow-x: auto;
-  overflow-y: visible;
+  /* Cuộn cả 2 chiều trong CHÍNH nó (kiểu frozen-panes): nhờ vậy thanh ngày
+     sticky top và cột tên sticky left đều hoạt động trong cùng 1 scroller. */
+  overflow: auto;
+  max-height: calc(100vh - 150px);
   position: relative;
 }
 .occ-gantt-inner {
@@ -1458,8 +1460,9 @@ html, body {
 /* Top-left corner cell */
 .occ-gantt-corner {
   position: sticky;
+  top: 0;
   left: 0;
-  z-index: 8; /* trên cả .occ-gantt-left/.occ-gantt-section-head (z-7) */
+  z-index: 9; /* trên cả thanh ngày (z-8) và cột tên (z-7) */
   width: 220px;
   height: 48px;
   background: var(--bg-canvas);
@@ -1471,13 +1474,15 @@ html, body {
   float: left;
 }
 
-/* Top ruler row */
+/* Top ruler row — ghim ở mép trên khi cuộn dọc để luôn thấy đang ở cột ngày nào */
 .occ-ruler-wrap {
   height: 48px;
   margin-left: 220px;
   border-bottom: 1px solid var(--line-strong);
   background: var(--bg-canvas);
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 8;
 }
 .occ-ruler {
   height: 48px;
@@ -1514,6 +1519,28 @@ html, body {
   pointer-events: none;
   opacity: 0.7;
 }
+/* Chip nổi báo hướng "HÔM NAY" khi đường hôm nay nằm ngoài vùng đang nhìn thấy
+   (cuộn xa, hoặc đang xem tháng khác) — bấm để nhảy về hôm nay. */
+.occ-today-chip {
+  position: absolute;
+  top: 58px;
+  z-index: 10;
+  background: var(--brand-accent);
+  color: #fff;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(232,93,47,0.4);
+  transition: transform .12s, box-shadow .12s;
+}
+.occ-today-chip:hover { transform: scale(1.06); box-shadow: 0 3px 12px rgba(232,93,47,0.5); }
+.occ-today-chip.right { right: 10px; }
+
 .occ-today-pin {
   position: absolute;
   top: -22px;

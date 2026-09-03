@@ -89,7 +89,7 @@ function OCCRuler({ days, totalDays, dayW }) {
 }
 
 /* === Gantt section (rows of bars) === */
-function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster, totalDays, win, dayW }) {
+function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster, totalDays, win, dayW, headWidth }) {
   const startDay = win.startDay;
   const nowFrac = win.todayCol + win.todayHour / 24;
   // Build bars per row
@@ -182,7 +182,9 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
 
   return (
     <div className="occ-gantt-section">
-      <div className="occ-gantt-section-head">
+      {/* headWidth = độ rộng vùng nhìn thấy: kết hợp sticky left:0 giúp cả tiêu đề
+          nhóm lẫn badge "N đối tượng" (flex-end) luôn nằm trong khung nhìn khi cuộn ngang */}
+      <div className="occ-gantt-section-head" style={headWidth ? { width: headWidth } : undefined}>
         <div className="row" style={{ gap: 8 }}>
           <span className="occ-section-icon"><Icon name={icon} size={14}/></span>
           <div>
@@ -735,6 +737,68 @@ function OCCScreen() {
   const days = Array.from({ length: win.endDay - win.startDay + 1 }, (_, i) => win.startDay + i);
   const totalDays = days.length;
   const todayLeft = (win.todayCol + win.todayHour/24 - win.startDay) * dayW;
+  const todayInThisMonth = selYear === OCC_WINDOW.year && selMonthNum === OCC_WINDOW.month;
+
+  // ---- Đồng bộ theo cuộn ngang của Gantt (tên tàu trong bar, chip HÔM NAY,
+  // ---- độ rộng thanh tiêu đề nhóm) — cập nhật trực tiếp DOM khi scroll để mượt.
+  const ganttScrollRef = React.useRef(null);
+  const wantScrollToToday = React.useRef(false);
+  const [headW, setHeadW] = React.useState(null);   // độ rộng vùng nhìn thấy — để ghim badge "N đối tượng" ở mép phải
+  const [todayChip, setTodayChip] = React.useState(null); // null | "left" | "right"
+
+  const centerToday = () => {
+    const sc = ganttScrollRef.current;
+    if (!sc) return;
+    sc.scrollLeft = Math.max(0, todayLeft - (sc.clientWidth - OCC_LEFT_W) / 2);
+  };
+  const goToToday = () => {
+    if (!todayInThisMonth) {
+      wantScrollToToday.current = true;
+      setSelectedMonth(`${OCC_WINDOW.year}-${OCC_WINDOW.month}`);
+      return;
+    }
+    centerToday();
+  };
+
+  React.useEffect(() => {
+    const sc = ganttScrollRef.current;
+    if (!sc) return;
+    const sync = () => {
+      const x = sc.scrollLeft;
+      // Tên tàu trong bar trượt theo để luôn đọc được khi đầu bar khuất sau cột trái
+      sc.querySelectorAll(".occ-bar").forEach(bar => {
+        const label = bar.querySelector(".occ-bar-label");
+        if (!label) return;
+        const bl = parseFloat(bar.style.left) || 0;
+        const bw = parseFloat(bar.style.width) || 0;
+        if (bw < 100) { label.style.transform = ""; return; }
+        const shift = Math.max(0, Math.min(x - bl, bw - 80));
+        label.style.transform = shift > 4 ? `translateX(${shift}px)` : "";
+      });
+      // Chip báo hướng HÔM NAY khi đường hôm nay ngoài vùng nhìn thấy / khác tháng
+      let chip = null;
+      if (!todayInThisMonth) {
+        chip = (OCC_WINDOW.year * 12 + OCC_WINDOW.month) < (selYear * 12 + selMonthNum) ? "left" : "right";
+      } else {
+        const viewW = sc.clientWidth - OCC_LEFT_W;
+        if (todayLeft < x) chip = "left";
+        else if (todayLeft > x + viewW) chip = "right";
+      }
+      setTodayChip(prev => (prev === chip ? prev : chip));
+    };
+    const onResize = () => { setHeadW(sc.clientWidth); sync(); };
+    onResize();
+    sc.addEventListener("scroll", sync);
+    window.addEventListener("resize", onResize);
+    return () => { sc.removeEventListener("scroll", sync); window.removeEventListener("resize", onResize); };
+  });
+
+  React.useEffect(() => {
+    if (wantScrollToToday.current && todayInThisMonth) {
+      wantScrollToToday.current = false;
+      centerToday();
+    }
+  });
 
   // Build rows for each section
   const berthRows = OCC_BERTHS.map(b => ({
@@ -861,7 +925,14 @@ function OCCScreen() {
 
       {/* Gantt */}
       <div className="card occ-gantt-wrap">
-        <div className="occ-gantt-scroll">
+        {/* Chip nổi: đường HÔM NAY đang nằm ngoài vùng nhìn thấy — bấm để nhảy về */}
+        {todayChip === "left" && (
+          <button className="occ-today-chip" style={{ left: OCC_LEFT_W + 10 }} onClick={goToToday}>◀ HÔM NAY</button>
+        )}
+        {todayChip === "right" && (
+          <button className="occ-today-chip right" onClick={goToToday}>HÔM NAY ▶</button>
+        )}
+        <div className="occ-gantt-scroll" ref={ganttScrollRef}>
           <div className="occ-gantt-inner" style={{ width: OCC_LEFT_W + totalDays * dayW + 1 }}>
             {/* Sticky left header */}
             <div className="occ-gantt-corner" style={{ width: OCC_LEFT_W }}>
@@ -893,6 +964,7 @@ function OCCScreen() {
                 dayW={dayW}
                 onSelectJob={openJob}
                 onOpenRoster={openRoster}
+                headWidth={headW}
               />
             )}
 
@@ -908,6 +980,7 @@ function OCCScreen() {
                 dayW={dayW}
                 onSelectJob={openJob}
                 onOpenRoster={openRoster}
+                headWidth={headW}
               />
             )}
 
@@ -923,6 +996,7 @@ function OCCScreen() {
                 dayW={dayW}
                 onSelectJob={openJob}
                 onOpenRoster={openRoster}
+                headWidth={headW}
               />
             )}
           </div>
