@@ -1366,16 +1366,12 @@ function OCCJobsView() {
                   <th>Hàng hoá</th>
                   <th>Bắt đầu</th>
                   <th>Kết thúc</th>
-                  <th>Tài nguyên</th>
                   <th>Tiến độ</th>
                 </tr>
               </thead>
               <tbody>
                 {g.items.map(j => {
                   const berth = OCC_BERTHS.find(b => b.id === j.berthId);
-                  const tugs = j.resources.filter(r => r.type === "tug");
-                  const cranes = j.resources.filter(r => r.type === "crane");
-                  const barges = j.resources.filter(r => r.type === "barge");
                   return (
                     <tr key={j.id} onClick={() => setDrawerJob(j.id)} style={{ cursor: "pointer" }}>
                       <td className="id">{j.id}</td>
@@ -1398,13 +1394,6 @@ function OCCJobsView() {
                       </td>
                       <td className="mono" style={{ fontSize: 12 }}>{j.start.slice(8,10)}/{j.start.slice(5,7)} {j.start.slice(11)}</td>
                       <td className="mono" style={{ fontSize: 12 }}>{j.end.slice(8,10)}/{j.end.slice(5,7)} {j.end.slice(11)}</td>
-                      <td>
-                        <div className="row" style={{ gap: 3, flexWrap: "wrap" }}>
-                          {tugs.map((t, i) => <span key={`${t.id}-${i}`} className="tag mono" style={{ background: "var(--brand-accent-bg)", color: "var(--brand-accent)", fontSize: 10, height: 18 }}>{t.id}</span>)}
-                          {cranes.map((c, i) => <span key={`${c.id}-${i}`} className="tag mono" style={{ background: "#EFEBFB", color: "#7C5BE0", fontSize: 10, height: 18 }}>{c.id}</span>)}
-                          {barges.length > 0 && <span className="tag mono" style={{ background: "var(--st-info-bg)", color: "var(--st-info)", fontSize: 10, height: 18 }}>+{barges.length} sà lan</span>}
-                        </div>
-                      </td>
                       <td style={{ minWidth: 110 }}>
                         <div className="row" style={{ gap: 6 }}>
                           <div className={`progress-track ${j.status === "delayed" ? "late" : ""} ${j.status === "completed" ? "done" : ""}`} style={{ flex: 1, height: 5 }}>
