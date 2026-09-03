@@ -3,11 +3,14 @@
    click any bar to inspect the underlying job-tàu detail. */
 
 const OCC_ROW_H = 38;
-const OCC_LEFT_W = 256;  // sticky left column
+// Trên điện thoại, cột tên 256px chiếm gần hết màn hình chỉ chừa được ~2 cột ngày —
+// thu hẹp cột tên + cột ngày lại (tính 1 lần lúc tải; xoay ngang màn hình thì tải lại trang).
+const OCC_IS_PHONE = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(max-width: 640px)").matches;
+const OCC_LEFT_W = OCC_IS_PHONE ? 132 : 256;  // sticky left column
 
 // Timeline hiển thị đúng 1 tháng dương lịch mỗi lần, chọn được tháng nào
 // tuỳ theo phạm vi data đã xuất ra (xem scripts/export-occ-data.ps1).
-const OCC_DAY_W = 36;
+const OCC_DAY_W = OCC_IS_PHONE ? 32 : 36;
 
 const occStatusMeta = {
   in_progress: { label: "Đang khai thác",     cls: "occ-bar-active",   badge: "success" },
