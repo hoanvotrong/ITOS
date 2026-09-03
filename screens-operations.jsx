@@ -481,20 +481,31 @@ function OCCJobDrawer({ jobId, dvhh, onClose }) {
                 {/* Progress */}
                 <div style={{ marginTop: 14 }}>
                   <div className="row between" style={{ marginBottom: 6 }}>
-                    <span className="muted" style={{ fontSize: 12 }}>
-                      Tiến độ khai thác
-                      {job.qtyFinish && job.qtyTotal && (
-                        <span style={{ marginLeft: 6, fontFamily: "var(--font-mono)", color: "var(--t-secondary)" }}>
-                          · đã làm <b style={{ color: "var(--st-success)" }}>{job.qtyFinish}</b> / {job.qtyTotal} · còn {job.qtyRemain}
-                        </span>
-                      )}
-                    </span>
+                    <span className="muted" style={{ fontSize: 12 }}>Tiến độ khai thác</span>
                     <b style={{ fontSize: 13, fontFamily: "var(--font-mono)" }}>{job.progress}%</b>
                   </div>
                   <div className={`progress-track ${job.status === "delayed" ? "late" : ""} ${job.status === "completed" ? "done" : ""}`}>
                     <div className="pbar" style={{ width: `${job.progress}%` }}></div>
                   </div>
-                  <div className="row between" style={{ marginTop: 6, fontSize: 11.5, color: "var(--t-tertiary)" }}>
+
+                  {/* Sản lượng: tổng / đã làm / còn tồn — tách thành 3 ô riêng cho dễ đọc,
+                      chỉ hiện khi job thật sự có số liệu làm hàng (ICDUploadingCargo). */}
+                  {parseInt((job.qtyTotal || "0").replace(/\D/g, ""), 10) > 0 && (
+                    <div className="grid-3-eq" style={{ gap: 8, marginTop: 10 }}>
+                      {[
+                        { lbl: "Tổng hàng",   val: job.qtyTotal,  color: "var(--t-primary)" },
+                        { lbl: "Đã làm",      val: job.qtyFinish, color: "var(--st-success)" },
+                        { lbl: "Còn tồn",     val: job.qtyRemain, color: "var(--brand-accent)" },
+                      ].map(s => (
+                        <div key={s.lbl} style={{ background: "var(--bg-surface)", border: "1px solid var(--line)", borderRadius: 6, padding: "8px 10px" }}>
+                          <div className="muted" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 0.05, fontWeight: 600 }}>{s.lbl}</div>
+                          <div style={{ fontSize: 15, fontWeight: 700, fontFamily: "var(--font-mono)", color: s.color, marginTop: 2 }}>{s.val}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="row between" style={{ marginTop: 8, fontSize: 11.5, color: "var(--t-tertiary)" }}>
                     <span>ETA <b style={{ color: "var(--t-primary)" }}>{job.eta.slice(8,10)}/{job.eta.slice(5,7)} {job.eta.slice(11)}</b></span>
                     <span>ETD <b style={{ color: "var(--t-primary)" }}>{job.etd.slice(8,10)}/{job.etd.slice(5,7)} {job.etd.slice(11)}</b></span>
                   </div>
@@ -1379,6 +1390,11 @@ function OCCJobsView() {
                       <td>
                         <div>{j.cargo.qty}</div>
                         <div className="sub">{j.cargo.name} · {j.cargo.op}</div>
+                        {parseInt((j.qtyTotal || "0").replace(/\D/g, ""), 10) > 0 && (
+                          <div className="sub mono" style={{ fontSize: 10.5 }}>
+                            đã làm <b style={{ color: "var(--st-success)" }}>{j.qtyFinish}</b> · còn <b style={{ color: "var(--brand-accent)" }}>{j.qtyRemain}</b>
+                          </div>
+                        )}
                       </td>
                       <td className="mono" style={{ fontSize: 12 }}>{j.start.slice(8,10)}/{j.start.slice(5,7)} {j.start.slice(11)}</td>
                       <td className="mono" style={{ fontSize: 12 }}>{j.end.slice(8,10)}/{j.end.slice(5,7)} {j.end.slice(11)}</td>
