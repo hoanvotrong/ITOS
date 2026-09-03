@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-03 09:32 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-03 10:55 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  3,
     "todayCol":  65,
-    "todayHour":  9.53
+    "todayHour":  10.92
 };
 
 const OCC_BERTHS = [
@@ -301,6 +301,79 @@ const occColForDate = (y, mo, da) => {
 
 const OCC_JOBS = [
     {
+        "id":  "2609-024",
+        "vessel":  {
+                       "name":  "ORIENTAL GOLD/ FC",
+                       "flag":  "241",
+                       "dwt":  "68591",
+                       "imo":  "9104469",
+                       "loa":  "224",
+                       "type":  ""
+                   },
+        "cargo":  {
+                      "name":  "Than đá",
+                      "qty":  "66.500 MT",
+                      "op":  ""
+                  },
+        "berthId":  "BP 03",
+        "customer":  "CÔNG TY TNHH VẬN TẢI VIỆT THUẬN",
+        "contract":  "",
+        "pic":  "",
+        "status":  "planned",
+        "progress":  0,
+        "start":  "2026-09-05 01:00",
+        "end":  "2026-09-10 12:00",
+        "eta":  "2026-09-05 01:00",
+        "etd":  "2026-09-10 12:00",
+        "revenue":  "0 ₫",
+        "resources":  [
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 07",
+                              "from":  "2026-09-05 01:00",
+                              "to":  "2026-09-05 12:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL EXPLORER",
+                              "from":  "2026-09-05 01:00",
+                              "to":  "2026-09-05 12:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          }
+                      ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "ORIENTAL GOLD/ FC",
+                             "status":  "planned",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "ORIENTAL GOLD - CẬP",
+                             "status":  "planned",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "0 MT",
+        "qtyFinish":  "0 MT",
+        "qtyRemain":  "0 MT",
+        "notes":  "",
+        "risks":  [
+
+                  ],
+        "logs":  [
+
+                 ]
+    },
+    {
         "id":  "2608-338",
         "vessel":  {
                        "name":  "VIET THUAN 56-03/ SC",
@@ -320,13 +393,27 @@ const OCC_JOBS = [
         "contract":  "",
         "pic":  "",
         "status":  "in_progress",
-        "progress":  50,
+        "progress":  12,
         "start":  "2026-08-31 17:10",
         "end":  "2026-09-07 12:00",
         "eta":  "2026-08-31 17:10",
         "etd":  "2026-09-07 12:00",
         "revenue":  "0 ₫",
         "resources":  [
+                          {
+                              "type":  "tug",
+                              "id":  "VNL FUTURE",
+                              "from":  "2026-09-02 17:00",
+                              "to":  "2026-09-02 17:30",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 07",
+                              "from":  "2026-09-02 17:00",
+                              "to":  "2026-09-02 17:30",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
                           {
                               "type":  "tug",
                               "id":  "VNL FUTURE",
@@ -342,6 +429,40 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "VIET THUAN 56-03/ SC",
+                             "status":  "in_progress",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 56-03 - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - cập",
+                             "status":  "planned",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-09-02 20:30",
+                             "to":  "2026-09-03 06:00",
+                             "qty":  "6.500 MT",
+                             "device":  ""
+                         }
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "55.000 MT",
+        "qtyFinish":  "6.500 MT",
+        "qtyRemain":  "48.500 MT",
         "notes":  "",
         "risks":  [
 
@@ -392,6 +513,35 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "GOJIRA 1 \u0026 KAIJU CATEGORY 1",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "GOJIRA 1 \u0026 KAIJU CATEGORY 1 - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "GOJIRA 1 \u0026 KAIJU CATEGORY 1 - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "0 MT",
+        "qtyFinish":  "0 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -420,7 +570,7 @@ const OCC_JOBS = [
         "contract":  "",
         "pic":  "",
         "status":  "in_progress",
-        "progress":  50,
+        "progress":  53,
         "start":  "2026-08-28 15:15",
         "end":  "2026-09-05 12:00",
         "eta":  "2026-08-28 15:15",
@@ -575,6 +725,119 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "VIET THUAN 80-03/ FC",
+                             "status":  "in_progress",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 80-03 - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - cập (BP03 -\u003e BP02)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "EPIC 05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "EPIC 05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 235-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 235-05 - shifting",
+                             "status":  "planned",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - cập (BP03 -\u003e BP02)",
+                             "status":  "planned",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 235-05 - rời",
+                             "status":  "planned",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-05 - cập",
+                             "status":  "planned",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-08-30 01:50",
+                             "to":  "2026-08-30 06:00",
+                             "qty":  "1.500 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-30 06:00",
+                             "to":  "2026-08-31 06:00",
+                             "qty":  "7.300 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-31 06:00",
+                             "to":  "2026-09-01 06:00",
+                             "qty":  "5.500 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-09-01 06:00",
+                             "to":  "2026-09-02 06:00",
+                             "qty":  "6.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-09-01 06:00",
+                             "to":  "2026-09-02 06:00",
+                             "qty":  "4.500 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-09-02 06:00",
+                             "to":  "2026-09-03 06:00",
+                             "qty":  "6.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-09-02 06:00",
+                             "to":  "2026-09-03 06:00",
+                             "qty":  "7.000 MT",
+                             "device":  "FC 06"
+                         }
+                     ],
+        "equipment":  [
+                          "VNL 09",
+                          "FC 06"
+                      ],
+        "qtyTotal":  "71.000 MT",
+        "qtyFinish":  "37.800 MT",
+        "qtyRemain":  "33.200 MT",
         "notes":  "",
         "risks":  [
 
@@ -625,6 +888,35 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "LL JISMON \u0026 LL 3306",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "LL JISMON \u0026 LL 3306 - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "LL JISMON \u0026 LL 3306 - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "0 MT",
+        "qtyFinish":  "0 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -653,13 +945,27 @@ const OCC_JOBS = [
         "contract":  "",
         "pic":  "",
         "status":  "in_progress",
-        "progress":  50,
+        "progress":  100,
         "start":  "2026-08-22 08:00",
         "end":  "2026-09-03 12:00",
         "eta":  "2026-08-22 08:00",
         "etd":  "2026-09-03 12:00",
         "revenue":  "0 ₫",
         "resources":  [
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 07",
+                              "from":  "2026-09-02 11:30",
+                              "to":  "2026-09-02 12:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL RUBY",
+                              "from":  "2026-09-02 11:30",
+                              "to":  "2026-09-02 12:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
                           {
                               "type":  "tug",
                               "id":  "VNL VOYAGER",
@@ -801,6 +1107,173 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "HONG BANG/ FC",
+                             "status":  "in_progress",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "HONG BANG - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "HONG BANG - Cứu hộ",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - cập (BP03 -\u003e BP08)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-01 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-01 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-02 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-02 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 169 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 169 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 168 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 168 - rời",
+                             "status":  "planned",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-08-26 15:30",
+                             "to":  "2026-08-27 06:00",
+                             "qty":  "6.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-26 15:30",
+                             "to":  "2026-08-27 06:00",
+                             "qty":  "5.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-27 06:00",
+                             "to":  "2026-08-28 06:00",
+                             "qty":  "1.500 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-27 06:00",
+                             "to":  "2026-08-28 06:00",
+                             "qty":  "7.300 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-28 06:00",
+                             "to":  "2026-08-29 06:00",
+                             "qty":  "1.800 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-28 06:00",
+                             "to":  "2026-08-29 06:00",
+                             "qty":  "2.700 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-29 06:00",
+                             "to":  "2026-08-30 06:00",
+                             "qty":  "7.500 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-29 06:00",
+                             "to":  "2026-08-30 06:00",
+                             "qty":  "7.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-30 06:00",
+                             "to":  "2026-08-31 06:00",
+                             "qty":  "4.800 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-30 06:00",
+                             "to":  "2026-08-31 06:00",
+                             "qty":  "5.700 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-31 06:00",
+                             "to":  "2026-09-01 06:00",
+                             "qty":  "5.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-31 06:00",
+                             "to":  "2026-09-01 06:00",
+                             "qty":  "3.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-09-01 06:00",
+                             "to":  "2026-09-02 06:00",
+                             "qty":  "4.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-09-01 06:00",
+                             "to":  "2026-09-02 06:00",
+                             "qty":  "8.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         }
+                     ],
+        "equipment":  [
+                          "VNL 08",
+                          "TÍN THÀNH PT 06"
+                      ],
+        "qtyTotal":  "71.000 MT",
+        "qtyFinish":  "70.800 MT",
+        "qtyRemain":  "200 MT",
         "notes":  "",
         "risks":  [
 
@@ -829,7 +1302,7 @@ const OCC_JOBS = [
         "contract":  "",
         "pic":  "",
         "status":  "in_progress",
-        "progress":  50,
+        "progress":  92,
         "start":  "2026-08-24 20:30",
         "end":  "2026-09-01 22:30",
         "eta":  "2026-08-24 20:30",
@@ -921,6 +1394,126 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "TRINITY ISLAND/ FC",
+                             "status":  "in_progress",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "TRINITY ISLAND - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - cập mạn trong (BP08 -\u003e BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - cập (BP08 -\u003e BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - cập mạn trong (Neo BP02 -\u003e BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "TRINITY ISLAND - RỜI",
+                             "status":  "planned",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-08-25 04:00",
+                             "to":  "2026-08-25 06:00",
+                             "qty":  "300 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-25 06:00",
+                             "to":  "2026-08-26 06:00",
+                             "qty":  "2.800 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-25 06:00",
+                             "to":  "2026-08-26 06:00",
+                             "qty":  "4.900 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-08-26 06:00",
+                             "to":  "2026-08-27 06:00",
+                             "qty":  "600 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-26 06:00",
+                             "to":  "2026-08-27 06:00",
+                             "qty":  "3.200 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-08-26 06:00",
+                             "to":  "2026-08-27 07:00",
+                             "qty":  "1.500 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-27 06:00",
+                             "to":  "2026-08-28 06:00",
+                             "qty":  "5.000 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-08-27 06:00",
+                             "to":  "2026-08-28 06:00",
+                             "qty":  "3.100 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-28 06:00",
+                             "to":  "2026-08-29 06:00",
+                             "qty":  "800 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-08-29 06:00",
+                             "to":  "2026-08-30 06:00",
+                             "qty":  "400 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-30 06:00",
+                             "to":  "2026-08-31 06:00",
+                             "qty":  "5.000 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-08-31 06:00",
+                             "to":  "2026-09-01 22:30",
+                             "qty":  "4.500 MT",
+                             "device":  "FC 06"
+                         }
+                     ],
+        "equipment":  [
+                          "VNL 08",
+                          "FC 06",
+                          "VNL 09"
+                      ],
+        "qtyTotal":  "35.000 MT",
+        "qtyFinish":  "32.100 MT",
+        "qtyRemain":  "2.900 MT",
         "notes":  "",
         "risks":  [
 
@@ -949,7 +1542,7 @@ const OCC_JOBS = [
         "contract":  "",
         "pic":  "",
         "status":  "in_progress",
-        "progress":  50,
+        "progress":  56,
         "start":  "2026-08-20 23:15",
         "end":  "2026-09-05 12:00",
         "eta":  "2026-08-20 23:15",
@@ -1097,6 +1690,124 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "VIET THUAN 80-06/ FC",
+                             "status":  "in_progress",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 80-06 - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-03 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-03 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "MINH QUANG 01 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "MINH QUANG 01 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 10-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 10-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-02 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-02 - rời",
+                             "status":  "planned",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - cập (BP08 -\u003e BP09)",
+                             "status":  "planned",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-08-21 03:45",
+                             "to":  "2026-08-22 06:00",
+                             "qty":  "1.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-22 06:00",
+                             "to":  "2026-08-23 06:00",
+                             "qty":  "11.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-23 06:00",
+                             "to":  "2026-08-24 07:00",
+                             "qty":  "7.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-27 06:00",
+                             "to":  "2026-08-28 06:00",
+                             "qty":  "6.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-28 06:00",
+                             "to":  "2026-08-29 06:00",
+                             "qty":  "4.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-30 06:00",
+                             "to":  "2026-08-31 06:00",
+                             "qty":  "4.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-31 06:00",
+                             "to":  "2026-09-01 06:00",
+                             "qty":  "6.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         }
+                     ],
+        "equipment":  [
+                          "TÍN THÀNH PT 06"
+                      ],
+        "qtyTotal":  "72.200 MT",
+        "qtyFinish":  "40.500 MT",
+        "qtyRemain":  "31.700 MT",
         "notes":  "",
         "risks":  [
 
@@ -1350,6 +2061,233 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "LOWLANDS AMBER/ FC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "LOWLANDS AMBER - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - cập (ICD -\u003e BP02)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-03 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-03 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "EPIC 05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "EPIC 05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 235-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 235-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - rời (BP02 -\u003e Neo BP02)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "LOWLANDS AMBER - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-08-17 00:30",
+                             "to":  "2026-08-18 06:00",
+                             "qty":  "2.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-17 00:30",
+                             "to":  "2026-08-18 06:00",
+                             "qty":  "3.000 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-08-18 06:00",
+                             "to":  "2026-08-19 06:00",
+                             "qty":  "8.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-18 06:00",
+                             "to":  "2026-08-19 06:00",
+                             "qty":  "7.700 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-08-19 06:00",
+                             "to":  "2026-08-20 06:00",
+                             "qty":  "800 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-20 06:00",
+                             "to":  "2026-08-21 06:00",
+                             "qty":  "7.500 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-20 06:00",
+                             "to":  "2026-08-21 06:00",
+                             "qty":  "9.000 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-08-21 06:00",
+                             "to":  "2026-08-22 06:00",
+                             "qty":  "2.600 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-21 06:00",
+                             "to":  "2026-08-22 06:00",
+                             "qty":  "1.900 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-08-22 06:00",
+                             "to":  "2026-08-23 06:00",
+                             "qty":  "800 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-22 06:00",
+                             "to":  "2026-08-23 06:00",
+                             "qty":  "1.200 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-08-23 06:00",
+                             "to":  "2026-08-24 06:00",
+                             "qty":  "4.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-23 06:00",
+                             "to":  "2026-08-24 06:00",
+                             "qty":  "4.000 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-08-24 06:00",
+                             "to":  "2026-08-25 06:00",
+                             "qty":  "7.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-24 06:00",
+                             "to":  "2026-08-25 06:00",
+                             "qty":  "10.000 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-08-25 06:00",
+                             "to":  "2026-08-26 06:00",
+                             "qty":  "5.500 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-25 06:00",
+                             "to":  "2026-08-26 06:00",
+                             "qty":  "4.500 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-08-26 06:00",
+                             "to":  "2026-08-27 06:00",
+                             "qty":  "6.500 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-26 06:00",
+                             "to":  "2026-08-27 06:00",
+                             "qty":  "5.000 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-08-27 06:00",
+                             "to":  "2026-08-27 08:55",
+                             "qty":  "957 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-27 06:00",
+                             "to":  "2026-08-27 08:55",
+                             "qty":  "980 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         }
+                     ],
+        "equipment":  [
+                          "VNL 09",
+                          "TÍN THÀNH PT 04"
+                      ],
+        "qtyTotal":  "92.937 MT",
+        "qtyFinish":  "92.937 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -1652,6 +2590,221 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "CERVIA/ FC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "CERVIA - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - cập (BP02 -\u003e BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - cập (BP02 -\u003e BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "EPIC 05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "EPIC 05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 169 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 169 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-03 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-03 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - rời (BP03 -\u003e Neo BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - rời (BP03 -\u003e Neo BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "CERVIA - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - cập (Neo BP03 -\u003e BP08)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - cập (Neo BP03 -\u003e BP08)",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-08-16 13:30",
+                             "to":  "2026-08-17 06:00",
+                             "qty":  "3.900 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-16 13:30",
+                             "to":  "2026-08-17 06:00",
+                             "qty":  "4.600 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-08-17 06:00",
+                             "to":  "2026-08-18 06:00",
+                             "qty":  "5.400 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-17 06:00",
+                             "to":  "2026-08-18 06:00",
+                             "qty":  "6.600 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-08-18 06:00",
+                             "to":  "2026-08-19 06:00",
+                             "qty":  "4.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-18 06:00",
+                             "to":  "2026-08-19 06:00",
+                             "qty":  "4.500 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-08-19 06:00",
+                             "to":  "2026-08-20 06:00",
+                             "qty":  "6.100 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-19 06:00",
+                             "to":  "2026-08-20 06:00",
+                             "qty":  "7.400 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-08-20 06:00",
+                             "to":  "2026-08-21 06:00",
+                             "qty":  "6.500 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-20 06:00",
+                             "to":  "2026-08-21 06:00",
+                             "qty":  "6.800 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-08-21 06:00",
+                             "to":  "2026-08-22 06:00",
+                             "qty":  "5.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-21 06:00",
+                             "to":  "2026-08-22 06:00",
+                             "qty":  "6.500 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-08-22 06:00",
+                             "to":  "2026-08-23 06:00",
+                             "qty":  "5.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-22 06:00",
+                             "to":  "2026-08-23 06:00",
+                             "qty":  "9.000 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-08-23 06:00",
+                             "to":  "2026-08-23 14:20",
+                             "qty":  "3.705 MT",
+                             "device":  "FC 06"
+                         }
+                     ],
+        "equipment":  [
+                          "VNL 08",
+                          "FC 06"
+                      ],
+        "qtyTotal":  "85.005 MT",
+        "qtyFinish":  "85.005 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -1905,6 +3058,215 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "VIET THUAN 80-05/ FC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 80-05 - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - cập (BP06 -\u003e BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-03 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-03 - shifting",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - cập (BP02 -\u003e BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-03 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-02 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-02 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 168 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 168 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - rời (BP03 -\u003e BP02)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - rời (BP03 -\u003e BP02)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 80-05 - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-08-03 19:00",
+                             "to":  "2026-08-04 06:00",
+                             "qty":  "3.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-04 06:00",
+                             "to":  "2026-08-05 06:00",
+                             "qty":  "8.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-05 06:00",
+                             "to":  "2026-08-06 06:00",
+                             "qty":  "5.300 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-05 06:00",
+                             "to":  "2026-08-06 06:00",
+                             "qty":  "4.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-06 06:00",
+                             "to":  "2026-08-07 06:00",
+                             "qty":  "7.500 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-06 06:00",
+                             "to":  "2026-08-07 06:00",
+                             "qty":  "6.500 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-07 06:00",
+                             "to":  "2026-08-08 06:00",
+                             "qty":  "3.200 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-07 06:00",
+                             "to":  "2026-08-08 06:00",
+                             "qty":  "2.800 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-08 06:00",
+                             "to":  "2026-08-09 06:00",
+                             "qty":  "1.600 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-08 06:00",
+                             "to":  "2026-08-09 06:00",
+                             "qty":  "1.400 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-09 06:00",
+                             "to":  "2026-08-10 06:00",
+                             "qty":  "6.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-09 06:00",
+                             "to":  "2026-08-10 06:00",
+                             "qty":  "5.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-10 06:00",
+                             "to":  "2026-08-11 06:00",
+                             "qty":  "4.500 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-10 06:00",
+                             "to":  "2026-08-11 06:00",
+                             "qty":  "3.500 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-11 06:00",
+                             "to":  "2026-08-12 06:00",
+                             "qty":  "6.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-11 06:00",
+                             "to":  "2026-08-12 06:00",
+                             "qty":  "5.200 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-12 06:00",
+                             "to":  "2026-08-12 09:00",
+                             "qty":  "1.000 MT",
+                             "device":  "VNL 08"
+                         }
+                     ],
+        "equipment":  [
+                          "VNL 08",
+                          "VNL 09"
+                      ],
+        "qtyTotal":  "74.500 MT",
+        "qtyFinish":  "74.500 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -1969,6 +3331,35 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "SAMUDRA MAJU 1 \u0026 SAMUDRA MAJU 2",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "SAMUDRA MAJU 1 \u0026 SAMUDRA MAJU 2 - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "SAMUDRA MAJU 1 \u0026 SAMUDRA MAJU 2 - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "0 MT",
+        "qtyFinish":  "0 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -2033,6 +3424,35 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "SAMUDRA BINTANG 2 \u0026 SAMUDRA BINTANG 3",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "SAMUDRA BINTANG 2 \u0026 SAMUDRA BINTANG 3 - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "SAMUDRA BINTANG 2 \u0026 SAMUDRA BINTANG 3 - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "0 MT",
+        "qtyFinish":  "0 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -2097,6 +3517,35 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "MACALLAN 17 \u0026 GRACIA",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "MACALLAN 17 \u0026 GRACIA - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "MACALLAN 17 \u0026 GRACIA - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "0 MT",
+        "qtyFinish":  "0 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -2147,6 +3596,35 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "dvhh",
+                             "label":  "ROYAL 39 - CẬP",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "ROYAL 39 - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "ROYAL 39",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "0 MT",
+        "qtyFinish":  "0 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -2211,6 +3689,82 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "PATRIA NAWASENA 3/ SC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "PATRIA NAWASENA 3 - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "PATRIA NAWASENA 3 - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-07-31 09:00",
+                             "to":  "2026-08-01 06:00",
+                             "qty":  "6.800 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-08-01 06:00",
+                             "to":  "2026-08-02 06:00",
+                             "qty":  "6.500 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-08-02 06:00",
+                             "to":  "2026-08-03 06:00",
+                             "qty":  "5.900 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-08-03 06:00",
+                             "to":  "2026-08-04 06:00",
+                             "qty":  "3.300 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-08-04 06:00",
+                             "to":  "2026-08-05 06:00",
+                             "qty":  "9.100 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-08-05 06:00",
+                             "to":  "2026-08-06 06:00",
+                             "qty":  "9.800 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-08-06 06:00",
+                             "to":  "2026-08-07 06:00",
+                             "qty":  "7.500 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-08-07 06:00",
+                             "to":  "2026-08-08 04:00",
+                             "qty":  "6.100 MT",
+                             "device":  ""
+                         }
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "55.000 MT",
+        "qtyFinish":  "55.000 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -2275,6 +3829,35 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "HIGHLINE 59 \u0026 HIGHLINE 58",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "HIGHLINE 59 \u0026 HIGHLINE 58 - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "HIGHLINE 59 \u0026 HIGHLINE 58 - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "0 MT",
+        "qtyFinish":  "0 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -2549,6 +4132,178 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "VIET THUAN 80-07/ FC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 80-07 - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "MINH QUANG 01 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "MINH QUANG 01 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 12-01 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 12-01 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-03 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-03 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 12-06 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 12-06 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 10-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 10-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 198 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 198 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-02 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-02 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 80-07 - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-08-02 13:30",
+                             "to":  "2026-08-03 06:00",
+                             "qty":  "8.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-04 06:00",
+                             "to":  "2026-08-05 06:00",
+                             "qty":  "11.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-06 06:00",
+                             "to":  "2026-08-07 06:00",
+                             "qty":  "5.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-07 06:00",
+                             "to":  "2026-08-08 06:00",
+                             "qty":  "5.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-08 06:00",
+                             "to":  "2026-08-09 06:00",
+                             "qty":  "2.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-09 06:00",
+                             "to":  "2026-08-10 06:00",
+                             "qty":  "9.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-10 06:00",
+                             "to":  "2026-08-11 06:00",
+                             "qty":  "10.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-11 06:00",
+                             "to":  "2026-08-12 06:00",
+                             "qty":  "12.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-12 06:00",
+                             "to":  "2026-08-13 06:00",
+                             "qty":  "7.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-13 06:00",
+                             "to":  "2026-08-13 10:00",
+                             "qty":  "3.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         }
+                     ],
+        "equipment":  [
+                          "TÍN THÀNH PT 06"
+                      ],
+        "qtyTotal":  "74.500 MT",
+        "qtyFinish":  "74.500 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -2725,6 +4480,112 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "MAUBERT/ SC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "MAUBERT - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 26-02 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 26-02 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 198 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 198 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "MAUBERT - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-07-18 03:00",
+                             "to":  "2026-07-18 06:00",
+                             "qty":  "1.500 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-18 06:00",
+                             "to":  "2026-07-19 06:00",
+                             "qty":  "13.600 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-19 06:00",
+                             "to":  "2026-07-20 06:00",
+                             "qty":  "8.500 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-20 06:00",
+                             "to":  "2026-07-21 06:00",
+                             "qty":  "2.500 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-21 06:00",
+                             "to":  "2026-07-22 06:00",
+                             "qty":  "8.500 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-22 06:00",
+                             "to":  "2026-07-23 06:00",
+                             "qty":  "12.500 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-23 06:00",
+                             "to":  "2026-07-24 03:30",
+                             "qty":  "6.100 MT",
+                             "device":  ""
+                         }
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "53.200 MT",
+        "qtyFinish":  "53.200 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -2971,6 +4832,180 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "ORIENT U/ FC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "ORIENT U - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - cập (BP02 -\u003e BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - cập (BP06 -\u003e BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 235-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 235-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-02 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-02 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 10-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 10-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - rời (BP03 -\u003e BP06)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "ORIENT U - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-07-27 13:00",
+                             "to":  "2026-07-28 06:00",
+                             "qty":  "7.500 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-27 13:00",
+                             "to":  "2026-07-28 06:00",
+                             "qty":  "7.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-28 06:00",
+                             "to":  "2026-07-29 06:00",
+                             "qty":  "6.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-28 06:00",
+                             "to":  "2026-07-29 06:00",
+                             "qty":  "3.933 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-28 06:00",
+                             "to":  "2026-07-29 06:00",
+                             "qty":  "3.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-29 06:00",
+                             "to":  "2026-07-30 06:00",
+                             "qty":  "7.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-29 06:00",
+                             "to":  "2026-07-30 06:00",
+                             "qty":  "7.800 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-30 06:00",
+                             "to":  "2026-07-31 06:00",
+                             "qty":  "6.200 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-30 06:00",
+                             "to":  "2026-07-31 06:00",
+                             "qty":  "7.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-31 06:00",
+                             "to":  "2026-08-01 06:00",
+                             "qty":  "5.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-31 06:00",
+                             "to":  "2026-08-01 06:00",
+                             "qty":  "4.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-08-01 06:00",
+                             "to":  "2026-08-02 11:40",
+                             "qty":  "8.095 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-08-01 06:00",
+                             "to":  "2026-08-02 11:40",
+                             "qty":  "2.776 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         }
+                     ],
+        "equipment":  [
+                          "VNL 08",
+                          "VNL 09",
+                          "TÍN THÀNH PT 06"
+                      ],
+        "qtyTotal":  "76.305 MT",
+        "qtyFinish":  "76.305 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -3126,6 +5161,203 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "SARGAS/ FC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "SARGAS - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - cập (BP03 -\u003e BP02)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - cập (BP06 -\u003e BP02)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - cập (BP03 -\u003e BP02)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - cập (ODA -\u003e BP02)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - rời (BP02 -\u003e BP06)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "SARGAS - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-07-23 09:30",
+                             "to":  "2026-07-24 06:00",
+                             "qty":  "4.300 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-23 09:30",
+                             "to":  "2026-07-24 06:00",
+                             "qty":  "3.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-24 06:00",
+                             "to":  "2026-07-25 06:00",
+                             "qty":  "3.800 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-24 06:00",
+                             "to":  "2026-07-25 06:00",
+                             "qty":  "3.700 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-25 06:00",
+                             "to":  "2026-07-26 06:00",
+                             "qty":  "3.200 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-25 06:00",
+                             "to":  "2026-07-26 06:00",
+                             "qty":  "2.300 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-26 06:00",
+                             "to":  "2026-07-27 06:00",
+                             "qty":  "1.000 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-26 06:00",
+                             "to":  "2026-07-27 06:00",
+                             "qty":  "800 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-27 06:00",
+                             "to":  "2026-07-28 06:00",
+                             "qty":  "2.500 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-28 06:00",
+                             "to":  "2026-07-29 06:00",
+                             "qty":  "2.800 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-28 06:00",
+                             "to":  "2026-07-29 06:00",
+                             "qty":  "700 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-29 06:00",
+                             "to":  "2026-07-30 06:00",
+                             "qty":  "3.000 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-29 06:00",
+                             "to":  "2026-07-30 06:00",
+                             "qty":  "1.500 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-30 06:00",
+                             "to":  "2026-07-31 06:00",
+                             "qty":  "400 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-30 06:00",
+                             "to":  "2026-07-31 06:00",
+                             "qty":  "2.300 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-31 06:00",
+                             "to":  "2026-08-01 06:00",
+                             "qty":  "3.200 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-01 06:00",
+                             "to":  "2026-08-02 06:00",
+                             "qty":  "3.300 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-02 06:00",
+                             "to":  "2026-08-03 06:00",
+                             "qty":  "6.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-03 06:00",
+                             "to":  "2026-08-04 06:00",
+                             "qty":  "2.500 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-03 06:00",
+                             "to":  "2026-08-04 06:00",
+                             "qty":  "1.100 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-08-04 06:00",
+                             "to":  "2026-08-05 06:00",
+                             "qty":  "2.300 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-08-04 06:00",
+                             "to":  "2026-08-05 06:00",
+                             "qty":  "2.392 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-08-05 06:00",
+                             "to":  "2026-08-05 09:30",
+                             "qty":  "1.386 MT",
+                             "device":  "VNL 09"
+                         }
+                     ],
+        "equipment":  [
+                          "FC 06",
+                          "VNL 09"
+                      ],
+        "qtyTotal":  "57.450 MT",
+        "qtyFinish":  "57.479 MT",
+        "qtyRemain":  "-29 MT",
         "notes":  "",
         "risks":  [
 
@@ -3190,6 +5422,35 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "MACALLAN 1 \u0026 MOUTON",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "MACALLAN 1 \u0026 MOUTON - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "MACALLAN 1 \u0026 MOUTON - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "0 MT",
+        "qtyFinish":  "0 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -3478,6 +5739,203 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "VIET THUAN 80-06/ FC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 80-06 - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - cập (BP02 -\u003e BP09)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 10-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 10-05 - rời",
+                             "status":  "in_progress",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-02 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-02 - rời",
+                             "status":  "in_progress",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 12-01 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 12-01 - rời",
+                             "status":  "in_progress",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - rời (BP09 -\u003e BP06)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "EPIC 05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "EPIC 05 - rời",
+                             "status":  "in_progress",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 12-06 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 12-06 - rời",
+                             "status":  "in_progress",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-01 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-01 - rời",
+                             "status":  "in_progress",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-05 -0 rời",
+                             "status":  "in_progress",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 80-06 - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-07-23 00:30",
+                             "to":  "2026-07-23 06:00",
+                             "qty":  "2.500 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-23 06:00",
+                             "to":  "2026-07-24 06:00",
+                             "qty":  "8.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-24 06:00",
+                             "to":  "2026-07-25 06:00",
+                             "qty":  "4.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-24 06:00",
+                             "to":  "2026-07-25 06:00",
+                             "qty":  "3.000 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-07-25 06:00",
+                             "to":  "2026-07-26 06:00",
+                             "qty":  "7.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-26 06:00",
+                             "to":  "2026-07-27 06:00",
+                             "qty":  "1.481 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-26 06:00",
+                             "to":  "2026-07-27 06:00",
+                             "qty":  "5.700 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-07-27 06:00",
+                             "to":  "2026-07-28 06:00",
+                             "qty":  "8.500 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-07-28 06:00",
+                             "to":  "2026-07-29 06:00",
+                             "qty":  "10.500 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-07-29 06:00",
+                             "to":  "2026-07-30 06:00",
+                             "qty":  "9.000 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-07-30 06:00",
+                             "to":  "2026-07-31 06:00",
+                             "qty":  "8.500 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-07-31 06:00",
+                             "to":  "2026-07-31 15:00",
+                             "qty":  "5.419 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         }
+                     ],
+        "equipment":  [
+                          "VNL 08",
+                          "TÍN THÀNH PT 04"
+                      ],
+        "qtyTotal":  "73.600 MT",
+        "qtyFinish":  "73.600 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -3843,6 +6301,271 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "JADE/ FC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "JADE - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - cập (BP06 -\u003e BP09)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "ITC-02 - cập (BP08 -\u003e BP09)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 12-01 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 12-01 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - rời (BP09 -\u003e BP08)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - cập (BP06 -\u003e BP09)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-07 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-07 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-03 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-03 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - rời (BP09 -\u003e BP08)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-02 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - cập (BP03 -\u003e BP09)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "ITC-02 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-02 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-07 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-07 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - rời (BP09 -\u003e BP06)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "JADE - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-07-10 19:10",
+                             "to":  "2026-07-11 06:00",
+                             "qty":  "4.600 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-10 19:10",
+                             "to":  "2026-07-11 06:00",
+                             "qty":  "5.400 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-11 06:00",
+                             "to":  "2026-07-12 06:00",
+                             "qty":  "4.300 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-11 06:00",
+                             "to":  "2026-07-12 06:00",
+                             "qty":  "5.300 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-12 06:00",
+                             "to":  "2026-07-13 06:00",
+                             "qty":  "2.365 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-12 06:00",
+                             "to":  "2026-07-13 06:00",
+                             "qty":  "1.000 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-13 06:00",
+                             "to":  "2026-07-14 06:00",
+                             "qty":  "5.000 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-13 06:00",
+                             "to":  "2026-07-14 06:00",
+                             "qty":  "4.800 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-14 06:00",
+                             "to":  "2026-07-15 06:00",
+                             "qty":  "5.800 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-14 06:00",
+                             "to":  "2026-07-15 06:00",
+                             "qty":  "5.500 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-15 06:00",
+                             "to":  "2026-07-16 06:00",
+                             "qty":  "4.594 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-15 06:00",
+                             "to":  "2026-07-16 06:00",
+                             "qty":  "5.041 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-16 06:00",
+                             "to":  "2026-07-17 06:00",
+                             "qty":  "8.500 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-17 06:00",
+                             "to":  "2026-07-18 06:00",
+                             "qty":  "736 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-17 06:00",
+                             "to":  "2026-07-18 06:00",
+                             "qty":  "1.264 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-18 06:00",
+                             "to":  "2026-07-19 06:00",
+                             "qty":  "9.000 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-19 06:00",
+                             "to":  "2026-07-19 12:00",
+                             "qty":  "2.230 MT",
+                             "device":  "FC 06"
+                         }
+                     ],
+        "equipment":  [
+                          "VNL 09",
+                          "ITC 02",
+                          "VNL 08",
+                          "FC 06"
+                      ],
+        "qtyTotal":  "75.430 MT",
+        "qtyFinish":  "75.430 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -4089,6 +6812,173 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "KING MILO/ FC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "KING MILO - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - cập (BP08 -\u003e BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-03 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-03 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - cập (BP06 -\u003e BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 198 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 198 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "KING MILO - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-07-16 00:00",
+                             "to":  "2026-07-16 06:00",
+                             "qty":  "3.000 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-16 00:00",
+                             "to":  "2026-07-16 06:00",
+                             "qty":  "4.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-16 06:00",
+                             "to":  "2026-07-17 06:00",
+                             "qty":  "7.523 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-16 06:00",
+                             "to":  "2026-07-17 06:00",
+                             "qty":  "6.477 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-18 06:00",
+                             "to":  "2026-07-19 06:00",
+                             "qty":  "3.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-19 06:00",
+                             "to":  "2026-07-20 06:00",
+                             "qty":  "9.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-20 06:00",
+                             "to":  "2026-07-21 06:00",
+                             "qty":  "6.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-21 06:00",
+                             "to":  "2026-07-22 06:00",
+                             "qty":  "7.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-21 06:00",
+                             "to":  "2026-07-22 06:00",
+                             "qty":  "7.800 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-22 06:00",
+                             "to":  "2026-07-23 06:00",
+                             "qty":  "3.600 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-22 06:00",
+                             "to":  "2026-07-23 06:00",
+                             "qty":  "2.364 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-24 06:00",
+                             "to":  "2026-07-25 06:00",
+                             "qty":  "4.000 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-25 06:00",
+                             "to":  "2026-07-25 20:30",
+                             "qty":  "10.174 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         }
+                     ],
+        "equipment":  [
+                          "FC 06",
+                          "TÍN THÀNH PT 06"
+                      ],
+        "qtyTotal":  "74.438 MT",
+        "qtyFinish":  "74.438 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -4314,6 +7204,203 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "SHI DAI 11/ FC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "SHI DAI 11 - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - cập (BP08 -\u003e BP02)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - cập (BP08 -\u003e BP02)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 168 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 168 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 235-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 235-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 189 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 189 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - rời (BP02 -\u003e BP06)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "SHI DAI 11 - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-07-13 13:00",
+                             "to":  "2026-07-14 06:00",
+                             "qty":  "2.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-14 06:00",
+                             "to":  "2026-07-15 06:00",
+                             "qty":  "9.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-15 06:00",
+                             "to":  "2026-07-16 06:00",
+                             "qty":  "8.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-16 06:00",
+                             "to":  "2026-07-17 06:00",
+                             "qty":  "2.400 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-16 06:00",
+                             "to":  "2026-07-17 06:00",
+                             "qty":  "1.400 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-17 06:00",
+                             "to":  "2026-07-18 06:00",
+                             "qty":  "6.500 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-17 06:00",
+                             "to":  "2026-07-18 06:00",
+                             "qty":  "7.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-18 06:00",
+                             "to":  "2026-07-19 06:00",
+                             "qty":  "6.200 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-18 06:00",
+                             "to":  "2026-07-19 06:00",
+                             "qty":  "6.800 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-19 06:00",
+                             "to":  "2026-07-20 06:00",
+                             "qty":  "4.800 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-19 06:00",
+                             "to":  "2026-07-20 06:00",
+                             "qty":  "5.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-20 06:00",
+                             "to":  "2026-07-21 06:00",
+                             "qty":  "350 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-20 06:00",
+                             "to":  "2026-07-21 06:00",
+                             "qty":  "350 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-21 06:00",
+                             "to":  "2026-07-22 06:00",
+                             "qty":  "5.500 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-21 06:00",
+                             "to":  "2026-07-22 06:00",
+                             "qty":  "6.300 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-22 06:00",
+                             "to":  "2026-07-22 13:45",
+                             "qty":  "2.700 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-22 06:00",
+                             "to":  "2026-07-22 13:45",
+                             "qty":  "300 MT",
+                             "device":  "VNL 08"
+                         }
+                     ],
+        "equipment":  [
+                          "VNL 09",
+                          "VNL 08"
+                      ],
+        "qtyTotal":  "74.600 MT",
+        "qtyFinish":  "74.600 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -4462,6 +7549,118 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "KRAIT/ SC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "KRAIT - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-02 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-02 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 169 -cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 169 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "KRAIT - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-07-02 10:30",
+                             "to":  "2026-07-03 06:00",
+                             "qty":  "10.000 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-03 06:00",
+                             "to":  "2026-07-04 06:00",
+                             "qty":  "10.000 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-04 06:00",
+                             "to":  "2026-07-05 06:00",
+                             "qty":  "7.500 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-05 06:00",
+                             "to":  "2026-07-06 06:00",
+                             "qty":  "11.000 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-06 06:00",
+                             "to":  "2026-07-07 06:00",
+                             "qty":  "1.500 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-07 06:00",
+                             "to":  "2026-07-08 06:00",
+                             "qty":  "7.500 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-08 06:00",
+                             "to":  "2026-07-09 06:00",
+                             "qty":  "6.900 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-09 06:00",
+                             "to":  "2026-07-09 15:30",
+                             "qty":  "400 MT",
+                             "device":  ""
+                         }
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "54.800 MT",
+        "qtyFinish":  "54.800 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -4610,6 +7809,112 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "ASP HOPE/ SC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "ASP HOPE - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 26-02 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 26-02 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 198 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 198 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 235-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 235-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "ASP HOPE - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-07-05 03:00",
+                             "to":  "2026-07-06 06:00",
+                             "qty":  "12.000 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-06 06:00",
+                             "to":  "2026-07-07 06:00",
+                             "qty":  "10.500 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-07 06:00",
+                             "to":  "2026-07-08 06:00",
+                             "qty":  "5.000 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-08 06:00",
+                             "to":  "2026-07-09 06:00",
+                             "qty":  "8.500 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-09 06:00",
+                             "to":  "2026-07-10 06:00",
+                             "qty":  "8.500 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-11 06:00",
+                             "to":  "2026-07-12 06:00",
+                             "qty":  "8.000 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-12 06:00",
+                             "to":  "2026-07-12 20:35",
+                             "qty":  "2.500 MT",
+                             "device":  ""
+                         }
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "55.000 MT",
+        "qtyFinish":  "55.000 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -4961,6 +8266,246 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "MELIA/ FC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "MELIA - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - cập (BP03 -\u003e BP02)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "ITC-02 - cập (BP03 -\u003e BP02)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 10-03 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 10-03 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 12-02 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 12-02 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 10-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 10-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - cập (ODA -\u003e BP02)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-02 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-02 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 12-01 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 12-01 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-01 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-01 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "ITC-02 - rời (BP02 -\u003e BP06)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - rời (BP02 -\u003e BP06)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "MELIA - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-07-02 22:30",
+                             "to":  "2026-07-03 06:00",
+                             "qty":  "1.500 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-02 22:30",
+                             "to":  "2026-07-03 06:00",
+                             "qty":  "3.200 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-03 06:00",
+                             "to":  "2026-07-04 06:00",
+                             "qty":  "8.700 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-03 06:00",
+                             "to":  "2026-07-04 06:00",
+                             "qty":  "8.800 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-04 06:00",
+                             "to":  "2026-07-05 06:00",
+                             "qty":  "4.700 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-04 06:00",
+                             "to":  "2026-07-05 06:00",
+                             "qty":  "4.600 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-05 06:00",
+                             "to":  "2026-07-06 06:00",
+                             "qty":  "9.200 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-05 06:00",
+                             "to":  "2026-07-06 06:00",
+                             "qty":  "1.632 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-06 06:00",
+                             "to":  "2026-07-07 06:00",
+                             "qty":  "6.300 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-06 06:00",
+                             "to":  "2026-07-07 06:00",
+                             "qty":  "3.200 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-07 06:00",
+                             "to":  "2026-07-08 06:00",
+                             "qty":  "4.000 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-07 06:00",
+                             "to":  "2026-07-08 06:00",
+                             "qty":  "3.600 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-08 06:00",
+                             "to":  "2026-07-09 06:00",
+                             "qty":  "5.000 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-08 06:00",
+                             "to":  "2026-07-09 06:00",
+                             "qty":  "4.500 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-07-09 06:00",
+                             "to":  "2026-07-09 14:30",
+                             "qty":  "1.352 MT",
+                             "device":  "ITC 02"
+                         },
+                         {
+                             "from":  "2026-07-09 06:00",
+                             "to":  "2026-07-09 14:30",
+                             "qty":  "4.056 MT",
+                             "device":  "VNL 09"
+                         }
+                     ],
+        "equipment":  [
+                          "ITC 02",
+                          "FC 06",
+                          "VNL 09"
+                      ],
+        "qtyTotal":  "74.340 MT",
+        "qtyFinish":  "74.340 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -5200,6 +8745,216 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "OCEAN DALIAN/ FC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "OCEAN DALIAN - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - rời (BP03 -\u003e Neo BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - cập (Neo BP03 -\u003e BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - cập (BP02 -\u003e BP03)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 235-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 235-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL08 - rời (BP03 -\u003e BP06)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 189 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 189 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 168 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 168 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-03 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-03 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - rời (BP03 -\u003e BP08)",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "OCEAN DALIAN - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-07-05 14:30",
+                             "to":  "2026-07-06 06:00",
+                             "qty":  "6.000 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-05 14:30",
+                             "to":  "2026-07-06 06:00",
+                             "qty":  "1.500 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-07-06 06:00",
+                             "to":  "2026-07-07 06:00",
+                             "qty":  "12.000 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-07 06:00",
+                             "to":  "2026-07-08 06:00",
+                             "qty":  "3.600 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-07 06:00",
+                             "to":  "2026-07-08 06:00",
+                             "qty":  "600 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-08 06:00",
+                             "to":  "2026-07-09 06:00",
+                             "qty":  "8.000 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-08 06:00",
+                             "to":  "2026-07-09 06:00",
+                             "qty":  "3.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-09 06:00",
+                             "to":  "2026-07-10 06:00",
+                             "qty":  "3.200 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-09 06:00",
+                             "to":  "2026-07-10 06:00",
+                             "qty":  "1.400 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-11 06:00",
+                             "to":  "2026-07-12 06:00",
+                             "qty":  "6.000 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-11 06:00",
+                             "to":  "2026-07-12 06:00",
+                             "qty":  "8.500 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-12 06:00",
+                             "to":  "2026-07-13 06:00",
+                             "qty":  "3.800 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-12 06:00",
+                             "to":  "2026-07-13 06:00",
+                             "qty":  "3.200 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-13 06:00",
+                             "to":  "2026-07-14 06:00",
+                             "qty":  "4.200 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-13 06:00",
+                             "to":  "2026-07-14 06:00",
+                             "qty":  "6.800 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-07-14 06:00",
+                             "to":  "2026-07-14 17:55",
+                             "qty":  "1.881 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-07-14 06:00",
+                             "to":  "2026-07-14 17:55",
+                             "qty":  "531 MT",
+                             "device":  "TÍN THÀNH PT 06"
+                         }
+                     ],
+        "equipment":  [
+                          "FC 06",
+                          "VNL 08",
+                          "TÍN THÀNH PT 06"
+                      ],
+        "qtyTotal":  "74.712 MT",
+        "qtyFinish":  "74.712 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -5264,6 +9019,106 @@ const OCC_JOBS = [
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "UNITY MARIA/ SC",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "UNITY MARIA - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 235-05 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 235-05 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 198 - cập",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 198 - rời",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "UNITY MARIA - RỜI",
+                             "status":  "completed",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+                         {
+                             "from":  "2026-06-26 16:30",
+                             "to":  "2026-06-27 06:00",
+                             "qty":  "8.200 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-06-27 06:00",
+                             "to":  "2026-06-28 06:00",
+                             "qty":  "11.000 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-06-28 06:00",
+                             "to":  "2026-06-29 06:00",
+                             "qty":  "4.200 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-06-29 06:00",
+                             "to":  "2026-06-30 06:00",
+                             "qty":  "14.000 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-06-30 06:00",
+                             "to":  "2026-07-01 06:00",
+                             "qty":  "7.200 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-07-01 06:00",
+                             "to":  "2026-07-02 10:30",
+                             "qty":  "9.660 MT",
+                             "device":  ""
+                         }
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "54.260 MT",
+        "qtyFinish":  "54.260 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -5275,6 +9130,45 @@ const OCC_JOBS = [
 ];
 
 const OCC_DVHH = [
+    {
+        "id":  "DV-29409",
+        "title":  "Lai dắt STAR PEGASUS",
+        "from":  "2026-09-03 19:00",
+        "to":  "2026-09-03 20:00",
+        "tugs":  [
+                     "VNL EXPLORER",
+                     "VNL VOYAGER"
+                 ],
+        "customer":  "ATTA - An Trung Tin Shipping Agency and Trading Co., Ltd",
+        "status":  "planned",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29408",
+        "title":  "Lai dắt JI HANG 56",
+        "from":  "2026-09-03 05:30",
+        "to":  "2026-09-03 06:00",
+        "tugs":  [
+                     "VNL EXPLORER",
+                     "VNL VOYAGER"
+                 ],
+        "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN HẢI NAM",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29404",
+        "title":  "Lai dắt ZIM ALBATROSS",
+        "from":  "2026-09-02 23:00",
+        "to":  "2026-09-02 23:59",
+        "tugs":  [
+                     "VNL FUTURE",
+                     "VNL RUBY"
+                 ],
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
     {
         "id":  "DV-29403",
         "title":  "Lai dắt ZIM ALBATROSS",
@@ -10579,6 +14473,174 @@ const OCC_TUG_TASK_TYPES = {
 };
 
 const OCC_TUG_TASKS = [
+    {
+        "id":  "TT-29409-1",
+        "tugId":  "VNL EXPLORER",
+        "from":  "2026-09-03 19:00",
+        "to":  "2026-09-03 20:00",
+        "type":  "tow_in",
+        "vessel":  "STAR PEGASUS",
+        "customer":  "ATTA - An Trung Tin Shipping Agency and Trading Co., Ltd",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29409"
+    },
+    {
+        "id":  "TT-29409-2",
+        "tugId":  "VNL VOYAGER",
+        "from":  "2026-09-03 19:00",
+        "to":  "2026-09-03 20:00",
+        "type":  "tow_in",
+        "vessel":  "STAR PEGASUS",
+        "customer":  "ATTA - An Trung Tin Shipping Agency and Trading Co., Ltd",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29409"
+    },
+    {
+        "id":  "TT-29408-1",
+        "tugId":  "VNL EXPLORER",
+        "from":  "2026-09-03 05:30",
+        "to":  "2026-09-03 06:00",
+        "type":  "tow_in",
+        "vessel":  "JI HANG 56",
+        "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN HẢI NAM",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29408"
+    },
+    {
+        "id":  "TT-29408-2",
+        "tugId":  "VNL VOYAGER",
+        "from":  "2026-09-03 05:30",
+        "to":  "2026-09-03 06:00",
+        "type":  "tow_in",
+        "vessel":  "JI HANG 56",
+        "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN HẢI NAM",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29408"
+    },
+    {
+        "id":  "TT-29407-1",
+        "tugId":  "VNL FUTURE",
+        "from":  "2026-09-02 17:00",
+        "to":  "2026-09-02 17:30",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 215-07",
+        "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2608-338"
+    },
+    {
+        "id":  "TT-29407-2",
+        "tugId":  "VNL 07",
+        "from":  "2026-09-02 17:00",
+        "to":  "2026-09-02 17:30",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 215-07",
+        "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2608-338"
+    },
+    {
+        "id":  "TT-29406-1",
+        "tugId":  "VNL 07",
+        "from":  "2026-09-02 11:30",
+        "to":  "2026-09-02 12:00",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 168",
+        "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2608-270"
+    },
+    {
+        "id":  "TT-29406-2",
+        "tugId":  "VNL RUBY",
+        "from":  "2026-09-02 11:30",
+        "to":  "2026-09-02 12:00",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 168",
+        "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2608-270"
+    },
+    {
+        "id":  "TT-29405-1",
+        "tugId":  "VNL 07",
+        "from":  "2026-09-05 01:00",
+        "to":  "2026-09-05 12:00",
+        "type":  "tow_in",
+        "vessel":  "ORIENTAL GOLD/ FC",
+        "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ HÀNG HẢI SUNRISE",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2609-024"
+    },
+    {
+        "id":  "TT-29405-2",
+        "tugId":  "VNL EXPLORER",
+        "from":  "2026-09-05 01:00",
+        "to":  "2026-09-05 12:00",
+        "type":  "tow_in",
+        "vessel":  "ORIENTAL GOLD/ FC",
+        "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ HÀNG HẢI SUNRISE",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2609-024"
+    },
+    {
+        "id":  "TT-29404-1",
+        "tugId":  "VNL FUTURE",
+        "from":  "2026-09-02 23:00",
+        "to":  "2026-09-02 23:59",
+        "type":  "tow_in",
+        "vessel":  "ZIM ALBATROSS",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29404"
+    },
+    {
+        "id":  "TT-29404-2",
+        "tugId":  "VNL RUBY",
+        "from":  "2026-09-02 23:00",
+        "to":  "2026-09-02 23:59",
+        "type":  "tow_in",
+        "vessel":  "ZIM ALBATROSS",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29404"
+    },
+    {
+        "id":  "TT-29404-3",
+        "tugId":  "VNL FUTURE",
+        "from":  "2026-09-02 23:00",
+        "to":  "2026-09-02 23:59",
+        "type":  "tow_in",
+        "vessel":  "ZIM ALBATROSS",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29404"
+    },
+    {
+        "id":  "TT-29404-4",
+        "tugId":  "VNL RUBY",
+        "from":  "2026-09-02 23:00",
+        "to":  "2026-09-02 23:59",
+        "type":  "tow_in",
+        "vessel":  "ZIM ALBATROSS",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29404"
+    },
     {
         "id":  "TT-29403-1",
         "tugId":  "VNL RELIANCE",

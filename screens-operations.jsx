@@ -481,7 +481,14 @@ function OCCJobDrawer({ jobId, dvhh, onClose }) {
                 {/* Progress */}
                 <div style={{ marginTop: 14 }}>
                   <div className="row between" style={{ marginBottom: 6 }}>
-                    <span className="muted" style={{ fontSize: 12 }}>Tiến độ khai thác</span>
+                    <span className="muted" style={{ fontSize: 12 }}>
+                      Tiến độ khai thác
+                      {job.qtyFinish && job.qtyTotal && (
+                        <span style={{ marginLeft: 6, fontFamily: "var(--font-mono)", color: "var(--t-secondary)" }}>
+                          · đã làm <b style={{ color: "var(--st-success)" }}>{job.qtyFinish}</b> / {job.qtyTotal} · còn {job.qtyRemain}
+                        </span>
+                      )}
+                    </span>
                     <b style={{ fontSize: 13, fontFamily: "var(--font-mono)" }}>{job.progress}%</b>
                   </div>
                   <div className={`progress-track ${job.status === "delayed" ? "late" : ""} ${job.status === "completed" ? "done" : ""}`}>
@@ -527,6 +534,69 @@ function OCCJobDrawer({ jobId, dvhh, onClose }) {
                   <div className="info-block"><span className="muted">Ghi chú điều hành</span><span>{job.notes}</span></div>
                 )}
               </div>
+
+              {/* KHAI THÁC — thiết bị khai thác (cẩu nổi/tàu đặt cẩu) + sản lượng từng ca.
+                  Tách bạch với dịch vụ hàng hải (tàu lai) ở khối bên dưới. */}
+              {job.cargoOps && job.cargoOps.length > 0 && (
+                <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--line)" }}>
+                  <h4 style={{ margin: "0 0 10px", fontSize: 13, fontWeight: 600 }}>
+                    Khai thác — làm hàng
+                    <span className="muted" style={{ fontWeight: 500, marginLeft: 6, fontSize: 12 }}>
+                      ({job.cargoOps.length} ca · {job.equipment.length} thiết bị)
+                    </span>
+                  </h4>
+                  {job.equipment.length > 0 && (
+                    <div className="row" style={{ gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+                      {job.equipment.map(e => (
+                        <span key={e} className="tag mono" style={{ background: "#EFEBFB", color: "#7C5BE0" }}>
+                          <Icon name="crane" size={11}/> {e}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <table className="tbl" style={{ fontSize: 12 }}>
+                    <thead>
+                      <tr><th>Ca làm hàng</th><th>Thiết bị</th><th style={{ textAlign: "right" }}>Sản lượng</th></tr>
+                    </thead>
+                    <tbody>
+                      {job.cargoOps.map((op, i) => (
+                        <tr key={i}>
+                          <td className="mono" style={{ fontSize: 11.5 }}>
+                            {op.from.slice(8,10)}/{op.from.slice(5,7)} {op.from.slice(11)} → {op.to ? `${op.to.slice(8,10)}/${op.to.slice(5,7)} ${op.to.slice(11)}` : "…"}
+                          </td>
+                          <td className="mono" style={{ fontSize: 11.5, color: "#7C5BE0" }}>{op.device || "—"}</td>
+                          <td className="mono" style={{ textAlign: "right", fontWeight: 600 }}>{op.qty}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* DỊCH VỤ HÀNG HẢI (DVHH) — cập/rời/shifting... của job này */}
+              {job.services && job.services.filter(s => s.kind === "dvhh").length > 0 && (
+                <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--line)" }}>
+                  <h4 style={{ margin: "0 0 10px", fontSize: 13, fontWeight: 600 }}>
+                    Dịch vụ hàng hải
+                    <span className="muted" style={{ fontWeight: 500, marginLeft: 6, fontSize: 12 }}>
+                      ({job.services.filter(s => s.kind === "dvhh").length} dịch vụ)
+                    </span>
+                  </h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {job.services.filter(s => s.kind === "dvhh").map((s, i) => {
+                      const m = occStatusMeta[s.status] || occStatusMeta.planned;
+                      return (
+                        <div key={i} className="row between" style={{ padding: "6px 10px", background: "var(--bg-canvas)", borderRadius: 6 }}>
+                          <span style={{ fontSize: 12.5 }}>{s.label || "—"}</span>
+                          <span className={`badge ${m.badge}`} style={{ height: 18, fontSize: 10 }}>
+                            <span className="pip"></span>{m.label}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Resources */}
               <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--line)" }}>

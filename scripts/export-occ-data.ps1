@@ -275,6 +275,57 @@ foreach ($r in $berthProcRows.Rows) {
   }
   # resources: tug/barge — gắn sau khi duyệt xong $tugProcRows (cần biết jobIdByBookingCenter trước)
 
+  # ---- Các DỊCH VỤ con của job (đúng như bảng "BẢNG DỊCH VỤ" trên hệ thống thật):
+  # 1 JobCode (BookingCenter) gồm nhiều BookingCenterService — ServiceId 1 = DVHH
+  # (hàng hải: cập/rời/shifting...), 2 = Khai thác (làm hàng tại bến). Remark chính
+  # là dòng mô tả người điều hành nhập ("VIET THUAN 80-03 - CẬP", "EPIC 05 - rời"...).
+  $svcRows = Query "SELECT Id, ServiceId, BookingStatusId, IsMain, Remark FROM BookingCenterService WHERE BookingCenterId = @bc ORDER BY Id" -params @{ "@bc" = [int]$r.IDBookingCenter }
+  $services = @()
+  foreach ($sv in $svcRows.Rows) {
+    $svStatusId = SafeInt $sv.BookingStatusId
+    if ($null -ne $svStatusId -and $excludedStatus -contains $svStatusId) { continue }
+    $services += [ordered]@{
+      kind   = if ((SafeInt $sv.ServiceId) -eq 2) { "khai_thac" } else { "dvhh" }
+      label  = if ([System.DBNull]::Value.Equals($sv.Remark)) { "" } else { "$($sv.Remark)".Trim() }
+      status = if ($svStatusId -and $statusMap[$svStatusId]) { $statusMap[$svStatusId] } else { "planned" }
+      isMain = [bool]$sv.IsMain
+    }
+  }
+
+  # ---- Các CA LÀM HÀNG (khai thác) + THIẾT BỊ dùng cho từng ca.
+  # ICDUploadingCargo (BookingType=3 = bến phao) ghi từng ca: mốc giờ, đã làm, còn lại
+  # và DeviceTypeID -> ICDBookingDeviceType.Id -> IDNo dạng "<loại>_<id>";
+  # loại 12 = FloatingCranes (tàu đặt cẩu / cẩu nổi) — đây là thiết bị KHAI THÁC thật sự,
+  # khác hoàn toàn với tàu lai (dịch vụ hàng hải).
+  $cargoOps = @()
+  $qtyTotal = 0; $qtyFinish = 0; $qtyRemain = 0
+  $opRows = Query @"
+SELECT u.StartTime, u.EndTime, u.QtyTotal, u.QtyFinish, u.QtyRemain, fc.FloatingCraneName AS DeviceName
+FROM ICDUploadingCargo u
+LEFT JOIN ICDBookingDeviceType d ON d.Id = u.DeviceTypeID
+LEFT JOIN FloatingCranes fc ON d.IDNo LIKE '12[_]%' AND fc.FloatingCraneID = TRY_CAST(SUBSTRING(d.IDNo, 4, 10) AS int)
+WHERE u.BookingId = @bk AND u.BookingType = 3
+ORDER BY u.StartTime, u.Id
+"@ -params @{ "@bk" = $bookingId }
+  foreach ($op in $opRows.Rows) {
+    $f = if ([System.DBNull]::Value.Equals($op.QtyFinish)) { 0 } else { [decimal]$op.QtyFinish }
+    $qtyFinish += $f
+    if (-not [System.DBNull]::Value.Equals($op.QtyTotal))  { $qtyTotal  = [math]::Max($qtyTotal, [decimal]$op.QtyTotal) }
+    if (-not [System.DBNull]::Value.Equals($op.QtyRemain)) { $qtyRemain = [decimal]$op.QtyRemain }
+    $cargoOps += [ordered]@{
+      from   = FmtDT $op.StartTime
+      to     = FmtDT $op.EndTime
+      qty    = FmtQty $f
+      device = if ([System.DBNull]::Value.Equals($op.DeviceName)) { "" } else { "$($op.DeviceName)".Trim() }
+    }
+  }
+  # Thiết bị khai thác đang/đã dùng cho job (gộp từ các ca, bỏ trùng)
+  $equipment = @($cargoOps | ForEach-Object { $_.device } | Where-Object { $_ } | Select-Object -Unique)
+
+  # Tiến độ THẬT theo sản lượng (thay cho ước lượng thô 0/50/100 theo trạng thái)
+  $realProgress = if ($qtyTotal -gt 0) { [int][math]::Round(($qtyFinish / $qtyTotal) * 100) }
+                  elseif ($status -eq "completed") { 100 } elseif ($status -eq "planned") { 0 } else { 50 }
+
   $occJobs += [ordered]@{
     id       = $jobId
     vessel   = [ordered]@{
@@ -295,13 +346,19 @@ foreach ($r in $berthProcRows.Rows) {
     contract = ""   # chưa tìm thấy field số hợp đồng tương ứng trong DB — để trống, UI ẩn dòng này
     pic      = ""   # PEOPLE hiện là bảng mock riêng, chưa map với UserAccounts — để trống tạm thời
     status   = $status
-    progress = if ($status -eq "completed") { 100 } elseif ($status -eq "planned") { 0 } else { 50 }  # DB không có % tiến độ trực tiếp — ước lượng thô theo trạng thái, cần cải thiện sau
+    progress = $realProgress   # % theo sản lượng thật (QtyFinish/QtyTotal) khi có số liệu làm hàng
     start    = if ($vd -and -not [System.DBNull]::Value.Equals($vd.TimeMooring)) { FmtDT $vd.TimeMooring } else { FmtDT $r.ETA }
     end      = if ($vd -and -not [System.DBNull]::Value.Equals($vd.ToLeave))    { FmtDT $vd.ToLeave }    else { FmtDT $r.ETD }
     eta      = FmtDT $r.ETA
     etd      = FmtDT $r.ETD
     revenue  = "0 ₫"   # chưa tìm thấy nguồn doanh thu/giá dịch vụ đáng tin cậy trong DB — cần xác nhận thêm
     resources = $resources
+    services  = $services     # các dịch vụ con: hàng hải (DVHH) + khai thác
+    cargoOps  = $cargoOps     # từng ca làm hàng: giờ, sản lượng, thiết bị
+    equipment = $equipment    # thiết bị khai thác đã dùng (cẩu nổi / tàu đặt cẩu)
+    qtyTotal  = FmtQty $qtyTotal
+    qtyFinish = FmtQty $qtyFinish
+    qtyRemain = FmtQty $qtyRemain
     notes    = ""
     risks    = @()
     logs     = @()
