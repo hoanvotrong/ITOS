@@ -290,11 +290,15 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
                   // Clip bars that start before the visible window so they don't slip under the sticky left panel
                   const clippedLeft = left < 0;
                   if (clippedLeft) { width += left; left = 0; }
+                  // Cắt phần tràn qua NGÀY CUỐI THÁNG đang xem — job kéo dài sang tháng sau
+                  // chỉ vẽ tới hết cột ngày cuối, không tràn ra ngoài lưới tháng.
+                  const clippedRight = left + width > totalDays * dayW;
+                  if (clippedRight) { width = totalDays * dayW - left; }
                   if (width < 3) return null;
                   // Ngưỡng 40px (không phải 14px): bar hẹp hơn mức đó không đủ chỗ hiện tên
                   // tàu (label bị ellipsis về rỗng), chỉ còn khung viền trống (dashed cho status
                   // "planned") trông như lỗi hiển thị — nên gộp về pip/cluster thay vì vẽ dở dang.
-                  return { b, i, s, left, width, clippedLeft, isPip: isTug && width < 40 };
+                  return { b, i, s, left, width, clippedLeft, clippedRight, isPip: isTug && width < 40 };
                 }).filter(Boolean);
 
                 // Pip đã bắt đầu TRƯỚC khu vực đang xem (clippedLeft) thì bỏ hẳn, không kẹp
@@ -341,13 +345,13 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
                   );
                 });
 
-                const barEls = geo.filter(g => !g.isPip).map(({ b, i, left, width, clippedLeft }) => {
+                const barEls = geo.filter(g => !g.isPip).map(({ b, i, left, width, clippedLeft, clippedRight }) => {
                   const meta = occStatusMeta[b.status] || occStatusMeta.planned;
                   const vesselName = b.vessel?.name || b.title;
                   return (
                     <div
                       key={`b${i}`}
-                      className={`occ-bar ${meta.cls} ${isResource ? "thin" : ""} ${row.type === "crane" ? "is-crane" : ""} ${row.type === "tug" ? "is-tug" : ""} ${clippedLeft ? "clip-left" : ""}`}
+                      className={`occ-bar ${meta.cls} ${isResource ? "thin" : ""} ${row.type === "crane" ? "is-crane" : ""} ${row.type === "tug" ? "is-tug" : ""} ${clippedLeft ? "clip-left" : ""} ${clippedRight ? "clip-right" : ""}`}
                       style={{ left, width }}
                       onClick={(ev) => {
                         ev.stopPropagation();

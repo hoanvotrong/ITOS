@@ -1459,7 +1459,7 @@ html, body {
 .occ-gantt-corner {
   position: sticky;
   left: 0;
-  z-index: 5;
+  z-index: 8; /* trên cả .occ-gantt-left/.occ-gantt-section-head (z-7) */
   width: 220px;
   height: 48px;
   background: var(--bg-canvas);
@@ -1544,7 +1544,7 @@ html, body {
   border-top: 1px solid var(--line);
   position: sticky;
   left: 0;
-  z-index: 3;
+  z-index: 7; /* trên mọi nội dung track, xem ghi chú ở .occ-gantt-left */
 }
 .occ-gantt-section-head b { font-size: 12.5px; font-weight: 600; letter-spacing: -0.005em; }
 .occ-section-icon {
@@ -1567,7 +1567,10 @@ html, body {
 .occ-gantt-left {
   position: sticky;
   left: 0;
-  z-index: 2;
+  /* Phải cao hơn mọi thứ trong track (bar z-1/hover 5, pip z-2/hover 6, cluster
+     z-3/hover 6, đường HÔM NAY z-4) để khi cuộn ngang, nội dung track trượt
+     XUỐNG DƯỚI panel tên chứ không đè lên chữ. */
+  z-index: 7;
   width: 220px;
   flex: 0 0 220px;
   background: var(--bg-surface);
@@ -1732,6 +1735,29 @@ html, body {
   border-radius: 0 !important;
 }
 .occ-bar.clip-left.occ-bar-planned::before {
+  background:
+    repeating-linear-gradient(135deg,
+      currentColor 0, currentColor 1.5px,
+      transparent 1.5px, transparent 5px);
+  opacity: 0.3;
+}
+
+/* Clipped-right bars: kéo dài qua tháng sau — cắt tại ngày cuối tháng, sọc chéo báo hiệu còn tiếp */
+.occ-bar.clip-right { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.occ-bar.clip-right::after {
+  content: "";
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 6px;
+  background:
+    repeating-linear-gradient(135deg,
+      rgba(255,255,255,0.25) 0,
+      rgba(255,255,255,0.25) 3px,
+      rgba(255,255,255,0.05) 3px,
+      rgba(255,255,255,0.05) 6px);
+  border-radius: 0 !important;
+}
+.occ-bar.clip-right.occ-bar-planned::after {
   background:
     repeating-linear-gradient(135deg,
       currentColor 0, currentColor 1.5px,
