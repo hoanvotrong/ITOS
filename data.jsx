@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-04 09:37 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-04 11:28 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  4,
     "todayCol":  66,
-    "todayHour":  9.62
+    "todayHour":  11.47
 };
 
 const OCC_BERTHS = [
@@ -634,14 +634,14 @@ const OCC_JOBS = [
                           {
                               "type":  "tug",
                               "id":  "VNL RELIANCE",
-                              "from":  "2026-09-04 06:00",
+                              "from":  "2026-09-04 05:35",
                               "to":  "2026-09-04 06:30",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
                               "type":  "tug",
                               "id":  "VNL FUTURE",
-                              "from":  "2026-09-04 06:00",
+                              "from":  "2026-09-04 05:35",
                               "to":  "2026-09-04 06:30",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
@@ -877,7 +877,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 215-01 - cập",
-                             "status":  "planned",
+                             "status":  "in_progress",
                              "isMain":  false
                          }
                      ],
@@ -3990,7 +3990,7 @@ const OCC_JOBS = [
                    },
         "cargo":  {
                       "name":  "Than đá",
-                      "qty":  "74.500 MT",
+                      "qty":  "75.000 MT",
                       "op":  ""
                   },
         "berthId":  "BP 09",
@@ -3998,7 +3998,7 @@ const OCC_JOBS = [
         "contract":  "",
         "pic":  "",
         "status":  "completed",
-        "progress":  100,
+        "progress":  101,
         "start":  "2026-08-01 17:00",
         "end":  "2026-08-13 14:30",
         "eta":  "2026-08-01 17:00",
@@ -4406,7 +4406,7 @@ const OCC_JOBS = [
                          {
                              "from":  "2026-08-13 06:00",
                              "to":  "2026-08-13 10:00",
-                             "qty":  "3.000 MT",
+                             "qty":  "3.500 MT",
                              "device":  "TÍN THÀNH PT 06"
                          }
                      ],
@@ -4414,8 +4414,8 @@ const OCC_JOBS = [
                           "TÍN THÀNH PT 06"
                       ],
         "qtyTotal":  "74.500 MT",
-        "qtyFinish":  "74.500 MT",
-        "qtyRemain":  "0 MT",
+        "qtyFinish":  "75.000 MT",
+        "qtyRemain":  "-500 MT",
         "notes":  "",
         "risks":  [
 
@@ -9277,7 +9277,7 @@ const OCC_DVHH = [
                      "VNL RUBY"
                  ],
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI AN BÌNH",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -14746,7 +14746,7 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29412-1",
         "tugId":  "VNL RELIANCE",
-        "from":  "2026-09-04 06:00",
+        "from":  "2026-09-04 05:35",
         "to":  "2026-09-04 06:30",
         "type":  "tow_in",
         "vessel":  "VIET THUAN 215-01",
@@ -14758,7 +14758,7 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29412-2",
         "tugId":  "VNL FUTURE",
-        "from":  "2026-09-04 06:00",
+        "from":  "2026-09-04 05:35",
         "to":  "2026-09-04 06:30",
         "type":  "tow_in",
         "vessel":  "VIET THUAN 215-01",
@@ -14799,7 +14799,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "LL LISNAWATI \u0026 LL 3308",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI AN BÌNH",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29410"
     },
