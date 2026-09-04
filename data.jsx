@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-04 11:32 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-04 13:06 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  4,
     "todayCol":  66,
-    "todayHour":  11.53
+    "todayHour":  13.1
 };
 
 const OCC_BERTHS = [
@@ -1607,7 +1607,7 @@ const OCC_JOBS = [
                          },
                          {
                              "from":  "2026-08-31 06:00",
-                             "to":  "2026-09-01 22:30",
+                             "to":  "2026-09-01 06:00",
                              "qty":  "4.500 MT",
                              "device":  "FC 06"
                          },
@@ -9265,7 +9265,7 @@ const OCC_DVHH = [
                      "VNL RUBY"
                  ],
         "customer":  "Công ty Cổ phần Chế tạo Giàn khoan Dầu khí (PV Shipyard)",
-        "status":  "planned",
+        "status":  "in_progress",
         "revenue":  "0 ₫"
     },
     {
@@ -10853,7 +10853,7 @@ const OCC_DVHH = [
                      "VNL 05"
                  ],
         "customer":  "Công ty Cổ phần Chế tạo Giàn khoan Dầu khí (PV Shipyard)",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -11232,8 +11232,8 @@ const OCC_DVHH = [
         "from":  "2026-08-12 13:00",
         "to":  "2026-08-12 14:00",
         "tugs":  [
-                     "Tàu lai ngoài 02",
-                     "Tàu lai ngoài"
+                     "Tàu lai ngoài",
+                     "Tàu lai ngoài 02"
                  ],
         "customer":  "VINA LOGISTICS CORPORATION",
         "status":  "completed",
@@ -14643,7 +14643,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "H-401",
         "customer":  "Công ty Cổ phần Chế tạo Giàn khoan Dầu khí (PV Shipyard)",
-        "status":  "planned",
+        "status":  "in_progress",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29414"
     },
@@ -14655,7 +14655,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "H-401",
         "customer":  "Công ty Cổ phần Chế tạo Giàn khoan Dầu khí (PV Shipyard)",
-        "status":  "planned",
+        "status":  "in_progress",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29414"
     },
@@ -14667,7 +14667,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "H-401",
         "customer":  "Công ty Cổ phần Chế tạo Giàn khoan Dầu khí (PV Shipyard)",
-        "status":  "planned",
+        "status":  "in_progress",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29414"
     },
@@ -19239,7 +19239,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "LOUIS",
         "customer":  "Công ty Cổ phần Chế tạo Giàn khoan Dầu khí (PV Shipyard)",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29220"
     },
@@ -20013,7 +20013,7 @@ const OCC_TUG_TASKS = [
     },
     {
         "id":  "TT-29185-1",
-        "tugId":  "Tàu lai ngoài 02",
+        "tugId":  "Tàu lai ngoài",
         "from":  "2026-08-12 13:00",
         "to":  "2026-08-12 14:00",
         "type":  "tow_in",
@@ -20025,7 +20025,7 @@ const OCC_TUG_TASKS = [
     },
     {
         "id":  "TT-29185-2",
-        "tugId":  "Tàu lai ngoài",
+        "tugId":  "Tàu lai ngoài 02",
         "from":  "2026-08-12 13:00",
         "to":  "2026-08-12 14:00",
         "type":  "tow_in",
