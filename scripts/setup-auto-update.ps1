@@ -56,7 +56,9 @@ if (-not $SkipCredential) {
 }
 
 # --- 2. Đăng ký tác vụ ---
-$argLine = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$scriptPath`""
+# Truyền đường dẫn file mật khẩu tuyệt đối vào command line: tiến trình do Task
+# Scheduler khởi chạy có thể không có sẵn biến %LOCALAPPDATA%.
+$argLine = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$scriptPath`" -CredFile `"$credFile`""
 if ($Squash) { $argLine += " -Squash" }
 
 $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument $argLine `

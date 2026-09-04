@@ -28,6 +28,18 @@ param(
 $ErrorActionPreference = "Stop"
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
 
+# Tiến trình do Task Scheduler khởi chạy có thể thiếu biến môi trường của profile,
+# khiến "$env:LOCALAPPDATA..." rút lại thành đường dẫn cụt. Dựng lại cho chắc.
+if (-not $env:USERPROFILE -and $env:HOMEDRIVE -and $env:HOMEPATH) {
+  $env:USERPROFILE = "$env:HOMEDRIVE$env:HOMEPATH"
+}
+if ($CredFile -notmatch "^[A-Za-z]:\\") {
+  $base = [Environment]::GetFolderPath("LocalApplicationData")
+  if (-not $base -and $env:USERPROFILE) { $base = Join-Path $env:USERPROFILE "AppData\Local" }
+  if (-not $base) { throw "Không xác định được thư mục LocalAppData — hãy truyền -CredFile <đường dẫn tuyệt đối>." }
+  $CredFile = Join-Path $base "ITOS-OCC\db.cred"
+}
+
 $repo    = Split-Path -Parent $PSScriptRoot
 $stateDir = Split-Path -Parent $CredFile
 $logFile = Join-Path $stateDir "auto-update.log"
