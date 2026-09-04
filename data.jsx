@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-04 11:28 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-04 11:32 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  4,
     "todayCol":  66,
-    "todayHour":  11.47
+    "todayHour":  11.53
 };
 
 const OCC_BERTHS = [
