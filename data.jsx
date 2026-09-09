@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-09 08:45 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-09 14:00 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  9,
     "todayCol":  71,
-    "todayHour":  8.75
+    "todayHour":  14
 };
 
 const OCC_BERTHS = [
@@ -676,14 +676,14 @@ const OCC_JOBS = [
                               "type":  "tug",
                               "id":  "VNL EXPLORER",
                               "from":  "2026-09-08 00:00",
-                              "to":  "2026-09-08 19:00",
+                              "to":  "2026-09-08 23:59",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
                               "type":  "tug",
                               "id":  "Tàu lai ngoài",
                               "from":  "2026-09-08 00:00",
-                              "to":  "2026-09-08 19:00",
+                              "to":  "2026-09-08 23:59",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
@@ -717,13 +717,13 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "SEAWAY HAWK - Trực canh",
-                             "status":  "planned",
+                             "status":  "in_progress",
                              "isMain":  false
                          },
                          {
                              "kind":  "dvhh",
                              "label":  "PAULA - cập (PTSC SB -\u003e BP02)",
-                             "status":  "planned",
+                             "status":  "in_progress",
                              "isMain":  false
                          },
                          {
@@ -15993,7 +15993,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "LL VALENTINE \u0026 LL 3311",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI AN BÌNH",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2609-134"
     },
@@ -16005,7 +16005,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "LL VALENTINE \u0026 LL 3311",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI AN BÌNH",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2609-134"
     },
@@ -16061,7 +16061,7 @@ const OCC_TUG_TASKS = [
         "id":  "TT-29445-1",
         "tugId":  "VNL EXPLORER",
         "from":  "2026-09-08 00:00",
-        "to":  "2026-09-08 19:00",
+        "to":  "2026-09-08 23:59",
         "type":  "tow_in",
         "vessel":  "SEAWAY HAWK",
         "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
@@ -16073,7 +16073,7 @@ const OCC_TUG_TASKS = [
         "id":  "TT-29445-2",
         "tugId":  "Tàu lai ngoài",
         "from":  "2026-09-08 00:00",
-        "to":  "2026-09-08 19:00",
+        "to":  "2026-09-08 23:59",
         "type":  "tow_in",
         "vessel":  "SEAWAY HAWK",
         "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
