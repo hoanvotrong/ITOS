@@ -545,7 +545,13 @@ html, body {
 .spacer { flex: 1; }
 
 /* Scrollbar */
-.tbl-wrap { overflow-x: auto; }
+/* Bang nam trong .card (co overflow:hidden) — khong boc thi bang rong bi CAT
+   chu khong cuon duoc. Moi <table class="tbl"> deu phai nam trong .tbl-wrap. */
+.tbl-wrap {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #D8D8D2; border-radius: 999px; border: 2px solid var(--bg-surface); }
@@ -1450,6 +1456,7 @@ html, body {
      sticky top và cột tên sticky left đều hoạt động trong cùng 1 scroller. */
   overflow: auto;
   max-height: calc(100vh - 150px);
+  max-height: calc(100dvh - 150px);   /* dvh: tru thanh dia chi tren trinh duyet di dong */
   position: relative;
 }
 .occ-gantt-inner {
@@ -2219,6 +2226,7 @@ html, body {
   display: grid;
   grid-template-columns: 260px 1fr;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 .occ-side {
   background: var(--bg-canvas);
@@ -2228,6 +2236,7 @@ html, body {
   position: sticky;
   top: 0;
   height: 100vh;
+  height: 100dvh;
   overflow-y: auto;
 }
 .occ-side-head {
@@ -2346,6 +2355,7 @@ html, body {
     position: fixed;
     top: 0; left: -300px; bottom: 0;
     height: 100vh;
+    height: 100dvh;
     width: 280px;
     max-width: 84vw;
     z-index: 160;
@@ -2357,8 +2367,9 @@ html, body {
   .occ-side.mobile-open { left: 0; pointer-events: auto; }
 }
 
-/* ===== Phone (≤ 640px) ===== */
-@media (max-width: 640px) {
+/* ===== Phone (≤ 640px, hoac dien thoai xoay ngang) =====
+   Cung dieu kien voi OCC_MQ_PHONE trong screens-operations.jsx. */
+@media (max-width: 640px), (max-height: 500px) and (orientation: landscape) {
   html, body { font-size: 13.5px; }
 
   .topbar { padding: 0 var(--s-3); gap: var(--s-2); }
@@ -2372,9 +2383,21 @@ html, body {
   .page-head .actions { width: 100%; flex-wrap: wrap; }
   .page-head .actions .btn { flex: 1 1 auto; justify-content: center; }
 
-  .kpi-grid, .kpi-grid-5, .grid-3-eq, .grid-main-side-16 {
-    grid-template-columns: 1fr !important;
-  }
+  /* Cac luoi noi dung: 1 cot */
+  .grid-3-eq, .grid-main-side-16 { grid-template-columns: 1fr !important; }
+
+  /* KPI: 2 o moi dong. Xep 1 o/dong thi 5 chi so day noi dung xuong gan
+     1000px, phai cuon rat lau moi thay bang so lieu. */
+  .kpi-grid, .kpi-grid-5 { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; }
+  .kpi { padding: var(--s-4); }
+  .kpi .lbl { font-size: 10px; letter-spacing: 0.04em; gap: 5px; line-height: 1.3; }
+  .kpi .val { font-size: 24px; margin: 6px 0 4px; gap: 5px; }
+  .kpi .val small { font-size: 11px; }
+  .kpi .delta { font-size: 10.5px; line-height: 1.35; }
+  .kpi .spark { display: none; }           /* sparkline khong doc duoc o kho nay */
+
+  /* O KPI dai (vi du "San luong thang") duoc chiem ca dong khi le ra */
+  .kpi-grid-5 > .kpi:last-child:nth-child(odd) { grid-column: 1 / -1; }
 
   .toolbar { padding: var(--s-2) var(--s-3); }
 
@@ -2411,7 +2434,23 @@ html, body {
   .occ-bar-outboard { display: none; }
   .occ-today-chip { font-size: 9px; padding: 4px 8px; top: 52px; }
   .occ-today-pin { font-size: 8.5px; padding: 2px 6px; left: -34px; }
-  .occ-gantt-scroll { max-height: calc(100vh - 110px); }
+  .occ-gantt-scroll { max-height: calc(100vh - 110px); max-height: calc(100dvh - 110px); }
+
+  /* Muc tieu cham: Apple/Google khuyen nghi toi thieu 44px/48px */
+  .btn, .occ-side-item, .seg-bar button, select { min-height: 40px; }
+  .btn, .seg-bar button, .toolbar .seg button { white-space: nowrap; }
+
+  /* Bo loc + chon thang: moi cai mot dong tron ven. Nam chung mot dong thi bi
+     co lai con ~67px/nut, chu gay thanh nhieu dong. */
+  .toolbar .seg { flex: 1 1 100%; justify-content: space-between; }
+  .toolbar .seg button { flex: 1 1 auto; justify-content: center; padding: 5px 6px; }
+  .toolbar .seg-bar { flex: 1 1 100%; justify-content: center; }
+  .icon-btn, .mobile-menu-btn { min-width: 40px; min-height: 40px; }
+
+  /* Bang trong .tbl-wrap: de o cuon ngang thay vi bop cot lai. Bop cot khien
+     ten tau vo thanh moi dong mot chu, hang cao ngoang ma van kho doc. */
+  .tbl-wrap .tbl { width: auto; min-width: 100%; }
+  .tbl-wrap .tbl th, .tbl-wrap .tbl td { white-space: nowrap; }
 }
 
 

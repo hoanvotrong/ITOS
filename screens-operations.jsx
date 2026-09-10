@@ -3,14 +3,72 @@
    click any bar to inspect the underlying job-tàu detail. */
 
 const OCC_ROW_H = 38;
-// Trên điện thoại, cột tên 256px chiếm gần hết màn hình chỉ chừa được ~2 cột ngày —
-// thu hẹp cột tên + cột ngày lại (tính 1 lần lúc tải; xoay ngang màn hình thì tải lại trang).
-const OCC_IS_PHONE = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(max-width: 640px)").matches;
-const OCC_LEFT_W = OCC_IS_PHONE ? 132 : 256;  // sticky left column
 
-// Timeline hiển thị đúng 1 tháng dương lịch mỗi lần, chọn được tháng nào
-// tuỳ theo phạm vi data đã xuất ra (xem scripts/export-occ-data.ps1).
-const OCC_DAY_W = OCC_IS_PHONE ? 32 : 36;
+// Cột tên (sticky bên trái) và độ rộng mỗi cột ngày phải co theo màn hình: để
+// nguyên 256px thì trên điện thoại chỉ còn chỗ cho ~3 cột ngày. Ba tầng, khớp
+// đúng với các @media trong styles.css.
+//
+// Các ngưỡng dưới đây PHẢI trùng với @media trong styles.css — sửa bên này thì
+// sửa cả bên đó. Đo bằng window.innerWidth/innerHeight thay vì matchMedia:
+// innerWidth cùng đơn vị với media query (tính cả thanh cuộn) và luôn cập nhật
+// tức thì, còn matchMedia chỉ được đánh giá lại sau một lượt render — tab chưa
+// render thì nó trả về giá trị cũ.
+const OCC_BP_PHONE  = 640;    // @media (max-width: 640px)
+const OCC_BP_TABLET = 1024;   // @media (max-width: 1024px)
+const OCC_BP_SHORT  = 500;    // @media (max-height: 500px) and (orientation: landscape)
+
+const occReadLayout = () => {
+  if (typeof window === "undefined") return { tier: "desktop", leftW: 256, dayW: 36 };
+  const w = window.innerWidth  || 1280;
+  const h = window.innerHeight || 900;
+  // Điện thoại: màn hẹp, HOẶC xoay ngang nên rất thấp (CSS coi w >= h là landscape)
+  if (w <= OCC_BP_PHONE || (h <= OCC_BP_SHORT && w >= h)) {
+    return { tier: "phone", leftW: 132, dayW: 32 };
+  }
+  if (w <= OCC_BP_TABLET) return { tier: "tablet", leftW: 190, dayW: 34 };
+  return { tier: "desktop", leftW: 256, dayW: 36 };
+};
+
+// Theo dõi thay đổi kích thước / xoay màn hình. Trước đây các giá trị này chốt
+// cứng lúc tải trang, nên resize hay xoay máy làm CSS và JS lệch nhau cho tới
+// khi tải lại trang.
+function useOccLayout() {
+  const [layout, setLayout] = React.useState(occReadLayout);
+  React.useEffect(() => {
+    // Tầng vẫn đọc bằng matchMedia để trùng khít với @media trong styles.css,
+    // nhưng tín hiệu kích hoạt là ResizeObserver trên thẻ <html>: nó bám theo
+    // hộp thật của phần tử nên chạy cả khi viewport bị giả lập, trong khi sự
+    // kiện "resize" của window và "change" của MediaQueryList thì không.
+    // Gộp nhiều tín hiệu liên tiếp bằng setTimeout, KHÔNG dùng
+    // requestAnimationFrame: rAF không chạy khi tab chưa được render, làm việc
+    // cập nhật bị hoãn vô hạn.
+    let timer = 0;
+    const recheck = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => setLayout(prev => {
+        const next = occReadLayout();
+        return next.tier === prev.tier ? prev : next;   // giữ nguyên object khi không đổi tầng
+      }), 80);
+    };
+
+    let ro = null;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(recheck);
+      ro.observe(document.documentElement);
+    }
+    window.addEventListener("resize", recheck);
+    window.addEventListener("orientationchange", recheck);
+    recheck();
+
+    return () => {
+      clearTimeout(timer);
+      if (ro) ro.disconnect();
+      window.removeEventListener("resize", recheck);
+      window.removeEventListener("orientationchange", recheck);
+    };
+  }, []);
+  return layout;
+}
 
 const occStatusMeta = {
   in_progress: { label: "Đang khai thác",     cls: "occ-bar-active",   badge: "success" },
@@ -92,7 +150,7 @@ function OCCRuler({ days, totalDays, dayW }) {
 }
 
 /* === Gantt section (rows of bars) === */
-function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster, totalDays, win, dayW, headWidth }) {
+function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster, totalDays, win, dayW, headWidth, leftW }) {
   const startDay = win.startDay;
   const nowFrac = win.todayCol + win.todayHour / 24;
   // Build bars per row
@@ -207,7 +265,7 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
         const rowH = isResource ? OCC_ROW_H + 18 : OCC_ROW_H;
         return (
           <div key={row.id} className="occ-gantt-row" style={{ height: rowH }}>
-            <div className="occ-gantt-left" style={{ width: OCC_LEFT_W, flex: `0 0 ${OCC_LEFT_W}px` }}>
+            <div className="occ-gantt-left" style={{ width: leftW, flex: `0 0 ${leftW}px` }}>
               <div className="occ-res-label">
                 <div className="row" style={{ gap: 6 }}>
                   <b>{row.label}</b>
@@ -565,22 +623,24 @@ function OCCJobDrawer({ jobId, dvhh, onClose }) {
                       ))}
                     </div>
                   )}
-                  <table className="tbl" style={{ fontSize: 12 }}>
-                    <thead>
-                      <tr><th>Ca làm hàng</th><th>Thiết bị</th><th style={{ textAlign: "right" }}>Sản lượng</th></tr>
-                    </thead>
-                    <tbody>
-                      {job.cargoOps.map((op, i) => (
-                        <tr key={i}>
-                          <td className="mono" style={{ fontSize: 11.5 }}>
-                            {op.from.slice(8,10)}/{op.from.slice(5,7)} {op.from.slice(11)} → {op.to ? `${op.to.slice(8,10)}/${op.to.slice(5,7)} ${op.to.slice(11)}` : "…"}
-                          </td>
-                          <td className="mono" style={{ fontSize: 11.5, color: "#7C5BE0" }}>{op.device || "—"}</td>
-                          <td className="mono" style={{ textAlign: "right", fontWeight: 600 }}>{op.qty}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <div className="tbl-wrap">
+                    <table className="tbl" style={{ fontSize: 12 }}>
+                      <thead>
+                        <tr><th>Ca làm hàng</th><th>Thiết bị</th><th style={{ textAlign: "right" }}>Sản lượng</th></tr>
+                      </thead>
+                      <tbody>
+                        {job.cargoOps.map((op, i) => (
+                          <tr key={i}>
+                            <td className="mono" style={{ fontSize: 11.5 }}>
+                              {op.from.slice(8,10)}/{op.from.slice(5,7)} {op.from.slice(11)} → {op.to ? `${op.to.slice(8,10)}/${op.to.slice(5,7)} ${op.to.slice(11)}` : "…"}
+                            </td>
+                            <td className="mono" style={{ fontSize: 11.5, color: "#7C5BE0" }}>{op.device || "—"}</td>
+                            <td className="mono" style={{ textAlign: "right", fontWeight: 600 }}>{op.qty}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
 
@@ -787,7 +847,7 @@ function OCCScreen() {
   const [filter, setFilter] = React.useState("all");   // all | berth | service
   const [roster, setRoster] = React.useState(null);    // tug daily roster popover
 
-  const dayW = OCC_DAY_W;
+  const { leftW, dayW } = useOccLayout();
 
   // Danh sách các tháng dương lịch thật mà data đã xuất ra bao phủ (dựa theo
   // OCC_WINDOW.refDate .. endDay), để chọn xem đúng 1 tháng cụ thể thay vì cuộn
@@ -834,7 +894,7 @@ function OCCScreen() {
   const centerToday = () => {
     const sc = ganttScrollRef.current;
     if (!sc) return;
-    sc.scrollLeft = Math.max(0, todayLeft - (sc.clientWidth - OCC_LEFT_W) / 2);
+    sc.scrollLeft = Math.max(0, todayLeft - (sc.clientWidth - leftW) / 2);
   };
   const goToToday = () => {
     if (!todayInThisMonth) {
@@ -865,7 +925,7 @@ function OCCScreen() {
       if (!todayInThisMonth) {
         chip = (OCC_WINDOW.year * 12 + OCC_WINDOW.month) < (selYear * 12 + selMonthNum) ? "left" : "right";
       } else {
-        const viewW = sc.clientWidth - OCC_LEFT_W;
+        const viewW = sc.clientWidth - leftW;
         if (todayLeft < x) chip = "left";
         else if (todayLeft > x + viewW) chip = "right";
       }
@@ -1012,27 +1072,27 @@ function OCCScreen() {
       <div className="card occ-gantt-wrap">
         {/* Chip nổi: đường HÔM NAY đang nằm ngoài vùng nhìn thấy — bấm để nhảy về */}
         {todayChip === "left" && (
-          <button className="occ-today-chip" style={{ left: OCC_LEFT_W + 10 }} onClick={goToToday}>◀ HÔM NAY</button>
+          <button className="occ-today-chip" style={{ left: leftW + 10 }} onClick={goToToday}>◀ HÔM NAY</button>
         )}
         {todayChip === "right" && (
           <button className="occ-today-chip right" onClick={goToToday}>HÔM NAY ▶</button>
         )}
         <div className="occ-gantt-scroll" ref={ganttScrollRef}>
-          <div className="occ-gantt-inner" style={{ width: OCC_LEFT_W + totalDays * dayW + 1 }}>
+          <div className="occ-gantt-inner" style={{ width: leftW + totalDays * dayW + 1 }}>
             {/* Sticky left header */}
-            <div className="occ-gantt-corner" style={{ width: OCC_LEFT_W }}>
+            <div className="occ-gantt-corner" style={{ width: leftW }}>
               <div>
                 <b style={{ fontSize: 11.5, color: "var(--t-secondary)", textTransform: "uppercase", letterSpacing: 0.06 }}>Khai thác</b>
                 <div className="muted" style={{ fontSize: 11 }}>{rangeHeader}</div>
               </div>
             </div>
-            <div className="occ-ruler-wrap" style={{ width: totalDays * dayW, marginLeft: OCC_LEFT_W }}>
+            <div className="occ-ruler-wrap" style={{ width: totalDays * dayW, marginLeft: leftW }}>
               <OCCRuler days={days} totalDays={totalDays} dayW={dayW}/>
             </div>
 
             {/* TODAY line — only render if today is in visible range */}
             {win.todayCol >= win.startDay && win.todayCol <= win.endDay && (
-              <div className="occ-today-line" style={{ left: OCC_LEFT_W + todayLeft }}>
+              <div className="occ-today-line" style={{ left: leftW + todayLeft }}>
                 <div className="occ-today-pin">HÔM NAY · {String(Math.floor(win.todayHour)).padStart(2,"0")}:{String(Math.round((win.todayHour % 1) * 60)).padStart(2,"0")}</div>
               </div>
             )}
@@ -1047,6 +1107,7 @@ function OCCScreen() {
                 totalDays={totalDays}
                 win={win}
                 dayW={dayW}
+                leftW={leftW}
                 onSelectJob={openJob}
                 onOpenRoster={openRoster}
                 headWidth={headW}
@@ -1063,6 +1124,7 @@ function OCCScreen() {
                 totalDays={totalDays}
                 win={win}
                 dayW={dayW}
+                leftW={leftW}
                 onSelectJob={openJob}
                 onOpenRoster={openRoster}
                 headWidth={headW}
@@ -1079,6 +1141,7 @@ function OCCScreen() {
                 totalDays={totalDays}
                 win={win}
                 dayW={dayW}
+                leftW={leftW}
                 onSelectJob={openJob}
                 onOpenRoster={openRoster}
                 headWidth={headW}
@@ -1308,25 +1371,27 @@ function OCCDailyReport() {
         {ops.length === 0 ? (
           <div className="muted" style={{ padding: 20, textAlign: "center" }}>Không có ca làm hàng nào trong ngày này.</div>
         ) : (
-          <table className="tbl">
-            <thead><tr><th>Job ID</th><th>Tàu</th><th>Bến phao</th><th>Ca</th><th>Thiết bị</th><th style={{ textAlign: "right" }}>Sản lượng</th></tr></thead>
-            <tbody>
-              {ops.map((o, i) => (
-                <tr key={i}>
-                  <td className="id">{o.jobId}</td>
-                  <td>{o.vessel}<div className="sub">{o.cargo}</div></td>
-                  <td className="mono" style={{ color: "var(--brand-ink)" }}>{o.berthId}</td>
-                  <td className="mono" style={{ fontSize: 11.5 }}>{o.from.slice(11)} → {o.to ? o.to.slice(11) : "…"}</td>
-                  <td className="mono" style={{ color: "#7C5BE0" }}>{o.device || "—"}</td>
-                  <td className="mono" style={{ textAlign: "right", fontWeight: 700 }}>{o.qty}</td>
+          <div className="tbl-wrap">
+            <table className="tbl">
+              <thead><tr><th>Job ID</th><th>Tàu</th><th>Bến phao</th><th>Ca</th><th>Thiết bị</th><th style={{ textAlign: "right" }}>Sản lượng</th></tr></thead>
+              <tbody>
+                {ops.map((o, i) => (
+                  <tr key={i}>
+                    <td className="id">{o.jobId}</td>
+                    <td>{o.vessel}<div className="sub">{o.cargo}</div></td>
+                    <td className="mono" style={{ color: "var(--brand-ink)" }}>{o.berthId}</td>
+                    <td className="mono" style={{ fontSize: 11.5 }}>{o.from.slice(11)} → {o.to ? o.to.slice(11) : "…"}</td>
+                    <td className="mono" style={{ color: "#7C5BE0" }}>{o.device || "—"}</td>
+                    <td className="mono" style={{ textAlign: "right", fontWeight: 700 }}>{o.qty}</td>
+                  </tr>
+                ))}
+                <tr style={{ background: "var(--bg-canvas)" }}>
+                  <td colSpan={5} style={{ fontWeight: 600 }}>Tổng cộng</td>
+                  <td className="mono" style={{ textAlign: "right", fontWeight: 700, color: "var(--st-success)" }}>{fmtNum(totalQty)} MT</td>
                 </tr>
-              ))}
-              <tr style={{ background: "var(--bg-canvas)" }}>
-                <td colSpan={5} style={{ fontWeight: 600 }}>Tổng cộng</td>
-                <td className="mono" style={{ textAlign: "right", fontWeight: 700, color: "var(--st-success)" }}>{fmtNum(totalQty)} MT</td>
-              </tr>
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -1337,27 +1402,29 @@ function OCCDailyReport() {
           {arrivals.length + departures.length === 0 ? (
             <div className="muted" style={{ padding: 20, textAlign: "center" }}>Không có tàu cập hoặc rời bến.</div>
           ) : (
-            <table className="tbl">
-              <thead><tr><th>Loại</th><th>Job ID</th><th>Tàu</th><th>Bến phao</th><th>Giờ</th></tr></thead>
-              <tbody>
-                {arrivals.map(j => (
-                  <tr key={`a${j.id}`}>
-                    <td><span className="badge success"><span className="pip"></span>Cập bến</span></td>
-                    <td className="id">{j.id}</td><td>{j.vessel.name}</td>
-                    <td className="mono" style={{ color: "var(--brand-ink)" }}>{j.berthId}</td>
-                    <td className="mono">{j.eta.slice(11)}</td>
-                  </tr>
-                ))}
-                {departures.map(j => (
-                  <tr key={`d${j.id}`}>
-                    <td><span className="badge neutral"><span className="pip"></span>Rời bến</span></td>
-                    <td className="id">{j.id}</td><td>{j.vessel.name}</td>
-                    <td className="mono" style={{ color: "var(--brand-ink)" }}>{j.berthId}</td>
-                    <td className="mono">{j.etd.slice(11)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="tbl-wrap">
+              <table className="tbl">
+                <thead><tr><th>Loại</th><th>Job ID</th><th>Tàu</th><th>Bến phao</th><th>Giờ</th></tr></thead>
+                <tbody>
+                  {arrivals.map(j => (
+                    <tr key={`a${j.id}`}>
+                      <td><span className="badge success"><span className="pip"></span>Cập bến</span></td>
+                      <td className="id">{j.id}</td><td>{j.vessel.name}</td>
+                      <td className="mono" style={{ color: "var(--brand-ink)" }}>{j.berthId}</td>
+                      <td className="mono">{j.eta.slice(11)}</td>
+                    </tr>
+                  ))}
+                  {departures.map(j => (
+                    <tr key={`d${j.id}`}>
+                      <td><span className="badge neutral"><span className="pip"></span>Rời bến</span></td>
+                      <td className="id">{j.id}</td><td>{j.vessel.name}</td>
+                      <td className="mono" style={{ color: "var(--brand-ink)" }}>{j.berthId}</td>
+                      <td className="mono">{j.etd.slice(11)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
@@ -1367,21 +1434,23 @@ function OCCDailyReport() {
           {tugRows.length === 0 ? (
             <div className="muted" style={{ padding: 20, textAlign: "center" }}>Không có hoạt động tàu lai.</div>
           ) : (
-            <table className="tbl">
-              <thead><tr><th>Tàu lai</th><th style={{ textAlign: "right" }}>Lượt</th><th style={{ textAlign: "right" }}>Giờ</th></tr></thead>
-              <tbody>
-                {tugRows.map(t => (
-                  <tr key={t.tugId}>
-                    <td className="mono" style={{ color: "var(--brand-accent)", fontWeight: 600 }}>
-                      {t.tugId}
-                      <div className="sub" style={{ fontFamily: "var(--font-sans)" }}>{t.vessels.slice(0, 2).join(", ")}{t.vessels.length > 2 ? `, +${t.vessels.length - 2}` : ""}</div>
-                    </td>
-                    <td className="mono" style={{ textAlign: "right", fontWeight: 600 }}>{t.count}</td>
-                    <td className="mono" style={{ textAlign: "right" }}>{t.hours.toFixed(1)}h</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="tbl-wrap">
+              <table className="tbl">
+                <thead><tr><th>Tàu lai</th><th style={{ textAlign: "right" }}>Lượt</th><th style={{ textAlign: "right" }}>Giờ</th></tr></thead>
+                <tbody>
+                  {tugRows.map(t => (
+                    <tr key={t.tugId}>
+                      <td className="mono" style={{ color: "var(--brand-accent)", fontWeight: 600 }}>
+                        {t.tugId}
+                        <div className="sub" style={{ fontFamily: "var(--font-sans)" }}>{t.vessels.slice(0, 2).join(", ")}{t.vessels.length > 2 ? `, +${t.vessels.length - 2}` : ""}</div>
+                      </td>
+                      <td className="mono" style={{ textAlign: "right", fontWeight: 600 }}>{t.count}</td>
+                      <td className="mono" style={{ textAlign: "right" }}>{t.hours.toFixed(1)}h</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>

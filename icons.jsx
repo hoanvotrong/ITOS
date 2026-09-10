@@ -1,5 +1,5 @@
 /* Icon components — line icons, 1.5px stroke */
-const Icon = ({ name, size = 18, className = "ic" }) => {
+const Icon = ({ name, size = 18, className = "ic", style, ...rest }) => {
   const s = size;
   const props = {
     width: s, height: s,
@@ -10,6 +10,8 @@ const Icon = ({ name, size = 18, className = "ic" }) => {
     strokeLinecap: "round",
     strokeLinejoin: "round",
     className,
+    style,        // quay mũi tên, đổi màu icon cảnh báo… — trước đây bị bỏ âm thầm
+    ...rest,
   };
   const paths = {
     home:      <><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></>,
