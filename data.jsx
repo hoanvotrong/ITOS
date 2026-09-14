@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-14 09:35 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-14 09:41 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  14,
     "todayCol":  76,
-    "todayHour":  9.58
+    "todayHour":  9.68
 };
 
 const OCC_BERTHS = [
@@ -669,14 +669,14 @@ const OCC_JOBS = [
                               "type":  "tug",
                               "id":  "VNL EXPLORER",
                               "from":  "2026-09-08 00:00",
-                              "to":  "2026-09-12 07:30",
+                              "to":  "2026-09-12 07:45",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
                               "type":  "tug",
                               "id":  "Tàu lai ngoài",
                               "from":  "2026-09-08 00:00",
-                              "to":  "2026-09-12 07:30",
+                              "to":  "2026-09-12 07:45",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
@@ -12896,8 +12896,8 @@ const OCC_DVHH = [
         "from":  "2026-08-12 13:00",
         "to":  "2026-08-12 14:00",
         "tugs":  [
-                     "Tàu lai ngoài 02",
-                     "Tàu lai ngoài"
+                     "Tàu lai ngoài",
+                     "Tàu lai ngoài 02"
                  ],
         "customer":  "VINA LOGISTICS CORPORATION",
         "status":  "completed",
@@ -17539,7 +17539,7 @@ const OCC_TUG_TASKS = [
         "id":  "TT-29445-1",
         "tugId":  "VNL EXPLORER",
         "from":  "2026-09-08 00:00",
-        "to":  "2026-09-12 07:30",
+        "to":  "2026-09-12 07:45",
         "type":  "tow_in",
         "vessel":  "SEAWAY HAWK",
         "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
@@ -17551,7 +17551,7 @@ const OCC_TUG_TASKS = [
         "id":  "TT-29445-2",
         "tugId":  "Tàu lai ngoài",
         "from":  "2026-09-08 00:00",
-        "to":  "2026-09-12 07:30",
+        "to":  "2026-09-12 07:45",
         "type":  "tow_in",
         "vessel":  "SEAWAY HAWK",
         "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
@@ -23717,7 +23717,7 @@ const OCC_TUG_TASKS = [
     },
     {
         "id":  "TT-29185-1",
-        "tugId":  "Tàu lai ngoài 02",
+        "tugId":  "Tàu lai ngoài",
         "from":  "2026-08-12 13:00",
         "to":  "2026-08-12 14:00",
         "type":  "tow_in",
@@ -23729,7 +23729,7 @@ const OCC_TUG_TASKS = [
     },
     {
         "id":  "TT-29185-2",
-        "tugId":  "Tàu lai ngoài",
+        "tugId":  "Tàu lai ngoài 02",
         "from":  "2026-08-12 13:00",
         "to":  "2026-08-12 14:00",
         "type":  "tow_in",
