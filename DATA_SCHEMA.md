@@ -79,6 +79,21 @@ Chỉ cần cho các trường `pic` (phụ trách job) và `logs[].by` (ai ghi 
 { "id": "BP-08", "group": "Bến phao Vinalogistics", "label": "BP-08", "cap": "80.000 DWT" }
 ```
 
+### Trạng thái bến phao (sửa chữa / nâng cấp) — `OCC_BERTH_STATUS`
+
+DB chưa có trường trạng thái cho bến phao, nên trạng thái đặc biệt được **nhập tay** trong `berth-status.jsx` (script export không ghi đè file này). Khoá là `OCC_BERTHS.id`.
+
+| Field | Type | Bắt buộc | Mô tả |
+|---|---|---|---|
+| `status` | `"repair"` | ✓ | Sửa chữa / nâng cấp — tô đỏ, không tính là bến đang dùng |
+| `label` | string | ✓ | Chữ hiển thị, vd `"Đang nâng cấp"` |
+| `from` | `"YYYY-MM-DD"` | ✓ | Ngày bắt đầu |
+| `to` | `"YYYY-MM-DD"` \| null | — | Ngày dự kiến xong; `null` nếu chưa biết |
+
+```js
+"BP 11": { status: "repair", label: "Đang nâng cấp", from: "2026-09-15", to: null }
+```
+
 ---
 
 ## 4. `OCC_TUGS` — Đội tàu lai (VNL)

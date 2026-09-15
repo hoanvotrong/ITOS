@@ -82,7 +82,9 @@ function OCCKpis() {
   const inOp = OCC_JOBS.filter(j => j.status === "in_progress").length;
   const delayed = OCC_JOBS.filter(j => j.status === "delayed").length;
   const planned = OCC_JOBS.filter(j => j.status === "planned").length;
-  const usedBerths = new Set(OCC_JOBS.filter(j => j.status === "in_progress" || j.status === "delayed").map(j => j.berthId)).size;
+  // Bến đang sửa chữa/nâng cấp không tính là "đang dùng", kể cả khi còn booking chưa đóng trên hệ thống
+  const repairBerths = OCC_BERTHS.filter(b => occBerthInRepair(b.id)).length;
+  const usedBerths = new Set(OCC_JOBS.filter(j => (j.status === "in_progress" || j.status === "delayed") && !occBerthInRepair(j.berthId)).map(j => j.berthId)).size;
   const totalBerths = OCC_BERTHS.length;
   const tugsActive = OCC_TUGS.filter(t => t.status === "active").length;
   const tugsTotal = OCC_TUGS.length;
@@ -107,6 +109,7 @@ function OCCKpis() {
         <div className="val">{usedBerths}<small>/ {totalBerths}</small></div>
         <div className="delta">
           <Icon name="anchor" size={12} /> {Math.round(usedBerths/totalBerths*100)}% công suất
+          {repairBerths > 0 && <span style={{ color: "var(--st-danger)", fontWeight: 600 }}>&nbsp;· {repairBerths} đang nâng cấp</span>}
         </div>
       </div>
       <div className="kpi">
@@ -264,7 +267,7 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
         const today = isTug ? todayStatsFor(bars) : null;
         const rowH = isResource ? OCC_ROW_H + 18 : OCC_ROW_H;
         return (
-          <div key={row.id} className="occ-gantt-row" style={{ height: rowH }}>
+          <div key={row.id} className={`occ-gantt-row${row.statusDot === "repair" ? " is-repair" : ""}`} style={{ height: rowH }}>
             <div className="occ-gantt-left" style={{ width: leftW, flex: `0 0 ${leftW}px` }}>
               <div className="occ-res-label">
                 <div className="row" style={{ gap: 6 }}>
@@ -336,7 +339,7 @@ function GanttSection({ title, sub, icon, rows, jobs, onSelectJob, onOpenRoster,
                 const fL = (m.startFrac - startDay) * dayW;
                 const fW = (m.endFrac - m.startFrac) * dayW;
                 if (fL + fW < 0 || fL > totalDays * dayW) return null;
-                return <div key={`m${i}`} className="occ-maint-band" style={{ left: fL, width: fW }} title="Bảo dưỡng"></div>;
+                return <div key={`m${i}`} className={`occ-maint-band${m.kind ? ` ${m.kind}` : ""}`} style={{ left: fL, width: fW }} title={m.title || "Bảo dưỡng"}></div>;
               })}
               {/* Bars — tính hình học 1 lần cho mỗi bar; các task ngắn (pip) cùng ngày
                   của cùng 1 hàng được GỘP thành 1 điểm đánh dấu duy nhất kèm số đếm,
@@ -946,11 +949,24 @@ function OCCScreen() {
   });
 
   // Build rows for each section
-  const berthRows = OCC_BERTHS.map(b => ({
-    id: b.id, type: "berth",
-    label: b.label,
-    sub: b.cap,
-  }));
+  const berthRows = OCC_BERTHS.map(b => {
+    const rs = occBerthInRepair(b.id) ? occBerthStatus(b.id) : null;
+    if (!rs) return { id: b.id, type: "berth", label: b.label, sub: b.cap };
+    // Dải đỏ từ ngày bắt đầu tới ngày xong (hoặc hết tháng nếu chưa có ngày xong),
+    // cắt gọn trong tháng đang xem.
+    const col = (s) => { const [y, m, d] = s.split("-").map(Number); return occColForDate(y, m, d); };
+    const s = Math.max(rs.from ? col(rs.from) : win.startDay, win.startDay);
+    const e = Math.min(rs.to ? col(rs.to) + 1 : win.endDay + 1, win.endDay + 1);
+    const title = `${rs.label} · từ ${occFmtDate(rs.from)}${rs.to ? ` đến ${occFmtDate(rs.to)}` : ""}`;
+    return {
+      id: b.id, type: "berth",
+      label: b.label,
+      sub: rs.label,
+      statusDot: "repair",
+      statusTitle: title,
+      maintenance: e > s ? [{ startFrac: s, endFrac: e, kind: "repair", title }] : null,
+    };
+  });
   const tugRows = OCC_TUGS.map(t => ({
     id: t.id, type: "tug",
     label: t.id, sub: t.hp,
@@ -1498,7 +1514,8 @@ function OCCModule() {
   const inOp = OCC_JOBS.filter(j => j.status === "in_progress").length;
   const delayed = OCC_JOBS.filter(j => j.status === "delayed").length;
   const planned = OCC_JOBS.filter(j => j.status === "planned").length;
-  const usedBerths = new Set(OCC_JOBS.filter(j => j.status === "in_progress" || j.status === "delayed").map(j => j.berthId)).size;
+  const usedBerths = new Set(OCC_JOBS.filter(j => (j.status === "in_progress" || j.status === "delayed") && !occBerthInRepair(j.berthId)).map(j => j.berthId)).size;
+  const repairBerths = OCC_BERTHS.filter(b => occBerthInRepair(b.id)).length;
 
   return (
     <div className="occ-shell">
@@ -1563,6 +1580,7 @@ function OCCModule() {
           <div className="val">{usedBerths}<small>/ {OCC_BERTHS.length}</small></div>
           <div className="footer">
             <Icon name="anchor" size={12}/> {Math.round(usedBerths / OCC_BERTHS.length * 100)}% công suất
+            {repairBerths > 0 && <> · {repairBerths} nâng cấp</>}
           </div>
         </div>
 
@@ -1686,20 +1704,31 @@ function OCCBerthsView() {
         {OCC_BERTHS.map(b => {
           const currentJob = OCC_JOBS.find(j => j.berthId === b.id && (j.status === "in_progress" || j.status === "delayed"));
           const nextJob = OCC_JOBS.find(j => j.berthId === b.id && j.status === "planned");
-          const isUsed = !!currentJob;
+          const repair = occBerthInRepair(b.id) ? occBerthStatus(b.id) : null;
+          const isUsed = !!currentJob && !repair;
           return (
-            <div key={b.id} className="card" style={{ padding: 16 }}>
+            <div key={b.id} className={`card${repair ? " berth-card-repair" : ""}`} style={{ padding: 16 }}>
               <div className="row between" style={{ marginBottom: 10 }}>
                 <div>
                   <div className="muted" style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 0.05, fontWeight: 600 }}>{b.group}</div>
                   <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--brand-ink)", letterSpacing: "-0.02em", marginTop: 4 }}>{b.label}</div>
                   {b.cap && <div className="muted" style={{ fontSize: 11.5 }}>Sức chứa: {b.cap}</div>}
                 </div>
-                <span className={`badge ${isUsed ? "success" : "neutral"}`}><span className="pip"></span>{isUsed ? "Đang dùng" : "Trống"}</span>
+                {repair
+                  ? <span className="badge danger"><span className="pip"></span>{repair.label}</span>
+                  : <span className={`badge ${isUsed ? "success" : "neutral"}`}><span className="pip"></span>{isUsed ? "Đang dùng" : "Trống"}</span>}
               </div>
+              {repair && (
+                <div className="berth-repair-note">
+                  <b>{repair.label}</b> · tạm dừng nhận tàu
+                  <div>Từ {occFmtDate(repair.from)}{repair.to ? ` đến ${occFmtDate(repair.to)}` : " · chưa có ngày hoàn thành"}</div>
+                </div>
+              )}
               {currentJob && (
                 <div style={{ padding: 10, background: "var(--bg-canvas)", borderRadius: 6, marginTop: 10 }}>
-                  <div className="muted" style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.05, fontWeight: 600 }}>Tàu hiện tại</div>
+                  <div className="muted" style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.05, fontWeight: 600 }}>
+                    {repair ? "Booking chưa đóng trên hệ thống" : "Tàu hiện tại"}
+                  </div>
                   <div style={{ fontWeight: 600, fontSize: 13.5, marginTop: 4 }}>{currentJob.vessel.name}</div>
                   <div className="muted" style={{ fontSize: 11.5, marginTop: 1 }}>{currentJob.cargo.qty} · {currentJob.cargo.op}</div>
                   <div className="row" style={{ marginTop: 8, gap: 6 }}>
@@ -1715,6 +1744,7 @@ function OCCBerthsView() {
                   <div className="muted" style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.05, fontWeight: 600 }}>Tàu sắp đến</div>
                   <div style={{ fontWeight: 600, fontSize: 13.5, marginTop: 4 }}>{nextJob.vessel.name}</div>
                   <div className="muted" style={{ fontSize: 11.5, marginTop: 1, fontFamily: "var(--font-mono)" }}>ETA {nextJob.eta.slice(8,10)}/{nextJob.eta.slice(5,7)} {nextJob.eta.slice(11)}</div>
+                  {repair && <div style={{ fontSize: 11.5, marginTop: 4, color: "var(--st-danger)", fontWeight: 600 }}>Bến đang {repair.label.toLowerCase().replace(/^đang\s+/, "")} — cần xếp bến khác</div>}
                 </div>
               )}
             </div>
