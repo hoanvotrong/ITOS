@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-16 09:38 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-16 11:49 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  16,
     "todayCol":  78,
-    "todayHour":  9.63
+    "todayHour":  11.82
 };
 
 const OCC_BERTHS = [
@@ -268,6 +268,10 @@ const OCC_CRANES = [
         "status":  "active"
     }
 ];
+
+/* Danh mục thiết bị từ Google Sheet kỹ thuật — chỉ các cột dùng cho dashboard.
+ * Cố tình không xuất ảnh/link OneDrive/email vì repo này public. */
+const OCC_EQUIPMENT = [];
 
 // Mọi vị trí trên Gantt đều tính theo SỐ NGÀY LỆCH so với OCC_WINDOW.refDate
 // (ngày dương lịch thật của cột lưới số 1) — không giả định mọi thứ nằm
@@ -1106,8 +1110,8 @@ const OCC_JOBS = [
                           {
                               "type":  "tug",
                               "id":  "VNL 05",
-                              "from":  "2026-09-15 23:00",
-                              "to":  "2026-09-15 23:30",
+                              "from":  "2026-09-15 22:50",
+                              "to":  "2026-09-15 23:35",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
@@ -1423,19 +1427,19 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "MINH QUANG 01 - rời",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  false
                          },
                          {
                              "kind":  "dvhh",
                              "label":  "EPIC 05 - cập",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  false
                          },
                          {
                              "kind":  "dvhh",
                              "label":  "ITC 01 - cập",
-                             "status":  "planned",
+                             "status":  "completed",
                              "isMain":  false
                          },
                          {
@@ -10904,7 +10908,7 @@ const OCC_DVHH = [
                      "VNL VOYAGER"
                  ],
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
-        "status":  "planned",
+        "status":  "in_progress",
         "revenue":  "0 ₫"
     },
     {
@@ -11096,7 +11100,7 @@ const OCC_DVHH = [
                      "VNL 07"
                  ],
         "customer":  "CÔNG TY TNHH VẬN TẢI BIỂN LONG THANH",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -17228,8 +17232,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29538-1",
         "tugId":  "VNL 05",
-        "from":  "2026-09-15 23:00",
-        "to":  "2026-09-15 23:30",
+        "from":  "2026-09-15 22:50",
+        "to":  "2026-09-15 23:35",
         "type":  "tow_in",
         "vessel":  "ITC-01",
         "customer":  "CÔNG TY CỔ PHẦN VẬN TÀI VÀ THƯƠNG MẠI QUỐC TẾ (ITC)",
@@ -17245,7 +17249,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "HUA CHEN 26",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
-        "status":  "planned",
+        "status":  "in_progress",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29537"
     },
@@ -17257,7 +17261,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "HUA CHEN 26",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
-        "status":  "planned",
+        "status":  "in_progress",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29537"
     },
@@ -17629,7 +17633,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "MACALLAN 17 \u0026 GRACIA",
         "customer":  "CÔNG TY TNHH VẬN TẢI BIỂN LONG THANH",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29521"
     },
@@ -36597,6 +36601,6 @@ const OCC_TUG_TASKS = [
 
 Object.assign(window, {
   PEOPLE, ME, personById,
-  OCC_WINDOW, OCC_BERTHS, OCC_TUGS, OCC_CRANES, OCC_JOBS, OCC_DVHH, occDayFrac, occColToDate, occColForDate,
+  OCC_WINDOW, OCC_BERTHS, OCC_TUGS, OCC_CRANES, OCC_EQUIPMENT, OCC_JOBS, OCC_DVHH, occDayFrac, occColToDate, occColForDate,
   OCC_TUG_TASKS, OCC_TUG_TASK_TYPES,
 });

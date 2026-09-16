@@ -14,6 +14,15 @@ const OCC_BERTH_STATUS = {
   "BP 11": { status: "repair", label: "Đang nâng cấp", from: "2026-09-15", to: null },
 };
 
-const occBerthStatus = (berthId) => OCC_BERTH_STATUS[berthId] || null;
+/* Trạng thái lấy theo thứ tự: khai báo tay ở trên TRƯỚC, không có thì lấy theo
+   Google Sheet kỹ thuật (OCC_BERTHS[].status = "repair" khi sheet ghi OFFLINE). */
+const occBerthStatus = (berthId) => {
+  if (OCC_BERTH_STATUS[berthId]) return OCC_BERTH_STATUS[berthId];
+  const b = (typeof OCC_BERTHS !== "undefined" ? OCC_BERTHS : []).find(x => x.id === berthId);
+  if (b && b.status === "repair") {
+    return { status: "repair", label: "Đang sửa chữa", from: (b.offlineSince || "").replace(/\//g, "-"), to: null };
+  }
+  return null;
+};
 const occBerthInRepair = (berthId) => occBerthStatus(berthId)?.status === "repair";
 const occFmtDate = (s) => (s ? `${s.slice(8, 10)}/${s.slice(5, 7)}/${s.slice(0, 4)}` : "");

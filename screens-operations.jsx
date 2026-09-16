@@ -116,14 +116,18 @@ function OCCKpis() {
         <div className="lbl"><span className="swatch" style={{ background: "var(--brand-accent)" }} /> Tàu lai VNL</div>
         <div className="val">{tugsActive}<small>/ {tugsTotal}</small></div>
         <div className="delta">
-          <Icon name="activity" size={12} /> 1 tàu bảo dưỡng định kỳ
+          <Icon name="activity" size={12} /> {tugsTotal - tugsActive > 0
+            ? `${tugsTotal - tugsActive} tàu đang bảo dưỡng`
+            : "Toàn đội sẵn sàng"}
         </div>
       </div>
       <div className="kpi">
         <div className="lbl"><span className="swatch" style={{ background: "#7C5BE0" }} /> ICD</div>
         <div className="val">{cranesActive}<small>/ {cranesTotal}</small></div>
         <div className="delta">
-          <Icon name="crane" size={12} /> ICD-VNL06 sửa chữa từ 18/05
+          <Icon name="crane" size={12} /> {cranesTotal - cranesActive > 0
+            ? `${cranesTotal - cranesActive} thiết bị đang sửa chữa`
+            : "Tất cả thiết bị sẵn sàng"}
         </div>
       </div>
       <div className="kpi">

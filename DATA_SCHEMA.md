@@ -94,6 +94,27 @@ DB chưa có trường trạng thái cho bến phao, nên trạng thái đặc b
 "BP 11": { status: "repair", label: "Đang nâng cấp", from: "2026-09-15", to: null }
 ```
 
+Ngoài khai báo tay, `OCC_BERTHS` còn nhận thêm 3 field khi ghép được với Google Sheet kỹ thuật (xem mục 3b): `cap` (sức chứa), `status = "repair"` khi sheet ghi `OFFLINE`, và `offlineSince`. Khai báo tay luôn thắng.
+
+---
+
+## 3b. `OCC_EQUIPMENT` — Danh mục thiết bị (Google Sheet)
+
+Nguồn: Google Sheet của bộ phận kỹ thuật, lấy bởi `scripts/fetch-sheet.js` (service account, khoá để ngoài repo) rồi trộn vào `data.jsx`. DB ETVNL **không** quản lý tình trạng ONLINE/OFFLINE của thiết bị.
+
+| Field | Type | Mô tả |
+|---|---|---|
+| `id` | string | `equipment_id`, vd `"BP11"`, `"VNL09-K3036"` |
+| `name` | string | Tên gọi, vd `"Bến phao"`, `"Cẩu nổi"` |
+| `detail` | string | Mô tả, vd `"Đón tàu 150.000DWT"` |
+| `status` | string | `ONLINE` / `OFFLINE` — giá trị khác coi như không có |
+| `category` | string | Nhóm, vd `"1. Bến phao"`, `"5. Cẩu bờ/cảng"` |
+| `offlineSince` | string | `YYYY/MM/DD`, rỗng nếu ô không phải ngày |
+
+Ghép với `OCC_BERTHS` / `OCC_TUGS` / `OCC_CRANES` theo id đã chuẩn hoá: bỏ khoảng trắng, viết hoa, bỏ số 0 đứng đầu (`"BP 02"` ↔ `"BP2"`).
+
+⚠️ **Lọc bắt buộc**: repo public, nên exporter bỏ mọi ô chứa `http` hoặc `@`, và chỉ nhận `offlineSince` khi đúng định dạng ngày. Sheet có chỗ lệch cột — các dòng tàu lai để link OneDrive đúng ô `offline_since`. Không xuất cột ảnh, link, email, chi phí, nhà thầu.
+
 ---
 
 ## 4. `OCC_TUGS` — Đội tàu lai (VNL)

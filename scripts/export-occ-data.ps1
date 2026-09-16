@@ -177,6 +177,119 @@ foreach ($id in $craneById.Keys) {
 }
 
 # ============================================================
+# OCC_EQUIPMENT — Google Sheet "Danh mục thiết bị"
+# ============================================================
+# DB không quản lý tình trạng ONLINE/OFFLINE của thiết bị, cũng không có sức
+# chứa bến phao. Hai thứ đó nằm trong Google Sheet do bộ phận kỹ thuật giữ.
+# scripts/fetch-sheet.js lấy về (service account, khoá để ngoài repo).
+# Thiếu khoá / mất mạng / Node chưa cài -> BỎ QUA, phần còn lại vẫn xuất bình thường.
+$occEquipment = @()
+
+# Sheet có chỗ BỊ LỆCH CỘT: các dòng tàu lai để link OneDrive đúng ô offline_since,
+# còn công suất thì nằm ở ô status. data.jsx nằm trong repo public nên phải lọc
+# tại đây, không tin cấu trúc sheet.
+function SafeCell($v) {
+  $t = "$v".Trim()
+  if ($t -match '(?i)https?://|@') { return "" }   # link hoặc email -> bỏ hẳn
+  return $t
+}
+function SafeDate($v) {
+  $t = "$v".Trim()
+  if ($t -match '^\d{4}[-/]\d{1,2}[-/]\d{1,2}$') { return $t }
+  return ""
+}
+
+$stateDir = if ($env:LOCALAPPDATA) { Join-Path $env:LOCALAPPDATA "ITOS-OCC" }
+            else { Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "ITOS-OCC" }
+$sheetCache = Join-Path $stateDir "sheet-equipment.json"
+
+$nodeExe = (Get-Command node -ErrorAction SilentlyContinue).Source
+if (-not $nodeExe) { $nodeExe = Join-Path $env:ProgramFiles "nodejs\node.exe" }
+
+if (-not (Test-Path $nodeExe)) {
+  Write-Warning "Không tìm thấy Node.js — bỏ qua phần Google Sheet."
+} else {
+  $fetcher = Join-Path $PSScriptRoot "fetch-sheet.js"
+  $prevEA = $ErrorActionPreference; $ErrorActionPreference = "Continue"
+  & $nodeExe $fetcher --out $sheetCache 2>&1 | ForEach-Object { Write-Host "  [sheet] $_" }
+  $fetchCode = $LASTEXITCODE
+  $ErrorActionPreference = $prevEA
+
+  if ($fetchCode -eq 2) {
+    Write-Warning "Chưa cấu hình khoá Google — bỏ qua phần Google Sheet (xem scripts/fetch-sheet.js)."
+  } elseif ($fetchCode -ne 0) {
+    Write-Warning "Lấy Google Sheet thất bại (mã $fetchCode) — dùng dữ liệu cũ nếu có."
+  }
+
+  if (Test-Path $sheetCache) {
+    $sheet = Get-Content $sheetCache -Raw -Encoding UTF8 | ConvertFrom-Json
+    foreach ($it in $sheet.items) {
+      $occEquipment += [ordered]@{
+        id           = SafeCell $it.id
+        name         = SafeCell $it.name
+        detail       = SafeCell $it.detail
+        status       = SafeCell $it.status
+        category     = SafeCell $it.category
+        offlineSince = SafeDate $it.offlineSince
+      }
+    }
+    Write-Host "Google Sheet: $($occEquipment.Count) thiết bị (tab '$($sheet.tab.title)')." -ForegroundColor Green
+  }
+}
+
+# Khớp tên: DB ghi "BP 11"/"BP 02"/"VNL 09", sheet ghi "BP11"/"BP2"/"VNL09"
+# -> bỏ khoảng trắng, viết hoa, và bỏ số 0 đứng đầu của phần số ("BP02" -> "BP2")
+function NormId($s) {
+  $t = ("$s" -replace '\s', '').ToUpperInvariant()
+  return ($t -replace '(?<=\D)0+(?=\d)', '')
+}
+$equipByKey = @{}
+foreach ($e in $occEquipment) {
+  $k = NormId $e.id
+  if ($k -and -not $equipByKey.ContainsKey($k)) { $equipByKey[$k] = $e }
+}
+# Chỉ ONLINE/OFFLINE mới là trạng thái thật. Cột status của nhóm tàu lai đang bị
+# điền công suất ("2400HP") nên các giá trị khác đều bỏ qua, giữ mặc định.
+function SheetState($e) {
+  if (-not $e) { return $null }
+  switch ("$($e.status)".Trim().ToUpperInvariant()) {
+    "ONLINE"  { "active" }
+    "OFFLINE" { "maintenance" }
+    default   { $null }
+  }
+}
+
+foreach ($b in $occBerths) {
+  $e = $equipByKey[(NormId $b.id)]
+  if (-not $e) { continue }
+  # "Đón tàu 150.000DWT" -> "150.000DWT"
+  if ([string]::IsNullOrWhiteSpace($b.cap) -and $e.detail) {
+    $b.cap = ("$($e.detail)" -replace '(?i)^\s*đón tàu\s*', '').Trim()
+  }
+  $st = SheetState $e
+  if ($st -eq "maintenance") {
+    $b.status       = "repair"
+    $b.offlineSince = $e.offlineSince
+  } elseif ($st) {
+    $b.status = "active"
+  }
+}
+foreach ($t in $occTugs) {
+  $e = $equipByKey[(NormId $t.id)]
+  if (-not $e) { continue }
+  $st = SheetState $e
+  if ($st) { $t.status = $st; $t.offlineSince = $e.offlineSince }
+  # Nhóm tàu lai để công suất trong cột status ("2400HP", "3730kW --> 5002HP")
+  if ([string]::IsNullOrWhiteSpace($t.hp) -and "$($e.status)" -match '(?i)hp|kw') { $t.hp = "$($e.status)".Trim() }
+}
+foreach ($c in $occCranes) {
+  $e = $equipByKey[(NormId $c.id)]
+  if (-not $e) { continue }
+  $st = SheetState $e
+  if ($st) { $c.status = $st; $c.offlineSince = $e.offlineSince }
+}
+
+# ============================================================
 # OCC_JOBS + OCC_DVHH + OCC_TUG_TASKS
 # ============================================================
 # QUAN TRỌNG: bản đầu tự viết JOIN thẳng PonToonBerthBooking/TugboatBooking
@@ -540,6 +653,10 @@ $out += "const OCC_TUGS = $(ToJs $occTugs);"
 $out += ""
 $out += "const OCC_CRANES = $(ToJs $occCranes);"
 $out += ""
+$out += "/* Danh mục thiết bị từ Google Sheet kỹ thuật — chỉ các cột dùng cho dashboard."
+$out += " * Cố tình không xuất ảnh/link OneDrive/email vì repo này public. */"
+$out += "const OCC_EQUIPMENT = $(ToJs $occEquipment);"
+$out += ""
 $out += $occDayFracJs
 $out += ""
 $out += "const OCC_JOBS = $(ToJs $occJobs);"
@@ -563,7 +680,7 @@ $out += ""
 $out += @'
 Object.assign(window, {
   PEOPLE, ME, personById,
-  OCC_WINDOW, OCC_BERTHS, OCC_TUGS, OCC_CRANES, OCC_JOBS, OCC_DVHH, occDayFrac, occColToDate, occColForDate,
+  OCC_WINDOW, OCC_BERTHS, OCC_TUGS, OCC_CRANES, OCC_EQUIPMENT, OCC_JOBS, OCC_DVHH, occDayFrac, occColToDate, occColForDate,
   OCC_TUG_TASKS, OCC_TUG_TASK_TYPES,
 });
 '@
