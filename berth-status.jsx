@@ -25,4 +25,9 @@ const occBerthStatus = (berthId) => {
   return null;
 };
 const occBerthInRepair = (berthId) => occBerthStatus(berthId)?.status === "repair";
+
+/* Bến còn nằm trong danh sách theo dõi (có ở cả DB lẫn sheet kỹ thuật).
+   Job vẫn có thể trỏ tới bến đã bị lọc — đừng đếm những bến đó là "đang dùng". */
+const occBerthTracked = (berthId) =>
+  (typeof OCC_BERTHS !== "undefined" ? OCC_BERTHS : []).some(b => b.id === berthId);
 const occFmtDate = (s) => (s ? `${s.slice(8, 10)}/${s.slice(5, 7)}/${s.slice(0, 4)}` : "");

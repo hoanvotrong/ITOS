@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-16 14:00 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-16 14:29 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  16,
     "todayCol":  78,
-    "todayHour":  14
+    "todayHour":  14.48
 };
 
 const OCC_BERTHS = [
@@ -406,6 +406,20 @@ const OCC_JOBS = [
         "resources":  [
                           {
                               "type":  "tug",
+                              "id":  "TAN CANG 86",
+                              "from":  "2026-09-16 11:00",
+                              "to":  "2026-09-16 12:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL VOYAGER",
+                              "from":  "2026-09-16 11:00",
+                              "to":  "2026-09-16 12:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
                               "id":  "VNL VISION",
                               "from":  "2026-09-13 09:30",
                               "to":  "2026-09-13 10:50",
@@ -511,6 +525,12 @@ const OCC_JOBS = [
                              "kind":  "dvhh",
                              "label":  "H-401 - Float on",
                              "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "SEAWAY SWAN - RỜI",
+                             "status":  "planned",
                              "isMain":  false
                          }
                      ],
@@ -1096,6 +1116,20 @@ const OCC_JOBS = [
                           {
                               "type":  "tug",
                               "id":  "VNL 05",
+                              "from":  "2026-09-16 19:00",
+                              "to":  "2026-09-16 19:30",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL VOYAGER",
+                              "from":  "2026-09-16 19:00",
+                              "to":  "2026-09-16 19:30",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 05",
                               "from":  "2026-09-16 17:30",
                               "to":  "2026-09-16 18:00",
                               "role":  "Hỗ trợ cập/rời phao"
@@ -1445,6 +1479,12 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "EPIC 05 - rời",
+                             "status":  "planned",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 10-05 - cập",
                              "status":  "planned",
                              "isMain":  false
                          }
@@ -10899,6 +10939,30 @@ const OCC_JOBS = [
 
 const OCC_DVHH = [
     {
+        "id":  "DV-29542",
+        "title":  "Lai dắt HĐ: 093-26/BDV/TOS-VNL",
+        "from":  "2026-09-16 11:30",
+        "to":  "2026-09-30 12:00",
+        "tugs":  [
+                     "VNL RELIANCE"
+                 ],
+        "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ HÀNG HẢI THIÊN NAM (TOS)",
+        "status":  "in_progress",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29540",
+        "title":  "Lai dắt MINH ANH 01",
+        "from":  "2026-09-16 06:30",
+        "to":  "2026-09-16 07:00",
+        "tugs":  [
+                     "VNL 07"
+                 ],
+        "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
         "id":  "DV-29537",
         "title":  "Lai dắt HUA CHEN 26",
         "from":  "2026-09-16 11:30",
@@ -17205,6 +17269,78 @@ const OCC_TUG_TASK_TYPES = {
 };
 
 const OCC_TUG_TASKS = [
+    {
+        "id":  "TT-29543-1",
+        "tugId":  "VNL 05",
+        "from":  "2026-09-16 19:00",
+        "to":  "2026-09-16 19:30",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 10-05",
+        "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2609-024"
+    },
+    {
+        "id":  "TT-29543-2",
+        "tugId":  "VNL VOYAGER",
+        "from":  "2026-09-16 19:00",
+        "to":  "2026-09-16 19:30",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 10-05",
+        "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2609-024"
+    },
+    {
+        "id":  "TT-29542-1",
+        "tugId":  "VNL RELIANCE",
+        "from":  "2026-09-16 11:30",
+        "to":  "2026-09-30 12:00",
+        "type":  "tow_in",
+        "vessel":  "HĐ: 093-26/BDV/TOS-VNL",
+        "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ HÀNG HẢI THIÊN NAM (TOS)",
+        "status":  "in_progress",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29542"
+    },
+    {
+        "id":  "TT-29541-1",
+        "tugId":  "TAN CANG 86",
+        "from":  "2026-09-16 11:00",
+        "to":  "2026-09-16 12:00",
+        "type":  "tow_in",
+        "vessel":  "SEAWAY SWAN",
+        "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2609-185"
+    },
+    {
+        "id":  "TT-29541-2",
+        "tugId":  "VNL VOYAGER",
+        "from":  "2026-09-16 11:00",
+        "to":  "2026-09-16 12:00",
+        "type":  "tow_in",
+        "vessel":  "SEAWAY SWAN",
+        "customer":  "CÔNG TY TNHH VẬN TẢI VÀ GIAO NHẬN GAC VIỆT NAM",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2609-185"
+    },
+    {
+        "id":  "TT-29540-1",
+        "tugId":  "VNL 07",
+        "from":  "2026-09-16 06:30",
+        "to":  "2026-09-16 07:00",
+        "type":  "tow_in",
+        "vessel":  "MINH ANH 01",
+        "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29540"
+    },
     {
         "id":  "TT-29539-1",
         "tugId":  "VNL 05",

@@ -274,6 +274,21 @@ foreach ($b in $occBerths) {
     $b.status = "active"
   }
 }
+# Chỉ hiển thị bến phao CÓ Ở CẢ HAI NGUỒN (DB và sheet kỹ thuật). Bến chỉ có ở
+# một bên coi như không thuộc phạm vi theo dõi. Khi chưa lấy được sheet thì giữ
+# nguyên toàn bộ danh sách DB, tránh xoá sạch bến phao chỉ vì mất kết nối.
+$berthMatched = @($occBerths | Where-Object { $equipByKey.ContainsKey((NormId $_.id)) })
+if ($berthMatched.Count -gt 0) {
+  $berthDropped = @($occBerths | Where-Object { -not $equipByKey.ContainsKey((NormId $_.id)) })
+  $occBerths = $berthMatched
+  if ($berthDropped.Count -gt 0) {
+    $droppedIds = ($berthDropped | ForEach-Object { $_.id }) -join ", "
+    Write-Host "Bến phao: giữ $($berthMatched.Count) bến khớp cả 2 nguồn, bỏ $($berthDropped.Count): $droppedIds" -ForegroundColor Yellow
+  }
+} elseif ($occEquipment.Count -gt 0) {
+  Write-Warning "Sheet không có bến phao nào khớp với DB — giữ nguyên danh sách bến của DB."
+}
+
 foreach ($t in $occTugs) {
   $e = $equipByKey[(NormId $t.id)]
   if (-not $e) { continue }

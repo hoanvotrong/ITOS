@@ -96,6 +96,10 @@ DB chưa có trường trạng thái cho bến phao, nên trạng thái đặc b
 
 Ngoài khai báo tay, `OCC_BERTHS` còn nhận thêm 3 field khi ghép được với Google Sheet kỹ thuật (xem mục 3b): `cap` (sức chứa), `status = "repair"` khi sheet ghi `OFFLINE`, và `offlineSince`. Khai báo tay luôn thắng.
 
+**Chỉ giữ bến có ở CẢ HAI nguồn.** Exporter lọc `OCC_BERTHS` xuống phần giao giữa bảng `PonToonBerths` (DB) và danh mục thiết bị (sheet) — bến chỉ có ở một bên coi như ngoài phạm vi theo dõi. Nếu chưa lấy được sheet thì giữ nguyên toàn bộ danh sách DB, tránh xoá sạch bến phao khi mất kết nối.
+
+Job vẫn có thể trỏ tới bến đã bị lọc (`OCC_JOBS.berthId` không có trong `OCC_BERTHS`). Khi đó UI hiển thị mã bến kèm chú thích "ngoài danh sách theo dõi", và `occBerthTracked()` loại bến đó khỏi số "bến đang dùng".
+
 ---
 
 ## 3b. `OCC_EQUIPMENT` — Danh mục thiết bị (Google Sheet)

@@ -84,7 +84,7 @@ function OCCKpis() {
   const planned = OCC_JOBS.filter(j => j.status === "planned").length;
   // Bến đang sửa chữa/nâng cấp không tính là "đang dùng", kể cả khi còn booking chưa đóng trên hệ thống
   const repairBerths = OCC_BERTHS.filter(b => occBerthInRepair(b.id)).length;
-  const usedBerths = new Set(OCC_JOBS.filter(j => (j.status === "in_progress" || j.status === "delayed") && !occBerthInRepair(j.berthId)).map(j => j.berthId)).size;
+  const usedBerths = new Set(OCC_JOBS.filter(j => (j.status === "in_progress" || j.status === "delayed") && occBerthTracked(j.berthId) && !occBerthInRepair(j.berthId)).map(j => j.berthId)).size;
   const totalBerths = OCC_BERTHS.length;
   const tugsActive = OCC_TUGS.filter(t => t.status === "active").length;
   const tugsTotal = OCC_TUGS.length;
@@ -526,8 +526,8 @@ function OCCJobDrawer({ jobId, dvhh, onClose }) {
                 <div className="grid-3-eq" style={{ gap: 16 }}>
                   <div>
                     <div className="muted" style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.05, fontWeight: 600 }}>Bến phao</div>
-                    <div style={{ fontWeight: 600, fontSize: 14, marginTop: 4 }}>{berth?.group}</div>
-                    <div className="mono" style={{ fontSize: 12, color: "var(--brand-ink)", fontWeight: 600 }}>{berth?.label}{berth?.cap ? ` · ${berth.cap}` : ""}</div>
+                    <div style={{ fontWeight: 600, fontSize: 14, marginTop: 4 }}>{berth ? berth.group : "Ngoài danh sách theo dõi"}</div>
+                    <div className="mono" style={{ fontSize: 12, color: "var(--brand-ink)", fontWeight: 600 }}>{berth?.label || job.berthId}{berth?.cap ? ` · ${berth.cap}` : ""}</div>
                   </div>
                   <div>
                     <div className="muted" style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.05, fontWeight: 600 }}>Hàng hoá</div>
@@ -1208,8 +1208,8 @@ function OCCScreen() {
                         <div className="sub">{j.cargo.qty} · {j.cargo.name}</div>
                       </td>
                       <td>
-                        <span className="mono" style={{ fontSize: 12, color: "var(--brand-ink)", fontWeight: 600 }}>{berth?.label}</span>
-                        <div className="sub">{berth?.group.replace("Bến phao ", "")}</div>
+                        <span className="mono" style={{ fontSize: 12, color: "var(--brand-ink)", fontWeight: 600 }}>{berth?.label || j.berthId}</span>
+                        <div className="sub">{berth ? berth.group.replace("Bến phao ", "") : "ngoài danh sách theo dõi"}</div>
                       </td>
                       <td>
                         <div className="row" style={{ gap: 4 }}>
@@ -1518,7 +1518,7 @@ function OCCModule() {
   const inOp = OCC_JOBS.filter(j => j.status === "in_progress").length;
   const delayed = OCC_JOBS.filter(j => j.status === "delayed").length;
   const planned = OCC_JOBS.filter(j => j.status === "planned").length;
-  const usedBerths = new Set(OCC_JOBS.filter(j => (j.status === "in_progress" || j.status === "delayed") && !occBerthInRepair(j.berthId)).map(j => j.berthId)).size;
+  const usedBerths = new Set(OCC_JOBS.filter(j => (j.status === "in_progress" || j.status === "delayed") && occBerthTracked(j.berthId) && !occBerthInRepair(j.berthId)).map(j => j.berthId)).size;
   const repairBerths = OCC_BERTHS.filter(b => occBerthInRepair(b.id)).length;
 
   return (
@@ -1658,8 +1658,8 @@ function OCCJobsView() {
                         <div className="sub">{j.customer}</div>
                       </td>
                       <td>
-                        <span className="mono" style={{ color: "var(--brand-ink)", fontWeight: 600 }}>{berth?.label}</span>
-                        <div className="sub">{berth?.group.replace("Bến phao ", "")}</div>
+                        <span className="mono" style={{ color: "var(--brand-ink)", fontWeight: 600 }}>{berth?.label || j.berthId}</span>
+                        <div className="sub">{berth ? berth.group.replace("Bến phao ", "") : "ngoài danh sách theo dõi"}</div>
                       </td>
                       <td>
                         <div>{j.cargo.qty}</div>
