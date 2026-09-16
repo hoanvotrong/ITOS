@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-16 11:49 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-16 14:00 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  16,
     "todayCol":  78,
-    "todayHour":  11.82
+    "todayHour":  14
 };
 
 const OCC_BERTHS = [
@@ -10908,7 +10908,7 @@ const OCC_DVHH = [
                      "VNL VOYAGER"
                  ],
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -17249,7 +17249,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "HUA CHEN 26",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29537"
     },
@@ -17261,7 +17261,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "HUA CHEN 26",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29537"
     },
