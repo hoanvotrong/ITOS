@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-16 14:46 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-17 09:20 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -23,9 +23,9 @@ const OCC_WINDOW = {
     "endDay":  123,
     "month":  9,
     "year":  2026,
-    "todayDate":  16,
-    "todayCol":  78,
-    "todayHour":  14.77
+    "todayDate":  17,
+    "todayCol":  79,
+    "todayHour":  9.33
 };
 
 const OCC_BERTHS = [
@@ -10941,7 +10941,7 @@ const OCC_DVHH = [
     {
         "id":  "DV-29542",
         "title":  "Lai dắt HĐ: 093-26/BDV/TOS-VNL",
-        "from":  "2026-09-16 11:30",
+        "from":  "2026-09-16 09:00",
         "to":  "2026-09-30 12:00",
         "tugs":  [
                      "VNL RELIANCE"
@@ -10985,7 +10985,7 @@ const OCC_DVHH = [
                      "VNL EXPLORER"
                  ],
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -11011,7 +11011,7 @@ const OCC_DVHH = [
                      "VNL RUBY"
                  ],
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -17277,7 +17277,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 10-05",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2609-024"
     },
@@ -17289,14 +17289,14 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VIET THUAN 10-05",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2609-024"
     },
     {
         "id":  "TT-29542-1",
         "tugId":  "VNL RELIANCE",
-        "from":  "2026-09-16 11:30",
+        "from":  "2026-09-16 09:00",
         "to":  "2026-09-30 12:00",
         "type":  "tow_in",
         "vessel":  "HĐ: 093-26/BDV/TOS-VNL",
@@ -17349,7 +17349,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "EPIC 05",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2609-024"
     },
@@ -17361,7 +17361,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "EPIC 05",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2609-024"
     },
@@ -17409,7 +17409,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "NESTOS",
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29536"
     },
@@ -17421,7 +17421,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "NESTOS",
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29536"
     },
@@ -17481,7 +17481,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "MOONSTONE",
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29534"
     },
@@ -17493,7 +17493,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "MOONSTONE",
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29534"
     },
