@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-21 07:38 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-21 09:33 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  21,
     "todayCol":  83,
-    "todayHour":  7.63
+    "todayHour":  9.55
 };
 
 const OCC_BERTHS = [
@@ -487,9 +487,9 @@ const OCC_JOBS = [
         "pic":  "",
         "status":  "planned",
         "progress":  0,
-        "start":  "2026-09-21 01:00",
+        "start":  "2026-09-21 16:00",
         "end":  "2026-09-25 12:00",
-        "eta":  "2026-09-21 01:00",
+        "eta":  "2026-09-21 16:00",
         "etd":  "2026-09-25 12:00",
         "revenue":  "0 ₫",
         "resources":  [
@@ -11262,6 +11262,31 @@ const OCC_JOBS = [
 
 const OCC_DVHH = [
     {
+        "id":  "DV-29568",
+        "title":  "Lai dắt LANNA NAREE",
+        "from":  "2026-09-21 00:30",
+        "to":  "2026-09-21 01:30",
+        "tugs":  [
+                     "VNL 03",
+                     "VNL RUBY"
+                 ],
+        "customer":  "CÔNG TY CỔ PHẦN THORESEN – VI NA MA TUG (TVT)",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29567",
+        "title":  "Lai dắt VNL09",
+        "from":  "2026-09-20 21:00",
+        "to":  "2026-09-20 21:30",
+        "tugs":  [
+                     "VNL 07"
+                 ],
+        "customer":  "VINA LOGISTICS CORPORATION",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
         "id":  "DV-29566",
         "title":  "Lai dắt JIN MING 16",
         "from":  "2026-09-21 01:00",
@@ -17806,6 +17831,42 @@ const OCC_TUG_TASK_TYPES = {
 };
 
 const OCC_TUG_TASKS = [
+    {
+        "id":  "TT-29568-1",
+        "tugId":  "VNL 03",
+        "from":  "2026-09-21 00:30",
+        "to":  "2026-09-21 01:30",
+        "type":  "tow_in",
+        "vessel":  "LANNA NAREE",
+        "customer":  "CÔNG TY CỔ PHẦN THORESEN – VI NA MA TUG (TVT)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29568"
+    },
+    {
+        "id":  "TT-29568-2",
+        "tugId":  "VNL RUBY",
+        "from":  "2026-09-21 00:30",
+        "to":  "2026-09-21 01:30",
+        "type":  "tow_in",
+        "vessel":  "LANNA NAREE",
+        "customer":  "CÔNG TY CỔ PHẦN THORESEN – VI NA MA TUG (TVT)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29568"
+    },
+    {
+        "id":  "TT-29567-1",
+        "tugId":  "VNL 07",
+        "from":  "2026-09-20 21:00",
+        "to":  "2026-09-20 21:30",
+        "type":  "tow_in",
+        "vessel":  "VNL09",
+        "customer":  "VINA LOGISTICS CORPORATION",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29567"
+    },
     {
         "id":  "TT-29566-1",
         "tugId":  "VNL 03",
