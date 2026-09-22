@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-22 09:15 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-22 14:02 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  22,
     "todayCol":  84,
-    "todayHour":  9.25
+    "todayHour":  14.03
 };
 
 const OCC_BERTHS = [
@@ -518,7 +518,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "NBA MAGRITTE - CẬP",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  false
                          }
                      ],
@@ -13954,8 +13954,8 @@ const OCC_DVHH = [
         "from":  "2026-08-19 12:20",
         "to":  "2026-08-19 14:20",
         "tugs":  [
-                     "Tàu lai ngoài",
-                     "VNL EXPLORER"
+                     "VNL EXPLORER",
+                     "Tàu lai ngoài"
                  ],
         "customer":  "VINA LOGISTICS CORPORATION",
         "status":  "completed",
@@ -25817,7 +25817,7 @@ const OCC_TUG_TASKS = [
     },
     {
         "id":  "TT-29245-1",
-        "tugId":  "Tàu lai ngoài",
+        "tugId":  "VNL EXPLORER",
         "from":  "2026-08-19 12:20",
         "to":  "2026-08-19 14:20",
         "type":  "tow_in",
@@ -25829,7 +25829,7 @@ const OCC_TUG_TASKS = [
     },
     {
         "id":  "TT-29245-2",
-        "tugId":  "VNL EXPLORER",
+        "tugId":  "Tàu lai ngoài",
         "from":  "2026-08-19 12:20",
         "to":  "2026-08-19 14:20",
         "type":  "tow_in",
