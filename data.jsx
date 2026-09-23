@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-23 09:13 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-23 14:00 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  23,
     "todayCol":  85,
-    "todayHour":  9.22
+    "todayHour":  14
 };
 
 const OCC_BERTHS = [
@@ -497,14 +497,14 @@ const OCC_JOBS = [
                               "type":  "tug",
                               "id":  "VNL 05",
                               "from":  "2026-09-22 16:00",
-                              "to":  "2026-09-22 17:00",
+                              "to":  "2026-09-22 17:30",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
                               "type":  "tug",
                               "id":  "VNL VOYAGER",
                               "from":  "2026-09-22 16:00",
-                              "to":  "2026-09-22 17:00",
+                              "to":  "2026-09-22 17:30",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
@@ -538,7 +538,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "FC06 - cập (BP08 -\u003e BP02)",
-                             "status":  "planned",
+                             "status":  "in_progress",
                              "isMain":  false
                          }
                      ],
@@ -11345,8 +11345,8 @@ const OCC_DVHH = [
     {
         "id":  "DV-29573",
         "title":  "Lai dắt ZIM DIAMOND",
-        "from":  "2026-09-22 19:00",
-        "to":  "2026-09-22 20:00",
+        "from":  "2026-09-22 17:40",
+        "to":  "2026-09-22 19:00",
         "tugs":  [
                      "VNL VISION",
                      "VNL FUTURE"
@@ -11358,8 +11358,8 @@ const OCC_DVHH = [
     {
         "id":  "DV-29572",
         "title":  "Lai dắt HAI NAM 79",
-        "from":  "2026-09-22 17:00",
-        "to":  "2026-09-22 18:00",
+        "from":  "2026-09-22 16:35",
+        "to":  "2026-09-22 17:30",
         "tugs":  [
                      "VNL 03",
                      "VNL RUBY"
@@ -11371,8 +11371,8 @@ const OCC_DVHH = [
     {
         "id":  "DV-29571",
         "title":  "Lai dắt GLORY STAR",
-        "from":  "2026-09-22 00:30",
-        "to":  "2026-09-22 01:00",
+        "from":  "2026-09-22 00:20",
+        "to":  "2026-09-22 01:10",
         "tugs":  [
                      "VNL 07"
                  ],
@@ -17979,7 +17979,7 @@ const OCC_TUG_TASKS = [
         "id":  "TT-29575-1",
         "tugId":  "VNL 05",
         "from":  "2026-09-22 16:00",
-        "to":  "2026-09-22 17:00",
+        "to":  "2026-09-22 17:30",
         "type":  "tow_in",
         "vessel":  "FC06",
         "customer":  "VINA LOGISTICS CORPORATION",
@@ -17991,7 +17991,7 @@ const OCC_TUG_TASKS = [
         "id":  "TT-29575-2",
         "tugId":  "VNL VOYAGER",
         "from":  "2026-09-22 16:00",
-        "to":  "2026-09-22 17:00",
+        "to":  "2026-09-22 17:30",
         "type":  "tow_in",
         "vessel":  "FC06",
         "customer":  "VINA LOGISTICS CORPORATION",
@@ -18026,8 +18026,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29573-1",
         "tugId":  "VNL VISION",
-        "from":  "2026-09-22 19:00",
-        "to":  "2026-09-22 20:00",
+        "from":  "2026-09-22 17:40",
+        "to":  "2026-09-22 19:00",
         "type":  "tow_in",
         "vessel":  "ZIM DIAMOND",
         "customer":  "ZIM VIETNAM LLC",
@@ -18038,8 +18038,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29573-2",
         "tugId":  "VNL FUTURE",
-        "from":  "2026-09-22 19:00",
-        "to":  "2026-09-22 20:00",
+        "from":  "2026-09-22 17:40",
+        "to":  "2026-09-22 19:00",
         "type":  "tow_in",
         "vessel":  "ZIM DIAMOND",
         "customer":  "ZIM VIETNAM LLC",
@@ -18050,8 +18050,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29572-1",
         "tugId":  "VNL 03",
-        "from":  "2026-09-22 17:00",
-        "to":  "2026-09-22 18:00",
+        "from":  "2026-09-22 16:35",
+        "to":  "2026-09-22 17:30",
         "type":  "tow_in",
         "vessel":  "HAI NAM 79",
         "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ TIẾP VẬN VÀ THƯƠNG MẠI SÀI GÒN CỬU LONG (SGCL)",
@@ -18062,8 +18062,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29572-2",
         "tugId":  "VNL RUBY",
-        "from":  "2026-09-22 17:00",
-        "to":  "2026-09-22 18:00",
+        "from":  "2026-09-22 16:35",
+        "to":  "2026-09-22 17:30",
         "type":  "tow_in",
         "vessel":  "HAI NAM 79",
         "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ TIẾP VẬN VÀ THƯƠNG MẠI SÀI GÒN CỬU LONG (SGCL)",
@@ -18074,8 +18074,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29571-1",
         "tugId":  "VNL 07",
-        "from":  "2026-09-22 00:30",
-        "to":  "2026-09-22 01:00",
+        "from":  "2026-09-22 00:20",
+        "to":  "2026-09-22 01:10",
         "type":  "tow_in",
         "vessel":  "GLORY STAR",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
