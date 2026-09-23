@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-22 14:02 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-23 09:08 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -23,9 +23,9 @@ const OCC_WINDOW = {
     "endDay":  123,
     "month":  9,
     "year":  2026,
-    "todayDate":  22,
-    "todayCol":  84,
-    "todayHour":  14.03
+    "todayDate":  23,
+    "todayCol":  85,
+    "todayHour":  9.13
 };
 
 const OCC_BERTHS = [
@@ -495,6 +495,20 @@ const OCC_JOBS = [
         "resources":  [
                           {
                               "type":  "tug",
+                              "id":  "VNL 05",
+                              "from":  "2026-09-22 16:00",
+                              "to":  "2026-09-22 17:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL VOYAGER",
+                              "from":  "2026-09-22 16:00",
+                              "to":  "2026-09-22 17:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
                               "id":  "VNL EXPLORER",
                               "from":  "2026-09-21 14:55",
                               "to":  "2026-09-21 16:45",
@@ -519,6 +533,12 @@ const OCC_JOBS = [
                              "kind":  "dvhh",
                              "label":  "NBA MAGRITTE - CẬP",
                              "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "FC06 - cập (BP08 -\u003e BP02)",
+                             "status":  "planned",
                              "isMain":  false
                          }
                      ],
@@ -11332,7 +11352,7 @@ const OCC_DVHH = [
                      "VNL FUTURE"
                  ],
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -11345,7 +11365,7 @@ const OCC_DVHH = [
                      "VNL RUBY"
                  ],
         "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ TIẾP VẬN VÀ THƯƠNG MẠI SÀI GÒN CỬU LONG (SGCL)",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -17956,6 +17976,30 @@ const OCC_TUG_TASK_TYPES = {
 
 const OCC_TUG_TASKS = [
     {
+        "id":  "TT-29575-1",
+        "tugId":  "VNL 05",
+        "from":  "2026-09-22 16:00",
+        "to":  "2026-09-22 17:00",
+        "type":  "tow_in",
+        "vessel":  "FC06",
+        "customer":  "VINA LOGISTICS CORPORATION",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2609-225"
+    },
+    {
+        "id":  "TT-29575-2",
+        "tugId":  "VNL VOYAGER",
+        "from":  "2026-09-22 16:00",
+        "to":  "2026-09-22 17:00",
+        "type":  "tow_in",
+        "vessel":  "FC06",
+        "customer":  "VINA LOGISTICS CORPORATION",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2609-225"
+    },
+    {
         "id":  "TT-29574-1",
         "tugId":  "VNL VISION",
         "from":  "2026-09-23 18:00",
@@ -17987,7 +18031,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "ZIM DIAMOND",
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29573"
     },
@@ -17999,7 +18043,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "ZIM DIAMOND",
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29573"
     },
@@ -18011,7 +18055,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "HAI NAM 79",
         "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ TIẾP VẬN VÀ THƯƠNG MẠI SÀI GÒN CỬU LONG (SGCL)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29572"
     },
@@ -18023,7 +18067,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "HAI NAM 79",
         "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ TIẾP VẬN VÀ THƯƠNG MẠI SÀI GÒN CỬU LONG (SGCL)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29572"
     },
