@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-23 14:00 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-24 10:31 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -23,9 +23,9 @@ const OCC_WINDOW = {
     "endDay":  123,
     "month":  9,
     "year":  2026,
-    "todayDate":  23,
-    "todayCol":  85,
-    "todayHour":  14
+    "todayDate":  24,
+    "todayCol":  86,
+    "todayHour":  10.52
 };
 
 const OCC_BERTHS = [
@@ -433,13 +433,26 @@ const OCC_JOBS = [
         "pic":  "",
         "status":  "planned",
         "progress":  0,
-        "start":  "2026-09-26 01:00",
-        "end":  "2026-10-03 12:00",
-        "eta":  "2026-09-26 01:00",
-        "etd":  "2026-10-03 12:00",
+        "start":  "2026-09-30 01:00",
+        "end":  "2026-10-06 12:00",
+        "eta":  "2026-09-30 01:00",
+        "etd":  "2026-10-06 12:00",
         "revenue":  "0 ₫",
         "resources":  [
-
+                          {
+                              "type":  "tug",
+                              "id":  "VNL VOYAGER",
+                              "from":  "2026-09-30 01:00",
+                              "to":  "2026-09-30 12:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL RUBY",
+                              "from":  "2026-09-30 01:00",
+                              "to":  "2026-09-30 12:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          }
                       ],
         "services":  [
                          {
@@ -447,6 +460,12 @@ const OCC_JOBS = [
                              "label":  "VIET THUAN 80-06/ FC",
                              "status":  "planned",
                              "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 80-06 - CẬP",
+                             "status":  "planned",
+                             "isMain":  false
                          }
                      ],
         "cargoOps":  [
@@ -488,9 +507,9 @@ const OCC_JOBS = [
         "status":  "in_progress",
         "progress":  0,
         "start":  "2026-09-21 16:00",
-        "end":  "2026-09-25 12:00",
+        "end":  "2026-09-28 12:00",
         "eta":  "2026-09-21 16:00",
-        "etd":  "2026-09-25 12:00",
+        "etd":  "2026-09-28 12:00",
         "revenue":  "0 ₫",
         "resources":  [
                           {
@@ -538,7 +557,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "FC06 - cập (BP08 -\u003e BP02)",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  false
                          }
                      ],
@@ -839,11 +858,25 @@ const OCC_JOBS = [
         "status":  "in_progress",
         "progress":  39,
         "start":  "2026-09-14 00:00",
-        "end":  "2026-09-26 12:00",
+        "end":  "2026-09-28 12:00",
         "eta":  "2026-09-14 00:00",
-        "etd":  "2026-09-26 12:00",
+        "etd":  "2026-09-28 12:00",
         "revenue":  "0 ₫",
         "resources":  [
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 05",
+                              "from":  "2026-09-23 10:00",
+                              "to":  "2026-09-23 11:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 07",
+                              "from":  "2026-09-23 10:00",
+                              "to":  "2026-09-23 11:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
                           {
                               "type":  "tug",
                               "id":  "VNL FUTURE",
@@ -910,6 +943,12 @@ const OCC_JOBS = [
                              "kind":  "dvhh",
                              "label":  "VNL08 - cập (BP03 -\u003e BP08)",
                              "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VNL09 - cập (ICD -\u003e BP08)",
+                             "status":  "planned",
                              "isMain":  false
                          }
                      ],
@@ -11330,6 +11369,44 @@ const OCC_JOBS = [
 
 const OCC_DVHH = [
     {
+        "id":  "DV-29579",
+        "title":  "Lai dắt ZIM MOUNT FUJI",
+        "from":  "2026-09-24 13:00",
+        "to":  "2026-09-24 14:00",
+        "tugs":  [
+                     "TAN CANG 86",
+                     "VNL EXPLORER",
+                     "VNL VOYAGER"
+                 ],
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29578",
+        "title":  "Lai dắt HUB 23 \u0026 KAIJU CATEGORY 2",
+        "from":  "2026-09-23 13:30",
+        "to":  "2026-09-23 14:00",
+        "tugs":  [
+                     "VNL 03"
+                 ],
+        "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29576",
+        "title":  "Lai dắt MINH PHAT 26",
+        "from":  "2026-09-23 10:30",
+        "to":  "2026-09-23 11:00",
+        "tugs":  [
+                     "VNL 03"
+                 ],
+        "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
         "id":  "DV-29574",
         "title":  "Lai dắt ZIM DIAMOND",
         "from":  "2026-09-23 18:00",
@@ -11339,7 +11416,7 @@ const OCC_DVHH = [
                      "VNL FUTURE"
                  ],
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -17976,6 +18053,114 @@ const OCC_TUG_TASK_TYPES = {
 
 const OCC_TUG_TASKS = [
     {
+        "id":  "TT-29580-1",
+        "tugId":  "VNL VOYAGER",
+        "from":  "2026-09-30 01:00",
+        "to":  "2026-09-30 12:00",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 80-06/ FC",
+        "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ HÀNG HẢI SUNRISE",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2609-251"
+    },
+    {
+        "id":  "TT-29580-2",
+        "tugId":  "VNL RUBY",
+        "from":  "2026-09-30 01:00",
+        "to":  "2026-09-30 12:00",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 80-06/ FC",
+        "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ HÀNG HẢI SUNRISE",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2609-251"
+    },
+    {
+        "id":  "TT-29579-1",
+        "tugId":  "TAN CANG 86",
+        "from":  "2026-09-24 13:00",
+        "to":  "2026-09-24 14:00",
+        "type":  "tow_in",
+        "vessel":  "ZIM MOUNT FUJI",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29579"
+    },
+    {
+        "id":  "TT-29579-2",
+        "tugId":  "VNL EXPLORER",
+        "from":  "2026-09-24 13:00",
+        "to":  "2026-09-24 14:00",
+        "type":  "tow_in",
+        "vessel":  "ZIM MOUNT FUJI",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29579"
+    },
+    {
+        "id":  "TT-29579-3",
+        "tugId":  "VNL VOYAGER",
+        "from":  "2026-09-24 13:00",
+        "to":  "2026-09-24 14:00",
+        "type":  "tow_in",
+        "vessel":  "ZIM MOUNT FUJI",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29579"
+    },
+    {
+        "id":  "TT-29578-1",
+        "tugId":  "VNL 03",
+        "from":  "2026-09-23 13:30",
+        "to":  "2026-09-23 14:00",
+        "type":  "tow_in",
+        "vessel":  "HUB 23 \u0026 KAIJU CATEGORY 2",
+        "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29578"
+    },
+    {
+        "id":  "TT-29577-1",
+        "tugId":  "VNL 05",
+        "from":  "2026-09-23 10:00",
+        "to":  "2026-09-23 11:00",
+        "type":  "tow_in",
+        "vessel":  "VNL09",
+        "customer":  "VINA LOGISTICS CORPORATION",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2609-125"
+    },
+    {
+        "id":  "TT-29577-2",
+        "tugId":  "VNL 07",
+        "from":  "2026-09-23 10:00",
+        "to":  "2026-09-23 11:00",
+        "type":  "tow_in",
+        "vessel":  "VNL09",
+        "customer":  "VINA LOGISTICS CORPORATION",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2609-125"
+    },
+    {
+        "id":  "TT-29576-1",
+        "tugId":  "VNL 03",
+        "from":  "2026-09-23 10:30",
+        "to":  "2026-09-23 11:00",
+        "type":  "tow_in",
+        "vessel":  "MINH PHAT 26",
+        "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29576"
+    },
+    {
         "id":  "TT-29575-1",
         "tugId":  "VNL 05",
         "from":  "2026-09-22 16:00",
@@ -18007,7 +18192,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "ZIM DIAMOND",
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29574"
     },
@@ -18019,7 +18204,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "ZIM DIAMOND",
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29574"
     },
