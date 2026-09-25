@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-25 09:39 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-25 10:30 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  25,
     "todayCol":  87,
-    "todayHour":  9.65
+    "todayHour":  10.5
 };
 
 const OCC_BERTHS = [
@@ -33,103 +33,37 @@ const OCC_BERTHS = [
         "id":  "BP 02",
         "group":  "Bến phao Vinalogistics",
         "label":  "BP 02",
-        "cap":  ""
+        "cap":  "150.000DWT",
+        "status":  "active"
     },
     {
         "id":  "BP 03",
         "group":  "Bến phao Vinalogistics",
         "label":  "BP 03",
-        "cap":  ""
+        "cap":  "150.000DWT",
+        "status":  "active"
     },
     {
         "id":  "BP 08",
         "group":  "Bến phao Vinalogistics",
         "label":  "BP 08",
-        "cap":  ""
+        "cap":  "60.000DWT --\u003e 120.000DWT",
+        "status":  "active"
     },
     {
         "id":  "BP 09",
         "group":  "Bến phao Vinalogistics",
         "label":  "BP 09",
-        "cap":  ""
+        "cap":  "80.000DWT",
+        "status":  "active"
     },
     {
         "id":  "BP 11",
         "group":  "Bến phao Vinalogistics",
         "label":  "BP 11",
-        "cap":  ""
-    },
-    {
-        "id":  "BP 04",
-        "group":  "Bến phao Vinalogistics",
-        "label":  "BP 04",
-        "cap":  ""
-    },
-    {
-        "id":  "BP 07",
-        "group":  "Bến phao Vinalogistics",
-        "label":  "BP 07",
-        "cap":  ""
-    },
-    {
-        "id":  "BP ITC 02",
-        "group":  "Bến phao Vinalogistics",
-        "label":  "BP ITC 02",
-        "cap":  ""
-    },
-    {
-        "id":  "BP ITC 03",
-        "group":  "Bến phao Vinalogistics",
-        "label":  "BP ITC 03",
-        "cap":  ""
-    },
-    {
-        "id":  "BP TL 02",
-        "group":  "Bến phao Vinalogistics",
-        "label":  "BP TL 02",
-        "cap":  ""
-    },
-    {
-        "id":  "BP 15",
-        "group":  "Bến phao Vinalogistics",
-        "label":  "BP 15",
-        "cap":  ""
-    },
-    {
-        "id":  "BP 10",
-        "group":  "Bến phao Vinalogistics",
-        "label":  "BP 10",
-        "cap":  ""
-    },
-    {
-        "id":  "BP TL 10",
-        "group":  "Bến phao Vinalogistics",
-        "label":  "BP TL 10",
-        "cap":  ""
-    },
-    {
-        "id":  "BP TL 6-8",
-        "group":  "Bến phao Vinalogistics",
-        "label":  "BP TL 6-8",
-        "cap":  ""
-    },
-    {
-        "id":  "BP TA 06",
-        "group":  "Bến phao Vinalogistics",
-        "label":  "BP TA 06",
-        "cap":  ""
-    },
-    {
-        "id":  "BP 12",
-        "group":  "Bến phao Vinalogistics",
-        "label":  "BP 12",
-        "cap":  ""
-    },
-    {
-        "id":  "BP 13",
-        "group":  "Bến phao Vinalogistics",
-        "label":  "BP 13",
-        "cap":  ""
+        "cap":  "60.000DWT",
+        "status":  "repair",
+        "offlineSince":  "2026/09/14"
     }
 ];
 
@@ -152,47 +86,56 @@ const OCC_TUGS = [
     {
         "id":  "VNL 03",
         "hp":  "2400 kW",
-        "status":  "active"
+        "status":  "active",
+        "offlineSince":  "2026/08/20"
     },
     {
         "id":  "VNL 05",
         "hp":  "2400 kW",
-        "status":  "active"
+        "status":  "active",
+        "offlineSince":  "2025/06/02"
     },
     {
         "id":  "VNL 07",
         "hp":  "1600 kW",
-        "status":  "active"
+        "status":  "active",
+        "offlineSince":  "2026/07/28"
     },
     {
         "id":  "VNL EXPLORER",
         "hp":  "5000 kW",
-        "status":  "active"
+        "status":  "active",
+        "offlineSince":  "2025/10/02"
     },
     {
         "id":  "VNL FUTURE",
         "hp":  "5000 kW",
-        "status":  "active"
+        "status":  "active",
+        "offlineSince":  ""
     },
     {
         "id":  "VNL RELIANCE",
         "hp":  "",
-        "status":  "active"
+        "status":  "active",
+        "offlineSince":  "2026/08/07"
     },
     {
         "id":  "VNL RUBY",
         "hp":  "5000 kW",
-        "status":  "active"
+        "status":  "active",
+        "offlineSince":  "2026/01/20"
     },
     {
         "id":  "VNL VISION",
         "hp":  "",
-        "status":  "active"
+        "status":  "active",
+        "offlineSince":  "2025/12/17"
     },
     {
         "id":  "VNL VOYAGER",
         "hp":  "5000 kW",
-        "status":  "active"
+        "status":  "active",
+        "offlineSince":  "2026/06/26"
     }
 ];
 
@@ -271,7 +214,1504 @@ const OCC_CRANES = [
 
 /* Danh mục thiết bị từ Google Sheet kỹ thuật — chỉ các cột dùng cho dashboard.
  * Cố tình không xuất ảnh/link OneDrive/email vì repo này public. */
-const OCC_EQUIPMENT = [];
+const OCC_EQUIPMENT = [
+    {
+        "id":  "TRUCK-X62",
+        "name":  "72C-13743",
+        "detail":  "72C-13743",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/04/24"
+    },
+    {
+        "id":  "TRUCK-X63",
+        "name":  "72C-13864",
+        "detail":  "72C-13864",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/08/24"
+    },
+    {
+        "id":  "TRUCK-X65",
+        "name":  "72C-13289",
+        "detail":  "72C-13289",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/08/11"
+    },
+    {
+        "id":  "TRUCK-X66",
+        "name":  "72C-13882",
+        "detail":  "72C-13882",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/04/29"
+    },
+    {
+        "id":  "TRUCK-X68",
+        "name":  "72C-13128",
+        "detail":  "72C-13128",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/05/12"
+    },
+    {
+        "id":  "TRUCK-X71",
+        "name":  "72H-00338",
+        "detail":  "72H-00338",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/05/22"
+    },
+    {
+        "id":  "TRUCK-X72",
+        "name":  "72H-00471",
+        "detail":  "72H-00471",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/07/30"
+    },
+    {
+        "id":  "TRUCK-X73",
+        "name":  "72H-00720",
+        "detail":  "72H-00720",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/05/10"
+    },
+    {
+        "id":  "TRUCK-X74",
+        "name":  "72H-00766",
+        "detail":  "72H-00766",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/08/01"
+    },
+    {
+        "id":  "TRUCK-X75",
+        "name":  "72H-03598",
+        "detail":  "72H-03598",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/06/17"
+    },
+    {
+        "id":  "TRUCK-X76",
+        "name":  "72H-03517",
+        "detail":  "72H-03517",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/06/01"
+    },
+    {
+        "id":  "TRUCK-X77",
+        "name":  "72H-03419",
+        "detail":  "72H-03419",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "TRUCK-X78",
+        "name":  "72H-06985",
+        "detail":  "72H-06985",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2025/05/21"
+    },
+    {
+        "id":  "TRUCK-X79",
+        "name":  "72H-06149",
+        "detail":  "72H-06149",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/03/02"
+    },
+    {
+        "id":  "TRUCK-X80",
+        "name":  "50E-52667",
+        "detail":  "50E-52667",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "TRUCK-X81",
+        "name":  "50E-52834",
+        "detail":  "50E-52834",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/02/27"
+    },
+    {
+        "id":  "TRUCK-X82",
+        "name":  "50E-54507",
+        "detail":  "50E-54507",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/06/19"
+    },
+    {
+        "id":  "TRUCK-X83",
+        "name":  "72C-13887",
+        "detail":  "72C-13887",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/03/12"
+    },
+    {
+        "id":  "TRUCK-X84",
+        "name":  "72C-13897",
+        "detail":  "72C-13897",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/03/19"
+    },
+    {
+        "id":  "TRUCK-X85",
+        "name":  "72C-13641",
+        "detail":  "72C-13641",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "TRUCK-X86",
+        "name":  "72C-13824",
+        "detail":  "72C-13824",
+        "status":  "ONLINE",
+        "category":  "7. Xe đầu kéo",
+        "offlineSince":  "2026/07/16"
+    },
+    {
+        "id":  "SMRM-R60",
+        "name":  "Xương 72R-02046",
+        "detail":  "72R-02046",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/02/01"
+    },
+    {
+        "id":  "SMRM-R61",
+        "name":  "Xương 72R-01920",
+        "detail":  "72R-01920",
+        "status":  "OFFLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/09/24"
+    },
+    {
+        "id":  "SMRM-R62",
+        "name":  "Xương 72R-01918",
+        "detail":  "72R-01918",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/03/19"
+    },
+    {
+        "id":  "SMRM-R63",
+        "name":  "Xương 72R-01867",
+        "detail":  "72R-01867",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SMRM-R64",
+        "name":  "Xương 72R-01896",
+        "detail":  "72R-01896",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2025/09/11"
+    },
+    {
+        "id":  "SMRM-R65",
+        "name":  "Xương 72R-01852",
+        "detail":  "72R-01852",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SMRM-R66",
+        "name":  "Xương 72R-01925",
+        "detail":  "72R-01925",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/09/11"
+    },
+    {
+        "id":  "SMRM-R67",
+        "name":  "Xương 72R-01868",
+        "detail":  "72R-01868",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/09/15"
+    },
+    {
+        "id":  "SMRM-R68",
+        "name":  "Xương 72R-01891",
+        "detail":  "72R-01891",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/09/23"
+    },
+    {
+        "id":  "SMRM-R69",
+        "name":  "Xương 72R-01909",
+        "detail":  "72R-01909",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/09/11"
+    },
+    {
+        "id":  "SMRM-R70",
+        "name":  "Xương 72R-01876",
+        "detail":  "72R-01876",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/03/25"
+    },
+    {
+        "id":  "SMRM-S02",
+        "name":  "Sàn 72R-01910",
+        "detail":  "72R-01910",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/01/01"
+    },
+    {
+        "id":  "SMRM-S03",
+        "name":  "Sàn 72R-02003",
+        "detail":  "72R-02003",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/04/08"
+    },
+    {
+        "id":  "SMRM-S04",
+        "name":  "Sàn 72R-02016",
+        "detail":  "72R-02016",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/04/24"
+    },
+    {
+        "id":  "SMRM-S05",
+        "name":  "Sàn 72R-02023",
+        "detail":  "72R-02023",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/04/21"
+    },
+    {
+        "id":  "SMRM-S06",
+        "name":  "Sàn 72R-02037",
+        "detail":  "72R-02037",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SMRM-S07",
+        "name":  "Sàn 50RM-13028",
+        "detail":  "50RM-13028",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SMRM-S08",
+        "name":  "Sàn 50RM-13030",
+        "detail":  "50RM-13030",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/03/10"
+    },
+    {
+        "id":  "SMRM-S09",
+        "name":  "Sàn 50RM-18257",
+        "detail":  "50RM-18257",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SMRM-S10",
+        "name":  "Sàn 50RM-18258",
+        "detail":  "50RM-18258",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SMRM-S11",
+        "name":  "Sàn 50RM-23815",
+        "detail":  "50RM-23815",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SMRM-S12",
+        "name":  "Sàn 50RM-23816",
+        "detail":  "50RM-23816",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SMRM-S13",
+        "name":  "Sàn 50RM-23817",
+        "detail":  "50RM-23817",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SMRM-S14",
+        "name":  "Sàn 50RM-23818",
+        "detail":  "50RM-23818",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SMRM-S15",
+        "name":  "Sàn 50RM-23819",
+        "detail":  "50RM-23819",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SMRM-S16",
+        "name":  "Sàn 50RM-23820",
+        "detail":  "50RM-23820",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SMRM-B01",
+        "name":  "Ben 72R-01380",
+        "detail":  "72R-01380",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/06/21"
+    },
+    {
+        "id":  "SMRM-B02",
+        "name":  "Ben 72R-01604",
+        "detail":  "72R-01604",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/06/25"
+    },
+    {
+        "id":  "SMRM-B03",
+        "name":  "Ben 72R-01530",
+        "detail":  "72R-01530",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/08/17"
+    },
+    {
+        "id":  "SMRM-B04",
+        "name":  "Ben 72R-02355",
+        "detail":  "72R-02355",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/07/01"
+    },
+    {
+        "id":  "SMRM-B05",
+        "name":  "Ben 72R-02440",
+        "detail":  "72R-02440",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/06/29"
+    },
+    {
+        "id":  "SMRM-B06",
+        "name":  "Ben 72R-02446",
+        "detail":  "72R-02446",
+        "status":  "ONLINE",
+        "category":  "8. SMRM",
+        "offlineSince":  "2026/08/19"
+    },
+    {
+        "id":  "FL-HYUNDAI-01",
+        "name":  "Xe nâng 35D-7SA",
+        "detail":  "35D-7SA",
+        "status":  "ONLINE",
+        "category":  "9. Xe nâng",
+        "offlineSince":  "2026/08/12"
+    },
+    {
+        "id":  "FL-MAXIMAL-01",
+        "name":  "Xe nâng 7T",
+        "detail":  "FD70T-MWJ3",
+        "status":  "ONLINE",
+        "category":  "9. Xe nâng",
+        "offlineSince":  "2026/03/16"
+    },
+    {
+        "id":  "FL-TOYOTA-01",
+        "name":  "Xe nâng 80447",
+        "detail":  "808FDJ35-80447",
+        "status":  "ONLINE",
+        "category":  "9. Xe nâng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "FL-TOYOTA-02",
+        "name":  "Xe nâng 80443",
+        "detail":  "808FDJ35-80443",
+        "status":  "ONLINE",
+        "category":  "9. Xe nâng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "FL-TOYOTA-03",
+        "name":  "Xe nâng 80446",
+        "detail":  "808FDJ35-80446",
+        "status":  "ONLINE",
+        "category":  "9. Xe nâng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "FL-TOYOTA-04",
+        "name":  "Xe nâng 80437",
+        "detail":  "808FDJ35-80437",
+        "status":  "ONLINE",
+        "category":  "9. Xe nâng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "FL-TOYOTA-05",
+        "name":  "Xe nâng 90081",
+        "detail":  "208FDJ35-90081",
+        "status":  "ONLINE",
+        "category":  "9. Xe nâng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "FL-TOYOTA-06",
+        "name":  "Xe nâng 900123",
+        "detail":  "208FDJ35-900123",
+        "status":  "ONLINE",
+        "category":  "9. Xe nâng",
+        "offlineSince":  "2026/03/11"
+    },
+    {
+        "id":  "ECH05",
+        "name":  "Xe nâng rỗng",
+        "detail":  "50CD-01545",
+        "status":  "ONLINE",
+        "category":  "9. Xe nâng",
+        "offlineSince":  "2026/08/20"
+    },
+    {
+        "id":  "ECH06",
+        "name":  "Xe nâng rỗng",
+        "detail":  "50CD-01547",
+        "status":  "ONLINE",
+        "category":  "9. Xe nâng",
+        "offlineSince":  "2026/09/08"
+    },
+    {
+        "id":  "ECH07",
+        "name":  "Xe nâng rỗng",
+        "detail":  "",
+        "status":  "ONLINE",
+        "category":  "9. Xe nâng",
+        "offlineSince":  "2026/09/10"
+    },
+    {
+        "id":  "RS01",
+        "name":  "Xe nâng hàng",
+        "detail":  "72LA-1994",
+        "status":  "ONLINE",
+        "category":  "9. Xe nâng",
+        "offlineSince":  "2026/06/30"
+    },
+    {
+        "id":  "RS02",
+        "name":  "Xe nâng hàng",
+        "detail":  "50CD-01877",
+        "status":  "OFFLINE",
+        "category":  "9. Xe nâng",
+        "offlineSince":  "2026/08/14"
+    },
+    {
+        "id":  "RS03",
+        "name":  "Xe nâng hàng",
+        "detail":  "",
+        "status":  "ONLINE",
+        "category":  "9. Xe nâng",
+        "offlineSince":  "2026/06/29"
+    },
+    {
+        "id":  "HINO-TC01",
+        "name":  "Xe tải cẩu",
+        "detail":  "Xe tải cẩu 72C-02357",
+        "status":  "ONLINE",
+        "category":  "10. Xe tải, xe con",
+        "offlineSince":  "2025/11/01"
+    },
+    {
+        "id":  "HINO-TC02",
+        "name":  "Xe tải cẩu",
+        "detail":  "Xe tải cẩu 72H-04533",
+        "status":  "ONLINE",
+        "category":  "10. Xe tải, xe con",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "HINO-TB01",
+        "name":  "Xe tải thùng",
+        "detail":  "72H-02330",
+        "status":  "ONLINE",
+        "category":  "10. Xe tải, xe con",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "HINO-TB02",
+        "name":  "Xe tải thùng",
+        "detail":  "72H-02907",
+        "status":  "ONLINE",
+        "category":  "10. Xe tải, xe con",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "72C-18577",
+        "name":  "Xe tải nhỏ",
+        "detail":  "72C-18577",
+        "status":  "ONLINE",
+        "category":  "10. Xe tải, xe con",
+        "offlineSince":  "2026/05/05"
+    },
+    {
+        "id":  "72B-03577",
+        "name":  "Xe ca công ty",
+        "detail":  "Xe ca đưa đón CBNV",
+        "status":  "ONLINE",
+        "category":  "10. Xe tải, xe con",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "BP2",
+        "name":  "Bến phao",
+        "detail":  "Đón tàu 150.000DWT",
+        "status":  "ONLINE",
+        "category":  "1. Bến phao",
+        "offlineSince":  "2025/04/18"
+    },
+    {
+        "id":  "BP3",
+        "name":  "Bến phao",
+        "detail":  "Đón tàu 150.000DWT",
+        "status":  "ONLINE",
+        "category":  "1. Bến phao",
+        "offlineSince":  "2025/04/15"
+    },
+    {
+        "id":  "BP8",
+        "name":  "Bến phao",
+        "detail":  "Đón tàu 60.000DWT --\u003e 120.000DWT",
+        "status":  "ONLINE",
+        "category":  "1. Bến phao",
+        "offlineSince":  "2026/07/28"
+    },
+    {
+        "id":  "BP9",
+        "name":  "Bến phao",
+        "detail":  "Đón tàu 80.000DWT",
+        "status":  "ONLINE",
+        "category":  "1. Bến phao",
+        "offlineSince":  "2025/04/15"
+    },
+    {
+        "id":  "BP11",
+        "name":  "Bến phao",
+        "detail":  "Đón tàu 60.000DWT",
+        "status":  "OFFLINE",
+        "category":  "1. Bến phao",
+        "offlineSince":  "2026/09/14"
+    },
+    {
+        "id":  "VNL03",
+        "name":  "Tàu lai | Thư",
+        "detail":  "2400HP",
+        "status":  "ONLINE",
+        "category":  "2. Tàu lai",
+        "offlineSince":  "2026/08/20"
+    },
+    {
+        "id":  "VNL05",
+        "name":  "Tàu lai | Nhân",
+        "detail":  "2400HP",
+        "status":  "ONLINE",
+        "category":  "2. Tàu lai",
+        "offlineSince":  "2025/06/02"
+    },
+    {
+        "id":  "VNL07",
+        "name":  "Tàu lai | Mạnh",
+        "detail":  "1600HP",
+        "status":  "ONLINE",
+        "category":  "2. Tàu lai",
+        "offlineSince":  "2026/07/28"
+    },
+    {
+        "id":  "VNL EXPLORER",
+        "name":  "Tàu lai | Nhân",
+        "detail":  "3730kW --\u003e 5002HP",
+        "status":  "ONLINE",
+        "category":  "2. Tàu lai",
+        "offlineSince":  "2025/10/02"
+    },
+    {
+        "id":  "VNL VOYAGER",
+        "name":  "Tàu lai | Mạnh",
+        "detail":  "3730kW --\u003e 5002HP",
+        "status":  "ONLINE",
+        "category":  "2. Tàu lai",
+        "offlineSince":  "2026/06/26"
+    },
+    {
+        "id":  "VNL RUBY",
+        "name":  "Tàu lai | Thư",
+        "detail":  "3730kW --\u003e 5002HP",
+        "status":  "ONLINE",
+        "category":  "2. Tàu lai",
+        "offlineSince":  "2026/01/20"
+    },
+    {
+        "id":  "VNL RELIANCE",
+        "name":  "Tàu lai | Mạnh",
+        "detail":  "3676kW --\u003e 4929HP",
+        "status":  "ONLINE",
+        "category":  "2. Tàu lai",
+        "offlineSince":  "2026/08/07"
+    },
+    {
+        "id":  "VNL VISION",
+        "name":  "Tàu lai | Nhân",
+        "detail":  "3676kW --\u003e 4929HP",
+        "status":  "ONLINE",
+        "category":  "2. Tàu lai",
+        "offlineSince":  "2025/12/17"
+    },
+    {
+        "id":  "VNL FUTURE",
+        "name":  "Tàu lai | Thư",
+        "detail":  "3676kW --\u003e 4929HP",
+        "status":  "ONLINE",
+        "category":  "2. Tàu lai",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "TADAMI MARU",
+        "name":  "Tàu lai | QuangLH",
+        "detail":  "4500HP",
+        "status":  "#",
+        "category":  "2. Tàu lai",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Tug Fleet",
+        "name":  "Đội tàu lai | QuangLH",
+        "detail":  "Đội tàu lai",
+        "status":  "#",
+        "category":  "2. Tàu lai",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "H23C",
+        "name":  "Canoe LSP",
+        "detail":  "Canoe LSP",
+        "status":  "ONLINE",
+        "category":  "3. Canoe",
+        "offlineSince":  "2026/06/08"
+    },
+    {
+        "id":  "VNL08",
+        "name":  "Sà lan cẩu nổi",
+        "detail":  "Sà lan cẩu nổi 1",
+        "status":  "ONLINE",
+        "category":  "4. Sà lan cẩu nổi",
+        "offlineSince":  "2026/01/04"
+    },
+    {
+        "id":  "FC06",
+        "name":  "Sà lan cẩu nổi",
+        "detail":  "Sà lan cẩu nổi 2",
+        "status":  "ONLINE",
+        "category":  "4. Sà lan cẩu nổi",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "VNL09",
+        "name":  "Sà lan cẩu nổi",
+        "detail":  "Sà lan cẩu nổi 3",
+        "status":  "ONLINE",
+        "category":  "4. Sà lan cẩu nổi",
+        "offlineSince":  "2025/04/18"
+    },
+    {
+        "id":  "VNL10",
+        "name":  "Sà lan cẩu nổi",
+        "detail":  "Sà lan cẩu nổi 4",
+        "status":  "#",
+        "category":  "4. Sà lan cẩu nổi",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "HT-VNL01-4530",
+        "name":  "Cẩu bờ 01",
+        "detail":  "GL4530/MLC/3636-1",
+        "status":  "ONLINE",
+        "category":  "5. Cẩu bờ/cảng",
+        "offlineSince":  "2026/02/07"
+    },
+    {
+        "id":  "HT-VNL02-6019",
+        "name":  "Cẩu bờ 02",
+        "detail":  "GL6019/5022/4524/4027/3630",
+        "status":  "ONLINE",
+        "category":  "5. Cẩu bờ/cảng",
+        "offlineSince":  "2026/09/09"
+    },
+    {
+        "id":  "HT-VNL03-4028",
+        "name":  "Cẩu bờ 03",
+        "detail":  "GL4028/3037/2541.3-2",
+        "status":  "ONLINE",
+        "category":  "5. Cẩu bờ/cảng",
+        "offlineSince":  "2026/08/21"
+    },
+    {
+        "id":  "HT-VNL05-6019",
+        "name":  "Cẩu bờ 05",
+        "detail":  "GL6019/5022/4524/4027/3630",
+        "status":  "ONLINE",
+        "category":  "5. Cẩu bờ/cảng",
+        "offlineSince":  "2026/04/03"
+    },
+    {
+        "id":  "HT-VNL06-6019",
+        "name":  "Cẩu bờ 06",
+        "detail":  "GL6019/5022/4524/4027/3630",
+        "status":  "ONLINE",
+        "category":  "5. Cẩu bờ/cảng",
+        "offlineSince":  "2026/01/24"
+    },
+    {
+        "id":  "HT-VNL07-4530",
+        "name":  "Cẩu bờ 07",
+        "detail":  "GL4530/MLC/3636-2",
+        "status":  "ONLINE",
+        "category":  "5. Cẩu bờ/cảng",
+        "offlineSince":  "2025/08/02"
+    },
+    {
+        "id":  "ODA-MG01-4530",
+        "name":  "Cẩu chân ray",
+        "detail":  "GL4530/MLC/3636-3 (ODA)",
+        "status":  "ONLINE",
+        "category":  "5. Cẩu bờ/cảng",
+        "offlineSince":  "2026/01/06"
+    },
+    {
+        "id":  "ODA-MG02-4530",
+        "name":  "Cẩu chân ray",
+        "detail":  "GL4530/MLC/3636-4 (ODA)",
+        "status":  "ONLINE",
+        "category":  "5. Cẩu bờ/cảng",
+        "offlineSince":  "2026/01/06"
+    },
+    {
+        "id":  "FC06-01-4028",
+        "name":  "Cẩu nổi",
+        "detail":  "GL4028/Gr3028",
+        "status":  "ONLINE",
+        "category":  "5. Cẩu bờ/cảng",
+        "offlineSince":  "2026/02/07"
+    },
+    {
+        "id":  "FC06-02-4026",
+        "name":  "Cẩu nổi",
+        "detail":  "GL4026/Gr3326 (28m)",
+        "status":  "ONLINE",
+        "category":  "5. Cẩu bờ/cảng",
+        "offlineSince":  "2026/06/30"
+    },
+    {
+        "id":  "VNL08-K3035",
+        "name":  "Cẩu nổi",
+        "detail":  "K3035-4HD",
+        "status":  "ONLINE",
+        "category":  "5. Cẩu bờ/cảng",
+        "offlineSince":  "2026/07/06"
+    },
+    {
+        "id":  "VNL09-K3036",
+        "name":  "Cẩu nổi",
+        "detail":  "K3036-4HD",
+        "status":  "ONLINE",
+        "category":  "5. Cẩu bờ/cảng",
+        "offlineSince":  "2026/06/24"
+    },
+    {
+        "id":  "VNL10-K5036",
+        "name":  "Cẩu nổi",
+        "detail":  "K5036-4HD",
+        "status":  "#",
+        "category":  "5. Cẩu bờ/cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SPREADER-01",
+        "name":  "Ngáng container 1",
+        "detail":  "Ngáng container 20\u0027",
+        "status":  "ONLINE",
+        "category":  "12. Ngáng container",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SPREADER-02",
+        "name":  "Ngáng container 2",
+        "detail":  "Ngáng container 40\u0027",
+        "status":  "ONLINE",
+        "category":  "12. Ngáng container",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SPREADER-03",
+        "name":  "Ngáng container 3",
+        "detail":  "Ngáng container 20\u0027",
+        "status":  "ONLINE",
+        "category":  "12. Ngáng container",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SPREADER-04",
+        "name":  "Ngáng container 4",
+        "detail":  "Ngáng container 40\u0027",
+        "status":  "ONLINE",
+        "category":  "12. Ngáng container",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SPREADER-05",
+        "name":  "Ngáng container 5",
+        "detail":  "Ngáng container 20\u0027",
+        "status":  "ONLINE",
+        "category":  "12. Ngáng container",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SPREADER-06",
+        "name":  "Ngáng container 6",
+        "detail":  "Ngáng container 40\u0027",
+        "status":  "ONLINE",
+        "category":  "12. Ngáng container",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SPREADER-07",
+        "name":  "Ngáng container 7",
+        "detail":  "Ngáng container 40\u0027",
+        "status":  "ONLINE",
+        "category":  "12. Ngáng container",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Grab-Kardesler-01",
+        "name":  "Gàu ngoạm K1",
+        "detail":  "Gàu ngoạm K1",
+        "status":  "ONLINE",
+        "category":  "13. Gàu ngoạm",
+        "offlineSince":  "2025/08/30"
+    },
+    {
+        "id":  "Grab-Kardesler-02",
+        "name":  "Gàu ngoạm K2",
+        "detail":  "Gàu ngoạm K2",
+        "status":  "OFFLINE",
+        "category":  "13. Gàu ngoạm",
+        "offlineSince":  "2026/09/07"
+    },
+    {
+        "id":  "Grab-Kardesler-03",
+        "name":  "Gàu ngoạm K3",
+        "detail":  "Gàu ngoạm K3",
+        "status":  "ONLINE",
+        "category":  "13. Gàu ngoạm",
+        "offlineSince":  "2026/05/05"
+    },
+    {
+        "id":  "Grab-Kardesler-04",
+        "name":  "Gàu ngoạm K4",
+        "detail":  "Gàu ngoạm K4",
+        "status":  "ONLINE",
+        "category":  "13. Gàu ngoạm",
+        "offlineSince":  "2026/07/25"
+    },
+    {
+        "id":  "Grab-Kardesler-05",
+        "name":  "Gàu ngoạm K5",
+        "detail":  "Gàu ngoạm K5",
+        "status":  "ONLINE",
+        "category":  "13. Gàu ngoạm",
+        "offlineSince":  "2025/01/01"
+    },
+    {
+        "id":  "Grab-Kardesler-06",
+        "name":  "Gàu ngoạm K6",
+        "detail":  "Gàu ngoạm K6",
+        "status":  "OFFLINE",
+        "category":  "13. Gàu ngoạm",
+        "offlineSince":  "2026/08/22"
+    },
+    {
+        "id":  "Grab-Kardesler-07",
+        "name":  "Gàu ngoạm K7",
+        "detail":  "Gàu ngoạm K7",
+        "status":  "ONLINE",
+        "category":  "13. Gàu ngoạm",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Grab-Kardesler-08",
+        "name":  "Gàu ngoạm K8",
+        "detail":  "Gàu ngoạm K8",
+        "status":  "OFFLINE",
+        "category":  "13. Gàu ngoạm",
+        "offlineSince":  "2026/07/16"
+    },
+    {
+        "id":  "Grab-Kardesler-09",
+        "name":  "Gàu ngoạm K9",
+        "detail":  "Gàu ngoạm K9",
+        "status":  "ONLINE",
+        "category":  "13. Gàu ngoạm",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Grab-Kardesler-10",
+        "name":  "Gàu ngoạm K10 - Cắt kéo",
+        "detail":  "Gàu ngoạm K10 - 32 CBM, 18t (scissor- cắt kéo)",
+        "status":  "#",
+        "category":  "13. Gàu ngoạm",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Grab-Kardesler-11",
+        "name":  "Gàu ngoạm K11 - 32 CBM",
+        "detail":  "Gàu ngoạm K11 - 32 CBM, 17t",
+        "status":  "#",
+        "category":  "13. Gàu ngoạm",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Grab-Donghae-01",
+        "name":  "Gàu ngoạm Donghae",
+        "detail":  "Gàu ngoạm Donghae",
+        "status":  "OFFLINE",
+        "category":  "13. Gàu ngoạm",
+        "offlineSince":  "2025/06/24"
+    },
+    {
+        "id":  "Grab-MH01",
+        "name":  "Gàu ngoạm vàng MH",
+        "detail":  "Gàu ngoạm vàng MH",
+        "status":  "ONLINE",
+        "category":  "13. Gàu ngoạm",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Grab-Vestergen-01",
+        "name":  "Gàu ngoạm xanh V",
+        "detail":  "Gàu ngoạm xanh V",
+        "status":  "ONLINE",
+        "category":  "13. Gàu ngoạm",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "WEI-C1",
+        "name":  "Cầu cân 4 - C1 (Văn phòng)",
+        "detail":  "Cầu cân ô tô",
+        "status":  "ONLINE",
+        "category":  "14. Hệ cân",
+        "offlineSince":  "2026/06/08"
+    },
+    {
+        "id":  "WEI-D2",
+        "name":  "Cầu cân 2- D2 (Phụ trợ)",
+        "detail":  "Cầu cân ô tô",
+        "status":  "ONLINE",
+        "category":  "14. Hệ cân",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "WEI-K1",
+        "name":  "Cầu cân 3 - K1 (CP)",
+        "detail":  "Cầu cân ô tô",
+        "status":  "ONLINE",
+        "category":  "14. Hệ cân",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "WEI-#4",
+        "name":  "Cầu cân 1 - (Cầu vồng)",
+        "detail":  "Cầu cân ô tô",
+        "status":  "OFFLINE",
+        "category":  "14. Hệ cân",
+        "offlineSince":  "2026/09/25"
+    },
+    {
+        "id":  "WEI-OCS",
+        "name":  "Cân treo OCS",
+        "detail":  "Cân treo OCS",
+        "status":  "ONLINE",
+        "category":  "14. Hệ cân",
+        "offlineSince":  "2026/07/25"
+    },
+    {
+        "id":  "Hopper-01",
+        "name":  "Phễu xả 1",
+        "detail":  "Ví trí sử dụng cảng ODA",
+        "status":  "ONLINE",
+        "category":  "15. Phễu",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Hopper-02",
+        "name":  "Phễu xả 2",
+        "detail":  "Ví trí sử dụng cảng ODA",
+        "status":  "ONLINE",
+        "category":  "15. Phễu",
+        "offlineSince":  "2025/05/29"
+    },
+    {
+        "id":  "Hopper-03",
+        "name":  "Phễu xả 3",
+        "detail":  "Ví trí sử dụng cảng ODA",
+        "status":  "ONLINE",
+        "category":  "15. Phễu",
+        "offlineSince":  "2026/06/24"
+    },
+    {
+        "id":  "Hopper-04",
+        "name":  "Phễu xả 4",
+        "detail":  "Ví trí sử dụng cảng Hưng Thái",
+        "status":  "ONLINE",
+        "category":  "15. Phễu",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Hopper-05",
+        "name":  "Phễu xả 5",
+        "detail":  "Ví trí sử dụng cảng ODA",
+        "status":  "ONLINE",
+        "category":  "15. Phễu",
+        "offlineSince":  "2026/06/24"
+    },
+    {
+        "id":  "Hopper-06",
+        "name":  "Phễu xả 6",
+        "detail":  "Ví trí sử dụng cảng Hưng Thái",
+        "status":  "ONLINE",
+        "category":  "15. Phễu",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Fender-Yokohama",
+        "name":  "Đệm va YOKOHAMA",
+        "detail":  "Đệm va Yokohama",
+        "status":  "ONLINE",
+        "category":  "16. Đệm va",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Fender-Palfinger",
+        "name":  "Đệm va PALFINGER",
+        "detail":  "Đệm va cầu cảng Palfinger",
+        "status":  "ONLINE",
+        "category":  "16. Đệm va",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "CONVEYOR-01",
+        "name":  "Băng tải xá, cố định C3",
+        "detail":  "",
+        "status":  "ONLINE",
+        "category":  "11. Băng tải",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "CONVEYOR-02",
+        "name":  "Băng tải đá, di động",
+        "detail":  "",
+        "status":  "ONLINE",
+        "category":  "11. Băng tải",
+        "offlineSince":  "2026/03/02"
+    },
+    {
+        "id":  "VNL08-CONVEYOR",
+        "name":  "Băng dưới hopper, băng xoay",
+        "detail":  "Băng dưới hopper, băng xoay",
+        "status":  "ONLINE",
+        "category":  "11. Băng tải",
+        "offlineSince":  "2026/08/03"
+    },
+    {
+        "id":  "FC06-CONVEYOR",
+        "name":  "02 băng 6m + băng xoay",
+        "detail":  "02 băng 6m + băng xoay",
+        "status":  "ONLINE",
+        "category":  "11. Băng tải",
+        "offlineSince":  "2025/07/05"
+    },
+    {
+        "id":  "VNL09-CONVEYOR",
+        "name":  "Băng tải cẩu nổi VNL09",
+        "detail":  "Băng tải cẩu nổi VNL09",
+        "status":  "#",
+        "category":  "11. Băng tải",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "VNL08-GE1-2016",
+        "name":  "Máy phát thủy",
+        "detail":  "CAT 9.3",
+        "status":  "ONLINE",
+        "category":  "17. Máy phát",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "VNL08-GE2-2016",
+        "name":  "Máy phát thủy",
+        "detail":  "CAT 9.3",
+        "status":  "ONLINE",
+        "category":  "17. Máy phát",
+        "offlineSince":  "2025/11/06"
+    },
+    {
+        "id":  "VNL08-GE3-2016",
+        "name":  "Máy phát thủy",
+        "detail":  "CAT 9.3",
+        "status":  "ONLINE",
+        "category":  "17. Máy phát",
+        "offlineSince":  "2026/07/29"
+    },
+    {
+        "id":  "VNL08-GE4-2016",
+        "name":  "Máy phát thủy",
+        "detail":  "CAT 4.4",
+        "status":  "ONLINE",
+        "category":  "17. Máy phát",
+        "offlineSince":  "2026/04/26"
+    },
+    {
+        "id":  "VNL08-GE5",
+        "name":  "Máy phát bộ",
+        "detail":  "CUMMINS KTA50-G2",
+        "status":  "OFFLINE",
+        "category":  "17. Máy phát",
+        "offlineSince":  "2026/08/11"
+    },
+    {
+        "id":  "FC06-GE1",
+        "name":  "Máy phát bộ",
+        "detail":  "CUMMINS KTA50-G8 1400kVA",
+        "status":  "ONLINE",
+        "category":  "17. Máy phát",
+        "offlineSince":  "2025/04/28"
+    },
+    {
+        "id":  "FC06-GE2",
+        "name":  "Máy phát bộ",
+        "detail":  "CUMMINS KTA50-G8 1400kVA",
+        "status":  "ONLINE",
+        "category":  "17. Máy phát",
+        "offlineSince":  "2026/01/27"
+    },
+    {
+        "id":  "FC06-GE3",
+        "name":  "Máy phát bộ",
+        "detail":  "YANMAR 30HP",
+        "status":  "ONLINE",
+        "category":  "17. Máy phát",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "VNL09-GE1-2024",
+        "name":  "Máy phát bộ",
+        "detail":  "WEICHAI 12M33G1100/6/WPG1100C76",
+        "status":  "ONLINE",
+        "category":  "17. Máy phát",
+        "offlineSince":  "2026/06/22"
+    },
+    {
+        "id":  "VNL09-GE2-2024",
+        "name":  "Máy phát bộ",
+        "detail":  "WEICHAI 12M33G1100/6/WPG1100C76",
+        "status":  "ONLINE",
+        "category":  "17. Máy phát",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "VNL09-GE3-2024",
+        "name":  "Máy phát bộ",
+        "detail":  "WEICHAI WPG41",
+        "status":  "ONLINE",
+        "category":  "17. Máy phát",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "HT-GE1",
+        "name":  "Máy phát bộ",
+        "detail":  "MITSUBISHI MGS",
+        "status":  "ONLINE",
+        "category":  "17. Máy phát",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "WEICHAI-5917",
+        "name":  "Máy phát bộ",
+        "detail":  "AVR 60Hz",
+        "status":  "ONLINE",
+        "category":  "17. Máy phát",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "VNL10-GE1-2026",
+        "name":  "Máy phát thủy",
+        "detail":  "WEICHAI",
+        "status":  "#",
+        "category":  "17. Máy phát",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "VNL10-GE2-2026",
+        "name":  "Máy phát thủy",
+        "detail":  "WEICHAI",
+        "status":  "#",
+        "category":  "17. Máy phát",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Lightpole01",
+        "name":  "Cột đèn 01",
+        "detail":  "",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Lightpole02",
+        "name":  "Cột đèn 02",
+        "detail":  "",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Lightpole03",
+        "name":  "Cột đèn 03",
+        "detail":  "",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Lightpole04",
+        "name":  "Cột đèn 04",
+        "detail":  "",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Lightpole05",
+        "name":  "Cột đèn 05",
+        "detail":  "",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Lightpole06",
+        "name":  "Cột đèn 06",
+        "detail":  "",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Lightpole07",
+        "name":  "Cột đèn 07",
+        "detail":  "",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "CameraSystem",
+        "name":  "Hệ thống camera",
+        "detail":  "Hệ thống camera",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "OfficeBuilding",
+        "name":  "Nhà văn phòng",
+        "detail":  "Nhà văn phòng",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "SewageSystem",
+        "name":  "Hệ thống thoát nước",
+        "detail":  "Hệ thống XLNT",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "XLNT30",
+        "name":  "Hệ thống XLNT nhà văn phòng",
+        "detail":  "",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "XLNT40",
+        "name":  "Hệ thống XLNT cảng",
+        "detail":  "",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "WaterSupplySystem",
+        "name":  "Hệ thống cấp nước",
+        "detail":  "Hệ thống cấp nước",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "ElectricalSystem",
+        "name":  "Hệ thống điện",
+        "detail":  "Hệ thống điện",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Warehouse",
+        "name":  "Hệ thống kho chứa",
+        "detail":  "Hệ thống kho chứa",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "InventoryWarehouse",
+        "name":  "Hệ thống kho vật tư",
+        "detail":  "Hệ thống kho vật tư",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "BerthSystem",
+        "name":  "Hệ thống cầu bến",
+        "detail":  "Hệ thống cầu bến",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "FireFightingSystem",
+        "name":  "Hệ thống PCCC",
+        "detail":  "Hệ thống PCCC",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "InternalPortRoads",
+        "name":  "Hệ thống đường nội bộ",
+        "detail":  "Hệ thống đường nội bộ",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Workshop",
+        "name":  "Xưởng sửa chữa",
+        "detail":  "Xưởng sửa chữa",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  "2025/09/25"
+    },
+    {
+        "id":  "DepotContainer",
+        "name":  "Khu vực sửa container",
+        "detail":  "Khu vực sửa container",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  "2025/12/31"
+    },
+    {
+        "id":  "Gate1",
+        "name":  "Cổng cảng 1 (Cầu vồng)",
+        "detail":  "Cổng cảng số 2",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "Gate2",
+        "name":  "Cổng cảng 2 (Văn phòng)",
+        "detail":  "Cổng cảng số 1",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "OSR",
+        "name":  "Thiết bị ứng phó tràn dầu",
+        "detail":  "Thiết bị ứng phó tràn dầu",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  "2026/06/27"
+    },
+    {
+        "id":  "BUGGY01",
+        "name":  "Xe điện tuần tra 01",
+        "detail":  "Xe điện tuần tra 01",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    },
+    {
+        "id":  "OilTank",
+        "name":  "Bồn dầu",
+        "detail":  "Bồn dầu",
+        "status":  "ONLINE",
+        "category":  "18. Hạ tầng cảng",
+        "offlineSince":  ""
+    }
+];
 
 // Mọi vị trí trên Gantt đều tính theo SỐ NGÀY LỆCH so với OCC_WINDOW.refDate
 // (ngày dương lịch thật của cột lưới số 1) — không giả định mọi thứ nằm
