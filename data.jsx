@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-09-25 10:30 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-09-25 14:00 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  25,
     "todayCol":  87,
-    "todayHour":  10.5
+    "todayHour":  14
 };
 
 const OCC_BERTHS = [
@@ -12901,6 +12901,70 @@ const OCC_JOBS = [
 
 const OCC_DVHH = [
     {
+        "id":  "DV-29591",
+        "title":  "Lai dắt ZIM MOUNT EVEREST",
+        "from":  "2026-09-26 07:00",
+        "to":  "2026-09-26 08:00",
+        "tugs":  [
+                     "TAN CANG 86",
+                     "VNL EXPLORER",
+                     "VNL VOYAGER"
+                 ],
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29590",
+        "title":  "Lai dắt ZIM MOUNT FUJI",
+        "from":  "2026-09-26 03:00",
+        "to":  "2026-09-26 04:00",
+        "tugs":  [
+                     "TAN CANG 86",
+                     "VNL EXPLORER",
+                     "VNL VOYAGER"
+                 ],
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29589",
+        "title":  "Lai dắt MANH DUC 68",
+        "from":  "2026-09-25 13:30",
+        "to":  "2026-09-25 14:00",
+        "tugs":  [
+                     "VNL 07"
+                 ],
+        "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29588",
+        "title":  "Lai dắt VIET THUAN 095-02",
+        "from":  "2026-09-25 12:30",
+        "to":  "2026-09-25 13:00",
+        "tugs":  [
+                     "VNL 03"
+                 ],
+        "customer":  "CÔNG TY TNHH HÀNG HẢI BIỂN VÀNG (GOLDEN SEA)",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29587",
+        "title":  "Lai dắt THANH NAM 68",
+        "from":  "2026-09-25 11:00",
+        "to":  "2026-09-25 11:30",
+        "tugs":  [
+                     "VNL 07"
+                 ],
+        "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
         "id":  "DV-29586",
         "title":  "Lai dắt VIET THUAN 10-01",
         "from":  "2026-09-25 07:00",
@@ -12919,11 +12983,11 @@ const OCC_DVHH = [
         "from":  "2026-09-25 12:00",
         "to":  "2026-09-25 12:30",
         "tugs":  [
-                     "VNL 03",
-                     "VNL 07"
+                     "VNL 07",
+                     "VNL RUBY"
                  ],
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -19636,6 +19700,114 @@ const OCC_TUG_TASK_TYPES = {
 
 const OCC_TUG_TASKS = [
     {
+        "id":  "TT-29591-1",
+        "tugId":  "TAN CANG 86",
+        "from":  "2026-09-26 07:00",
+        "to":  "2026-09-26 08:00",
+        "type":  "tow_in",
+        "vessel":  "ZIM MOUNT EVEREST",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29591"
+    },
+    {
+        "id":  "TT-29591-2",
+        "tugId":  "VNL EXPLORER",
+        "from":  "2026-09-26 07:00",
+        "to":  "2026-09-26 08:00",
+        "type":  "tow_in",
+        "vessel":  "ZIM MOUNT EVEREST",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29591"
+    },
+    {
+        "id":  "TT-29591-3",
+        "tugId":  "VNL VOYAGER",
+        "from":  "2026-09-26 07:00",
+        "to":  "2026-09-26 08:00",
+        "type":  "tow_in",
+        "vessel":  "ZIM MOUNT EVEREST",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29591"
+    },
+    {
+        "id":  "TT-29590-1",
+        "tugId":  "TAN CANG 86",
+        "from":  "2026-09-26 03:00",
+        "to":  "2026-09-26 04:00",
+        "type":  "tow_in",
+        "vessel":  "ZIM MOUNT FUJI",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29590"
+    },
+    {
+        "id":  "TT-29590-2",
+        "tugId":  "VNL EXPLORER",
+        "from":  "2026-09-26 03:00",
+        "to":  "2026-09-26 04:00",
+        "type":  "tow_in",
+        "vessel":  "ZIM MOUNT FUJI",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29590"
+    },
+    {
+        "id":  "TT-29590-3",
+        "tugId":  "VNL VOYAGER",
+        "from":  "2026-09-26 03:00",
+        "to":  "2026-09-26 04:00",
+        "type":  "tow_in",
+        "vessel":  "ZIM MOUNT FUJI",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29590"
+    },
+    {
+        "id":  "TT-29589-1",
+        "tugId":  "VNL 07",
+        "from":  "2026-09-25 13:30",
+        "to":  "2026-09-25 14:00",
+        "type":  "tow_in",
+        "vessel":  "MANH DUC 68",
+        "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29589"
+    },
+    {
+        "id":  "TT-29588-1",
+        "tugId":  "VNL 03",
+        "from":  "2026-09-25 12:30",
+        "to":  "2026-09-25 13:00",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 095-02",
+        "customer":  "CÔNG TY TNHH HÀNG HẢI BIỂN VÀNG (GOLDEN SEA)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29588"
+    },
+    {
+        "id":  "TT-29587-1",
+        "tugId":  "VNL 07",
+        "from":  "2026-09-25 11:00",
+        "to":  "2026-09-25 11:30",
+        "type":  "tow_in",
+        "vessel":  "THANH NAM 68",
+        "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29587"
+    },
+    {
         "id":  "TT-29586-1",
         "tugId":  "VNL 03",
         "from":  "2026-09-25 07:00",
@@ -19661,25 +19833,25 @@ const OCC_TUG_TASKS = [
     },
     {
         "id":  "TT-29585-1",
-        "tugId":  "VNL 03",
-        "from":  "2026-09-25 12:00",
-        "to":  "2026-09-25 12:30",
-        "type":  "tow_in",
-        "vessel":  "HK TUG 9 \u0026 LKH 2882",
-        "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
-        "status":  "planned",
-        "revenue":  "0 ₫",
-        "dvhhId":  "DV-29585"
-    },
-    {
-        "id":  "TT-29585-2",
         "tugId":  "VNL 07",
         "from":  "2026-09-25 12:00",
         "to":  "2026-09-25 12:30",
         "type":  "tow_in",
         "vessel":  "HK TUG 9 \u0026 LKH 2882",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
-        "status":  "planned",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29585"
+    },
+    {
+        "id":  "TT-29585-2",
+        "tugId":  "VNL RUBY",
+        "from":  "2026-09-25 12:00",
+        "to":  "2026-09-25 12:30",
+        "type":  "tow_in",
+        "vessel":  "HK TUG 9 \u0026 LKH 2882",
+        "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29585"
     },
