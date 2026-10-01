@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-10-01 08:24 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-10-01 14:00 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  1,
     "todayCol":  62,
-    "todayHour":  8.4
+    "todayHour":  14
 };
 
 const OCC_BERTHS = [
@@ -1267,7 +1267,7 @@ const OCC_EQUIPMENT = [
         "id":  "WEI-C2",
         "name":  "Cầu cân 1 - (Cầu vồng)",
         "detail":  "Cầu cân ô tô",
-        "status":  "OFFLINE",
+        "status":  "ONLINE",
         "category":  "14. Hệ cân",
         "offlineSince":  "2026/09/25"
     },
@@ -1909,7 +1909,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "NBA MAGRITTE - RỜI",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  false
                          }
                      ],
@@ -8958,15 +8958,92 @@ const OCC_JOBS = [
 
 const OCC_DVHH = [
     {
+        "id":  "DV-29642",
+        "title":  "Lai dắt RB MYA",
+        "from":  "2026-10-01 17:30",
+        "to":  "2026-10-01 18:30",
+        "tugs":  [
+                     "VNL RELIANCE",
+                     "VNL FUTURE"
+                 ],
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
+        "status":  "planned",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29641",
+        "title":  "Lai dắt VOSPOROS",
+        "from":  "2026-10-01 17:30",
+        "to":  "2026-10-01 18:00",
+        "tugs":  [
+                     "VNL EXPLORER",
+                     "VNL VOYAGER"
+                 ],
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
+        "status":  "planned",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29640",
+        "title":  "Lai dắt C.S. OLIVE",
+        "from":  "2026-10-01 11:00",
+        "to":  "2026-10-01 12:00",
+        "tugs":  [
+                     "VNL EXPLORER",
+                     "VNL VOYAGER"
+                 ],
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29639",
+        "title":  "Lai dắt SILVER LUCKY",
+        "from":  "2026-10-01 11:00",
+        "to":  "2026-09-27 11:30",
+        "tugs":  [
+                     "VNL 03",
+                     "VNL 07"
+                 ],
+        "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29638",
+        "title":  "Lai dắt GLORY STAR",
+        "from":  "2026-10-01 12:30",
+        "to":  "2026-10-01 13:00",
+        "tugs":  [
+                     "VNL 03"
+                 ],
+        "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29637",
+        "title":  "Lai dắt STAR ANTWERP",
+        "from":  "2026-10-01 12:00",
+        "to":  "2026-10-01 13:00",
+        "tugs":  [
+                     "VNL RELIANCE",
+                     "VNL 05"
+                 ],
+        "customer":  "ATTA - An Trung Tin Shipping Agency and Trading Co., Ltd",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
         "id":  "DV-29636",
         "title":  "Lai dắt GOJIRA 1 \u0026 KAIJU CATEGORY 1",
         "from":  "2026-10-01 10:30",
         "to":  "2026-10-01 11:00",
         "tugs":  [
-                     "VNL 03"
+                     "VNL 07"
                  ],
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -9068,7 +9145,7 @@ const OCC_DVHH = [
                      "VNL FUTURE"
                  ],
         "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN HẢI NAM",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -9708,7 +9785,7 @@ const OCC_DVHH = [
     },
     {
         "id":  "DV-29553",
-        "title":  "Lai dắt HPS 01",
+        "title":  "Lai dắt HPS-01",
         "from":  "2026-09-18 04:00",
         "to":  "2026-09-18 04:45",
         "tugs":  [
@@ -9937,7 +10014,7 @@ const OCC_DVHH = [
     },
     {
         "id":  "DV-29526",
-        "title":  "Lai dắt HPS 01",
+        "title":  "Lai dắt HPS-01",
         "from":  "2026-09-15 16:30",
         "to":  "2026-09-15 17:20",
         "tugs":  [
@@ -11182,7 +11259,7 @@ const OCC_DVHH = [
     },
     {
         "id":  "DV-29354",
-        "title":  "Lai dắt HPS 01",
+        "title":  "Lai dắt HPS-01",
         "from":  "2026-08-28 02:50",
         "to":  "2026-08-28 03:30",
         "tugs":  [
@@ -11324,7 +11401,7 @@ const OCC_DVHH = [
     },
     {
         "id":  "DV-29336",
-        "title":  "Lai dắt HPS 01",
+        "title":  "Lai dắt HPS-01",
         "from":  "2026-08-26 06:00",
         "to":  "2026-08-26 06:45",
         "tugs":  [
@@ -11779,7 +11856,7 @@ const OCC_DVHH = [
     },
     {
         "id":  "DV-29283",
-        "title":  "Lai dắt HPS 01",
+        "title":  "Lai dắt HPS-01",
         "from":  "2026-08-23 08:10",
         "to":  "2026-08-23 08:55",
         "tugs":  [
@@ -11792,7 +11869,7 @@ const OCC_DVHH = [
     },
     {
         "id":  "DV-29282",
-        "title":  "Lai dắt HPS 01",
+        "title":  "Lai dắt HPS-01",
         "from":  "2026-08-22 00:30",
         "to":  "2026-08-22 01:15",
         "tugs":  [
@@ -13830,14 +13907,146 @@ const OCC_TUG_TASK_TYPES = {
 
 const OCC_TUG_TASKS = [
     {
-        "id":  "TT-29636-1",
+        "id":  "TT-29642-1",
+        "tugId":  "VNL RELIANCE",
+        "from":  "2026-10-01 17:30",
+        "to":  "2026-10-01 18:30",
+        "type":  "tow_in",
+        "vessel":  "RB MYA",
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29642"
+    },
+    {
+        "id":  "TT-29642-2",
+        "tugId":  "VNL FUTURE",
+        "from":  "2026-10-01 17:30",
+        "to":  "2026-10-01 18:30",
+        "type":  "tow_in",
+        "vessel":  "RB MYA",
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29642"
+    },
+    {
+        "id":  "TT-29641-1",
+        "tugId":  "VNL EXPLORER",
+        "from":  "2026-10-01 17:30",
+        "to":  "2026-10-01 18:00",
+        "type":  "tow_in",
+        "vessel":  "VOSPOROS",
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29641"
+    },
+    {
+        "id":  "TT-29641-2",
+        "tugId":  "VNL VOYAGER",
+        "from":  "2026-10-01 17:30",
+        "to":  "2026-10-01 18:00",
+        "type":  "tow_in",
+        "vessel":  "VOSPOROS",
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29641"
+    },
+    {
+        "id":  "TT-29640-1",
+        "tugId":  "VNL EXPLORER",
+        "from":  "2026-10-01 11:00",
+        "to":  "2026-10-01 12:00",
+        "type":  "tow_in",
+        "vessel":  "C.S. OLIVE",
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29640"
+    },
+    {
+        "id":  "TT-29640-2",
+        "tugId":  "VNL VOYAGER",
+        "from":  "2026-10-01 11:00",
+        "to":  "2026-10-01 12:00",
+        "type":  "tow_in",
+        "vessel":  "C.S. OLIVE",
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29640"
+    },
+    {
+        "id":  "TT-29639-1",
         "tugId":  "VNL 03",
+        "from":  "2026-10-01 11:00",
+        "to":  "2026-09-27 11:30",
+        "type":  "tow_in",
+        "vessel":  "SILVER LUCKY",
+        "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29639"
+    },
+    {
+        "id":  "TT-29639-2",
+        "tugId":  "VNL 07",
+        "from":  "2026-10-01 11:00",
+        "to":  "2026-09-27 11:30",
+        "type":  "tow_in",
+        "vessel":  "SILVER LUCKY",
+        "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29639"
+    },
+    {
+        "id":  "TT-29638-1",
+        "tugId":  "VNL 03",
+        "from":  "2026-10-01 12:30",
+        "to":  "2026-10-01 13:00",
+        "type":  "tow_in",
+        "vessel":  "GLORY STAR",
+        "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29638"
+    },
+    {
+        "id":  "TT-29637-1",
+        "tugId":  "VNL RELIANCE",
+        "from":  "2026-10-01 12:00",
+        "to":  "2026-10-01 13:00",
+        "type":  "tow_in",
+        "vessel":  "STAR ANTWERP",
+        "customer":  "ATTA - An Trung Tin Shipping Agency and Trading Co., Ltd",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29637"
+    },
+    {
+        "id":  "TT-29637-2",
+        "tugId":  "VNL 05",
+        "from":  "2026-10-01 12:00",
+        "to":  "2026-10-01 13:00",
+        "type":  "tow_in",
+        "vessel":  "STAR ANTWERP",
+        "customer":  "ATTA - An Trung Tin Shipping Agency and Trading Co., Ltd",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29637"
+    },
+    {
+        "id":  "TT-29636-1",
+        "tugId":  "VNL 07",
         "from":  "2026-10-01 10:30",
         "to":  "2026-10-01 11:00",
         "type":  "tow_in",
         "vessel":  "GOJIRA 1 \u0026 KAIJU CATEGORY 1",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29636"
     },
@@ -14173,7 +14382,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "CATALINA/ FC",
         "customer":  "CÔNG TY TNHH HÀNG HẢI SMART SEA",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2609-252"
     },
@@ -14185,7 +14394,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "CATALINA/ FC",
         "customer":  "CÔNG TY TNHH HÀNG HẢI SMART SEA",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2609-252"
     },
@@ -14197,7 +14406,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "CONSTITUTION",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN HẢI NAM",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29619"
     },
@@ -14209,7 +14418,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "CONSTITUTION",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN HẢI NAM",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29619"
     },
@@ -15599,7 +15808,7 @@ const OCC_TUG_TASKS = [
         "from":  "2026-09-18 04:00",
         "to":  "2026-09-18 04:45",
         "type":  "tow_in",
-        "vessel":  "HPS 01",
+        "vessel":  "HPS-01",
         "customer":  "Công ty TNHH Thương Mại và Dịch Vụ Hàng Hải Thái Dương",
         "status":  "done",
         "revenue":  "0 ₫",
@@ -15611,7 +15820,7 @@ const OCC_TUG_TASKS = [
         "from":  "2026-09-18 04:00",
         "to":  "2026-09-18 04:45",
         "type":  "tow_in",
-        "vessel":  "HPS 01",
+        "vessel":  "HPS-01",
         "customer":  "Công ty TNHH Thương Mại và Dịch Vụ Hàng Hải Thái Dương",
         "status":  "done",
         "revenue":  "0 ₫",
@@ -16175,7 +16384,7 @@ const OCC_TUG_TASKS = [
         "from":  "2026-09-15 16:30",
         "to":  "2026-09-15 17:20",
         "type":  "tow_in",
-        "vessel":  "HPS 01",
+        "vessel":  "HPS-01",
         "customer":  "CÔNG TY CỔ PHẦN THƯƠNG MẠI VẬN TẢI XNK THIÊN PHÚC (TP)",
         "status":  "done",
         "revenue":  "0 ₫",
@@ -16187,7 +16396,7 @@ const OCC_TUG_TASKS = [
         "from":  "2026-09-15 16:30",
         "to":  "2026-09-15 17:20",
         "type":  "tow_in",
-        "vessel":  "HPS 01",
+        "vessel":  "HPS-01",
         "customer":  "CÔNG TY CỔ PHẦN THƯƠNG MẠI VẬN TẢI XNK THIÊN PHÚC (TP)",
         "status":  "done",
         "revenue":  "0 ₫",
@@ -20471,7 +20680,7 @@ const OCC_TUG_TASKS = [
         "from":  "2026-08-28 02:50",
         "to":  "2026-08-28 03:30",
         "type":  "tow_in",
-        "vessel":  "HPS 01",
+        "vessel":  "HPS-01",
         "customer":  "CÔNG TY CỔ PHẦN THƯƠNG MẠI VẬN TẢI XNK THIÊN PHÚC (TP)",
         "status":  "done",
         "revenue":  "0 ₫",
@@ -20483,7 +20692,7 @@ const OCC_TUG_TASKS = [
         "from":  "2026-08-28 02:50",
         "to":  "2026-08-28 03:30",
         "type":  "tow_in",
-        "vessel":  "HPS 01",
+        "vessel":  "HPS-01",
         "customer":  "CÔNG TY CỔ PHẦN THƯƠNG MẠI VẬN TẢI XNK THIÊN PHÚC (TP)",
         "status":  "done",
         "revenue":  "0 ₫",
@@ -20915,7 +21124,7 @@ const OCC_TUG_TASKS = [
         "from":  "2026-08-26 06:00",
         "to":  "2026-08-26 06:45",
         "type":  "tow_in",
-        "vessel":  "HPS 01",
+        "vessel":  "HPS-01",
         "customer":  "CÔNG TY CỔ PHẦN THƯƠNG MẠI VẬN TẢI XNK THIÊN PHÚC (TP)",
         "status":  "done",
         "revenue":  "0 ₫",
@@ -20927,7 +21136,7 @@ const OCC_TUG_TASKS = [
         "from":  "2026-08-26 06:00",
         "to":  "2026-08-26 06:45",
         "type":  "tow_in",
-        "vessel":  "HPS 01",
+        "vessel":  "HPS-01",
         "customer":  "CÔNG TY CỔ PHẦN THƯƠNG MẠI VẬN TẢI XNK THIÊN PHÚC (TP)",
         "status":  "done",
         "revenue":  "0 ₫",
@@ -22211,7 +22420,7 @@ const OCC_TUG_TASKS = [
         "from":  "2026-08-23 08:10",
         "to":  "2026-08-23 08:55",
         "type":  "tow_in",
-        "vessel":  "HPS 01",
+        "vessel":  "HPS-01",
         "customer":  "CÔNG TY CỔ PHẦN THƯƠNG MẠI VẬN TẢI XNK THIÊN PHÚC (TP)",
         "status":  "done",
         "revenue":  "0 ₫",
@@ -22223,7 +22432,7 @@ const OCC_TUG_TASKS = [
         "from":  "2026-08-23 08:10",
         "to":  "2026-08-23 08:55",
         "type":  "tow_in",
-        "vessel":  "HPS 01",
+        "vessel":  "HPS-01",
         "customer":  "CÔNG TY CỔ PHẦN THƯƠNG MẠI VẬN TẢI XNK THIÊN PHÚC (TP)",
         "status":  "done",
         "revenue":  "0 ₫",
@@ -22235,7 +22444,7 @@ const OCC_TUG_TASKS = [
         "from":  "2026-08-22 00:30",
         "to":  "2026-08-22 01:15",
         "type":  "tow_in",
-        "vessel":  "HPS 01",
+        "vessel":  "HPS-01",
         "customer":  "CÔNG TY CỔ PHẦN THƯƠNG MẠI VẬN TẢI XNK THIÊN PHÚC (TP)",
         "status":  "done",
         "revenue":  "0 ₫",
@@ -22247,7 +22456,7 @@ const OCC_TUG_TASKS = [
         "from":  "2026-08-22 00:30",
         "to":  "2026-08-22 01:15",
         "type":  "tow_in",
-        "vessel":  "HPS 01",
+        "vessel":  "HPS-01",
         "customer":  "CÔNG TY CỔ PHẦN THƯƠNG MẠI VẬN TẢI XNK THIÊN PHÚC (TP)",
         "status":  "done",
         "revenue":  "0 ₫",
