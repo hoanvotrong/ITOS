@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-10-01 14:00 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-10-01 15:37 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  1,
     "todayCol":  62,
-    "todayHour":  14
+    "todayHour":  15.62
 };
 
 const OCC_BERTHS = [
@@ -1765,10 +1765,10 @@ const OCC_JOBS = [
         "pic":  "",
         "status":  "planned",
         "progress":  0,
-        "start":  "2026-10-06 01:00",
-        "end":  "2026-10-14 12:00",
-        "eta":  "2026-10-06 01:00",
-        "etd":  "2026-10-14 12:00",
+        "start":  "2026-10-07 01:00",
+        "end":  "2026-10-15 12:00",
+        "eta":  "2026-10-07 01:00",
+        "etd":  "2026-10-15 12:00",
         "revenue":  "0 ₫",
         "resources":  [
                           {
@@ -1829,18 +1829,18 @@ const OCC_JOBS = [
                    },
         "cargo":  {
                       "name":  "Viên gỗ nén",
-                      "qty":  "17.000 MT",
+                      "qty":  "17.059 MT",
                       "op":  ""
                   },
         "berthId":  "BP 02",
         "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ CẢNG THỊ VẢI",
         "contract":  "",
         "pic":  "",
-        "status":  "in_progress",
-        "progress":  82,
-        "start":  "2026-09-21 20:00",
+        "status":  "completed",
+        "progress":  100,
+        "start":  "2026-09-21 16:45",
         "end":  "2026-09-30 17:00",
-        "eta":  "2026-09-21 20:00",
+        "eta":  "2026-09-21 16:45",
         "etd":  "2026-09-30 17:00",
         "revenue":  "0 ₫",
         "resources":  [
@@ -1891,7 +1891,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "khai_thac",
                              "label":  "NBA MAGRITTE/ FC",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  true
                          },
                          {
@@ -1949,14 +1949,20 @@ const OCC_JOBS = [
                              "to":  "2026-09-30 06:00",
                              "qty":  "2.300 MT",
                              "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-09-30 06:00",
+                             "to":  "2026-09-30 12:00",
+                             "qty":  "3.159 MT",
+                             "device":  "FC 06"
                          }
                      ],
         "equipment":  [
                           "FC 06"
                       ],
         "qtyTotal":  "17.000 MT",
-        "qtyFinish":  "13.900 MT",
-        "qtyRemain":  "3.100 MT",
+        "qtyFinish":  "17.059 MT",
+        "qtyRemain":  "-59 MT",
         "notes":  "",
         "risks":  [
 
@@ -1985,7 +1991,7 @@ const OCC_JOBS = [
         "contract":  "",
         "pic":  "",
         "status":  "in_progress",
-        "progress":  2,
+        "progress":  16,
         "start":  "2026-09-29 21:00",
         "end":  "2026-10-06 12:00",
         "eta":  "2026-09-29 21:00",
@@ -2093,6 +2099,18 @@ const OCC_JOBS = [
                              "to":  "2026-09-30 06:00",
                              "qty":  "500 MT",
                              "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-09-30 06:00",
+                             "to":  "2026-10-01 06:00",
+                             "qty":  "6.800 MT",
+                             "device":  "ITC 01"
+                         },
+                         {
+                             "from":  "2026-09-30 06:00",
+                             "to":  "2026-10-01 06:00",
+                             "qty":  "6.200 MT",
+                             "device":  "VNL 08"
                          }
                      ],
         "equipment":  [
@@ -2100,8 +2118,8 @@ const OCC_JOBS = [
                           "VNL 08"
                       ],
         "qtyTotal":  "92.630 MT",
-        "qtyFinish":  "1.700 MT",
-        "qtyRemain":  "90.930 MT",
+        "qtyFinish":  "14.700 MT",
+        "qtyRemain":  "77.930 MT",
         "notes":  "",
         "risks":  [
 
@@ -2388,14 +2406,14 @@ const OCC_JOBS = [
                       "op":  ""
                   },
         "berthId":  "BP 02",
-        "customer":  "CÔNG TY TNHH VẬN TẢI VIỆT THUẬN",
+        "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ HÀNG HẢI VOSCO",
         "contract":  "",
         "pic":  "",
-        "status":  "planned",
+        "status":  "in_progress",
         "progress":  0,
-        "start":  "2026-10-01 04:00",
+        "start":  "2026-10-01 05:00",
         "end":  "2026-10-08 12:00",
-        "eta":  "2026-10-01 04:00",
+        "eta":  "2026-10-01 05:00",
         "etd":  "2026-10-08 12:00",
         "revenue":  "0 ₫",
         "resources":  [
@@ -2418,7 +2436,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "khai_thac",
                              "label":  "CATALINA/ FC",
-                             "status":  "planned",
+                             "status":  "in_progress",
                              "isMain":  true
                          },
                          {
@@ -2429,14 +2447,19 @@ const OCC_JOBS = [
                          }
                      ],
         "cargoOps":  [
-
+                         {
+                             "from":  null,
+                             "to":  null,
+                             "qty":  "0 MT",
+                             "device":  ""
+                         }
                      ],
         "equipment":  [
 
                       ],
-        "qtyTotal":  "0 MT",
+        "qtyTotal":  "71.493 MT",
         "qtyFinish":  "0 MT",
-        "qtyRemain":  "0 MT",
+        "qtyRemain":  "71.493 MT",
         "notes":  "",
         "risks":  [
 
@@ -2457,7 +2480,7 @@ const OCC_JOBS = [
                    },
         "cargo":  {
                       "name":  "Than đá",
-                      "qty":  "73.000 MT",
+                      "qty":  "75.000 MT",
                       "op":  ""
                   },
         "berthId":  "BP 08",
@@ -2466,10 +2489,10 @@ const OCC_JOBS = [
         "pic":  "",
         "status":  "planned",
         "progress":  0,
-        "start":  "2026-10-04 01:00",
-        "end":  "2026-10-11 12:00",
-        "eta":  "2026-10-04 01:00",
-        "etd":  "2026-10-11 12:00",
+        "start":  "2026-10-02 05:00",
+        "end":  "2026-10-10 12:00",
+        "eta":  "2026-10-02 05:00",
+        "etd":  "2026-10-10 12:00",
         "revenue":  "0 ₫",
         "resources":  [
                           {
@@ -2791,11 +2814,11 @@ const OCC_JOBS = [
         "contract":  "",
         "pic":  "",
         "status":  "in_progress",
-        "progress":  95,
+        "progress":  98,
         "start":  "2026-09-14 00:00",
-        "end":  "2026-10-01 12:00",
+        "end":  "2026-10-01 19:00",
         "eta":  "2026-09-14 00:00",
-        "etd":  "2026-10-01 12:00",
+        "etd":  "2026-10-01 19:00",
         "revenue":  "0 ₫",
         "resources":  [
                           {
@@ -3043,6 +3066,12 @@ const OCC_JOBS = [
                              "to":  "2026-09-30 06:00",
                              "qty":  "1.700 MT",
                              "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-09-30 06:00",
+                             "to":  "2026-10-01 06:00",
+                             "qty":  "1.900 MT",
+                             "device":  "VNL 09"
                          }
                      ],
         "equipment":  [
@@ -3051,8 +3080,8 @@ const OCC_JOBS = [
                           "VNL 09"
                       ],
         "qtyTotal":  "56.755 MT",
-        "qtyFinish":  "54.000 MT",
-        "qtyRemain":  "2.755 MT",
+        "qtyFinish":  "55.900 MT",
+        "qtyRemain":  "855 MT",
         "notes":  "",
         "risks":  [
 
