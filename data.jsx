@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-10-01 15:37 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-10-02 09:09 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -23,9 +23,9 @@ const OCC_WINDOW = {
     "endDay":  122,
     "month":  10,
     "year":  2026,
-    "todayDate":  1,
-    "todayCol":  62,
-    "todayHour":  15.62
+    "todayDate":  2,
+    "todayCol":  63,
+    "todayHour":  9.15
 };
 
 const OCC_BERTHS = [
@@ -8996,7 +8996,7 @@ const OCC_DVHH = [
                      "VNL FUTURE"
                  ],
         "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -9009,14 +9009,14 @@ const OCC_DVHH = [
                      "VNL VOYAGER"
                  ],
         "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
         "id":  "DV-29640",
         "title":  "Lai dắt C.S. OLIVE",
-        "from":  "2026-10-01 11:00",
-        "to":  "2026-10-01 12:00",
+        "from":  "2026-10-01 10:50",
+        "to":  "2026-10-01 12:15",
         "tugs":  [
                      "VNL EXPLORER",
                      "VNL VOYAGER"
@@ -9053,8 +9053,8 @@ const OCC_DVHH = [
     {
         "id":  "DV-29637",
         "title":  "Lai dắt STAR ANTWERP",
-        "from":  "2026-10-01 12:00",
-        "to":  "2026-10-01 13:00",
+        "from":  "2026-10-01 11:35",
+        "to":  "2026-10-01 12:40",
         "tugs":  [
                      "VNL RELIANCE",
                      "VNL 05"
@@ -9111,7 +9111,7 @@ const OCC_DVHH = [
                      "VNL EXPLORER"
                  ],
         "customer":  "CÔNG TY TNHH TIẾP VẬN HỪNG Á (ESL)",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -9181,7 +9181,7 @@ const OCC_DVHH = [
         "id":  "DV-29618",
         "title":  "Lai dắt CONSTITUTION",
         "from":  "2026-09-30 08:15",
-        "to":  "2026-09-30 16:30",
+        "to":  "2026-10-01 16:30",
         "tugs":  [
                      "VNL FUTURE"
                  ],
@@ -13943,7 +13943,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "RB MYA",
         "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29642"
     },
@@ -13955,7 +13955,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "RB MYA",
         "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29642"
     },
@@ -13967,7 +13967,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VOSPOROS",
         "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29641"
     },
@@ -13979,15 +13979,15 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VOSPOROS",
         "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29641"
     },
     {
         "id":  "TT-29640-1",
         "tugId":  "VNL EXPLORER",
-        "from":  "2026-10-01 11:00",
-        "to":  "2026-10-01 12:00",
+        "from":  "2026-10-01 10:50",
+        "to":  "2026-10-01 12:15",
         "type":  "tow_in",
         "vessel":  "C.S. OLIVE",
         "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
@@ -13998,8 +13998,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29640-2",
         "tugId":  "VNL VOYAGER",
-        "from":  "2026-10-01 11:00",
-        "to":  "2026-10-01 12:00",
+        "from":  "2026-10-01 10:50",
+        "to":  "2026-10-01 12:15",
         "type":  "tow_in",
         "vessel":  "C.S. OLIVE",
         "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
@@ -14046,8 +14046,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29637-1",
         "tugId":  "VNL RELIANCE",
-        "from":  "2026-10-01 12:00",
-        "to":  "2026-10-01 13:00",
+        "from":  "2026-10-01 11:35",
+        "to":  "2026-10-01 12:40",
         "type":  "tow_in",
         "vessel":  "STAR ANTWERP",
         "customer":  "ATTA - An Trung Tin Shipping Agency and Trading Co., Ltd",
@@ -14058,8 +14058,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29637-2",
         "tugId":  "VNL 05",
-        "from":  "2026-10-01 12:00",
-        "to":  "2026-10-01 13:00",
+        "from":  "2026-10-01 11:35",
+        "to":  "2026-10-01 12:40",
         "type":  "tow_in",
         "vessel":  "STAR ANTWERP",
         "customer":  "ATTA - An Trung Tin Shipping Agency and Trading Co., Ltd",
@@ -14183,7 +14183,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "ESL OMAN",
         "customer":  "CÔNG TY TNHH TIẾP VẬN HỪNG Á (ESL)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29631"
     },
@@ -14195,7 +14195,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "ESL OMAN",
         "customer":  "CÔNG TY TNHH TIẾP VẬN HỪNG Á (ESL)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29631"
     },
@@ -14455,7 +14455,7 @@ const OCC_TUG_TASKS = [
         "id":  "TT-29618-1",
         "tugId":  "VNL FUTURE",
         "from":  "2026-09-30 08:15",
-        "to":  "2026-09-30 16:30",
+        "to":  "2026-10-01 16:30",
         "type":  "tow_in",
         "vessel":  "CONSTITUTION",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN HẢI NAM",
