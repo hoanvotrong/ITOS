@@ -2489,3 +2489,156 @@ html, body {
   .grid-main-side-16 { grid-template-columns: 1fr 1fr !important; }
   body { background: #fff !important; }
 }
+
+
+/* ============================================================
+ * Cảng Hưng Thái — bản đồ bãi ICD (screens-hungthai.jsx)
+ * Khung bản đồ dùng nền tối của sidebar để đọc tốt trên màn hình lớn;
+ * phần còn lại dùng card/kpi/badge sẵn có. Mốc responsive giữ đúng
+ * 1024px / 640px như phần còn lại của file.
+ * ============================================================ */
+.ht-page {
+  --ht-water: #0B1E2C; --ht-water-line: #15384C;
+  --ht-land: #13222C;  --ht-land-edge: #2A4252;
+  --ht-road: #1C2E39;  --ht-quay: #24394A;
+  --ht-lane: #2C2A1C;  --ht-lane-2: #4A4426;
+  --ht-bld: #1B2B36;   --ht-bld-line: #2F4757; --ht-bld-rib: #253A48;
+  --ht-shade: #060D12;
+  --ht-fg: #DDE9F0;    --ht-muted: #8BA2B2; --ht-dim: #5F7787;
+  --ht-accent: #56B7DC;
+  --ht-ok: #3FC08F;    --ht-warn: #F0A43A;  --ht-crit: #F0564A;
+  --ht-hull: #CDD9E1;  --ht-bay: #2A6F91;   --ht-bay-done: #9FB0BB; --ht-bridge: #5B6D78;
+  --ht-d0: #1A3240; --ht-d1: #1D4A61; --ht-d2: #26698A; --ht-d3: #3A8FB6; --ht-d4: #78C1DE;
+}
+.ht-notice {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 10px 14px; margin-bottom: var(--s-5);
+  background: var(--st-warning-bg); color: var(--st-warning);
+  border-radius: var(--r-sm); font-size: 12.5px; line-height: 1.5;
+}
+.ht-notice .ic { flex-shrink: 0; margin-top: 2px; }
+.ht-notice span { color: var(--t-primary); }
+.ht-page .kpi .delta { flex-wrap: wrap; row-gap: 4px; }
+.ht-page .kpi .delta .badge { height: 18px; font-size: 10.5px; padding: 0 6px; }
+
+.ht-grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: var(--s-4); margin-bottom: var(--s-4); }
+.ht-grid-2 { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: var(--s-4); }
+.ht-side { display: flex; flex-direction: column; gap: var(--s-4); min-width: 0; }
+
+/* Khung bản đồ */
+.ht-mapcard {
+  position: relative; display: flex; flex-direction: column;
+  background: var(--ht-water); border-color: var(--bg-rail-2);
+  min-height: 640px;
+}
+.ht-mapcard:fullscreen { border-radius: 0; }
+.ht-maptools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 14px 4px; position: relative; z-index: 2; }
+.ht-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 26px; padding: 0 11px; border-radius: 999px;
+  border: 1px solid var(--ht-bld-line); background: transparent;
+  color: var(--ht-muted); font: inherit; font-size: 12px; cursor: pointer;
+}
+.ht-chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--ht-dim); }
+.ht-chip[aria-pressed="true"] { color: var(--ht-fg); border-color: var(--ht-accent); }
+.ht-chip[aria-pressed="true"] i { background: var(--ht-accent); }
+.ht-chip:focus-visible, .ht-blk:focus-visible { outline: 2px solid var(--ht-accent); outline-offset: 2px; }
+.ht-hint { margin-left: auto; color: var(--ht-dim); font-size: 11.5px; }
+.ht-stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; perspective: 1900px; }
+.ht-map { width: 100%; height: 100%; max-height: 82vh; transition: transform .9s cubic-bezier(.2,.7,.2,1); transform-origin: 50% 50%; }
+.ht-mapcard:fullscreen .ht-map { max-height: none; }
+.ht-map.tilt { transform: rotateX(34deg) rotateZ(-6deg) scale(1.12); }
+.ht-map text { font-family: var(--font-sans); }
+.ht-zlabel { font-size: 12.5px; font-weight: 600; letter-spacing: .12em; fill: var(--ht-muted); pointer-events: none; }
+.ht-mlabel { font-size: 7px; fill: var(--ht-dim); pointer-events: none; }
+.ht-blabel { font-size: 6.4px; font-weight: 600; fill: var(--ht-fg); opacity: .85; pointer-events: none; }
+.ht-blk, .ht-hit { cursor: pointer; }
+.ht-blk:hover rect + rect { stroke: var(--ht-fg); stroke-width: 1.3; }
+.ht-shiptag rect { fill: rgba(11,30,44,.88); stroke: var(--ht-bld-line); }
+.ht-shiptag text { font-size: 7.4px; fill: var(--ht-fg); }
+.ht-shiptag .t2 { fill: var(--ht-muted); font-family: var(--font-mono); font-size: 6.6px; }
+@keyframes ht-pulse { 0% { r: 3; opacity: .9; } 100% { r: 13; opacity: 0; } }
+.ht-pulse { animation: ht-pulse 1.8s ease-out infinite; fill: none; stroke: var(--ht-crit); stroke-width: 1.4; pointer-events: none; }
+
+.ht-legend {
+  position: absolute; left: 14px; bottom: 12px; z-index: 2;
+  display: flex; flex-wrap: wrap; gap: 14px;
+  padding: 6px 10px; border-radius: var(--r-xs);
+  background: rgba(11,30,44,.85); color: var(--ht-muted); font-size: 11.5px;
+}
+.ht-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.ht-sw { display: inline-block; width: 22px; height: 8px; border-radius: 2px; background: linear-gradient(90deg, var(--ht-d0), var(--ht-d1), var(--ht-d2), var(--ht-d3), var(--ht-d4)); }
+.ht-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+
+.ht-pick {
+  position: absolute; right: 14px; bottom: 12px; z-index: 3;
+  width: min(300px, calc(100% - 28px)); padding: 12px 14px;
+  box-shadow: var(--sh-3);
+}
+.ht-pick h3 { margin: 0 0 2px; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.ht-pick .sub { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: var(--t-secondary); font-size: 12px; margin-bottom: 8px; }
+.ht-pick dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 5px 12px; font-size: 12.5px; }
+.ht-pick dt { color: var(--t-secondary); }
+.ht-pick dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.ht-pick dd.warn { color: var(--st-warning); font-weight: 600; }
+.ht-pick dd.crit { color: var(--st-danger); font-weight: 600; }
+.ht-pick-x { position: absolute; top: 8px; right: 8px; border: 0; background: none; color: var(--t-tertiary); cursor: pointer; padding: 2px; }
+
+/* Danh sách bên phải */
+.ht-list { padding: 6px var(--s-4) var(--s-3); display: grid; }
+.ht-page .progress-track { height: 6px; border-radius: 3px; background: var(--bg-sunken); overflow: hidden; }
+.ht-page .progress-track .pbar { height: 100%; background: var(--st-info); border-radius: 3px; transition: width .8s; }
+.ht-page .progress-track.late .pbar { background: var(--st-danger); }
+.ht-berth {
+  display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; align-items: center;
+  gap: 4px 10px; padding: 8px 0; border-top: 1px solid var(--line);
+}
+.ht-berth:first-child { border-top: 0; }
+.ht-berth.clickable { cursor: pointer; }
+.ht-berth .code { grid-row: span 3; align-self: start; font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--t-secondary); padding-top: 2px; }
+.ht-berth .nm { font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ht-berth .nm small { font-weight: 400; color: var(--t-tertiary); margin-left: 6px; font-size: 11px; }
+.ht-berth .progress-track, .ht-berth .meta { grid-column: 2 / -1; }
+.ht-berth .meta { font-size: 11px; color: var(--t-secondary); white-space: normal; }
+.ht-yard {
+  display: grid; grid-template-columns: 110px minmax(0, 1fr) 40px; align-items: center;
+  gap: 10px; padding: 7px 0; font-size: 13px;
+}
+.ht-yard small { display: block; color: var(--t-tertiary); font-size: 11px; }
+.ht-yard .mono { text-align: right; font-size: 12px; }
+
+.ht-table-wrap { overflow-x: auto; }
+.ht-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.ht-table th { text-align: left; font-weight: 600; color: var(--t-tertiary); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; padding: 10px var(--s-4); border-bottom: 1px solid var(--line); white-space: nowrap; }
+.ht-table td { padding: 9px var(--s-4); border-bottom: 1px solid var(--line); vertical-align: top; }
+.ht-table tr:last-child td { border-bottom: 0; }
+.ht-table td.crit { color: var(--st-danger); font-weight: 600; }
+.ht-offlist { font-size: 12px; color: var(--t-secondary); min-width: 180px; }
+
+.ht-alerts { list-style: none; margin: 0; padding: 6px var(--s-4) var(--s-3); display: grid; }
+.ht-alerts li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 8px 0 8px 12px; border-top: 1px solid var(--line); font-size: 12.5px; position: relative; }
+.ht-alerts li:first-child { border-top: 0; }
+.ht-alerts li::before { content: ""; position: absolute; left: 0; top: 9px; bottom: 9px; width: 3px; border-radius: 2px; background: var(--st-info); }
+.ht-alerts li.sev2::before { background: var(--st-warning); }
+.ht-alerts li.sev3::before { background: var(--st-danger); }
+
+@media (max-width: 1024px) {
+  .ht-grid, .ht-grid-2 { grid-template-columns: 1fr; }
+  .ht-mapcard { min-height: 0; }
+  .ht-stage { height: min(92vw, 720px); flex: none; }
+}
+@media (max-width: 640px), (max-height: 500px) and (orientation: landscape) {
+  .ht-hint { display: none; }
+  .ht-map.tilt { transform: rotateX(28deg) rotateZ(-5deg) scale(.98); }
+  .ht-legend { position: static; margin: 0 10px 10px; }
+  .ht-pick { position: static; width: auto; margin: 0 10px 10px; }
+  .ht-yard { grid-template-columns: 90px minmax(0, 1fr) 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ht-map, .ht-page .progress-track .pbar { transition: none; }
+  .ht-pulse { animation: none; opacity: .6; }
+}
+@media print {
+  .ht-maptools, .ht-hint { display: none !important; }
+  .ht-map.tilt { transform: none; }
+}

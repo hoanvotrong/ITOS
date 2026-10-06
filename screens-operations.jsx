@@ -1546,6 +1546,10 @@ function OCCModule() {
           <span>Bến phao</span>
           <span className="count">{OCC_BERTHS.length}</span>
         </div>
+        <div className={`occ-side-item ${view === "hungthai" ? "active" : ""}`} onClick={() => selectView("hungthai")}>
+          <Icon name="layers" size={16}/>
+          <span>Cảng Hưng Thái</span>
+        </div>
 
         <div className="occ-side-section">Tài sản khai thác</div>
         <div className={`occ-side-item ${view === "tugs" ? "active" : ""}`} onClick={() => selectView("tugs")}>
@@ -1593,7 +1597,7 @@ function OCCModule() {
 
       <main style={{ minWidth: 0, overflow: "hidden" }}>
         <Topbar
-          crumbs={["Vinalogistics", "OCC — Điều hành Vận hành", { timeline: "Timeline", jobs: "Job-tàu", berths: "Bến phao", tugs: "Đội tàu lai", cranes: "ICD", daily: "Báo cáo ngày" }[view]]}
+          crumbs={["Vinalogistics", "OCC — Điều hành Vận hành", { timeline: "Timeline", jobs: "Job-tàu", berths: "Bến phao", tugs: "Đội tàu lai", cranes: "ICD", daily: "Báo cáo ngày", hungthai: "Cảng Hưng Thái" }[view]]}
           onToggleNav={() => setNavOpen(o => !o)}
         />
         {view === "timeline" && <OCCScreen/>}
@@ -1602,6 +1606,7 @@ function OCCModule() {
         {view === "tugs"     && <OCCFleetView kind="tug"/>}
         {view === "cranes"   && <OCCFleetView kind="crane"/>}
         {view === "daily"    && <OCCDailyReport/>}
+        {view === "hungthai" && <HTPortView/>}
       </main>
     </div>
   );
