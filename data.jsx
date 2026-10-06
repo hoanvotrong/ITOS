@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-10-06 10:17 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-10-06 14:00 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  6,
     "todayCol":  67,
-    "todayHour":  10.28
+    "todayHour":  14
 };
 
 const OCC_BERTHS = [
@@ -2360,29 +2360,29 @@ const OCC_JOBS = [
                           {
                               "type":  "tug",
                               "id":  "VNL 03",
-                              "from":  "2026-10-05 05:30",
-                              "to":  "2026-10-05 06:00",
+                              "from":  "2026-10-05 05:10",
+                              "to":  "2026-10-05 05:50",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
                               "type":  "tug",
                               "id":  "VNL 07",
-                              "from":  "2026-10-05 05:30",
-                              "to":  "2026-10-05 06:00",
+                              "from":  "2026-10-05 05:10",
+                              "to":  "2026-10-05 05:50",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
                               "type":  "tug",
                               "id":  "VNL 03",
-                              "from":  "2026-10-05 03:00",
-                              "to":  "2026-10-05 03:30",
+                              "from":  "2026-10-05 03:05",
+                              "to":  "2026-10-05 03:50",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
                               "type":  "tug",
                               "id":  "VNL 07",
-                              "from":  "2026-10-05 03:00",
-                              "to":  "2026-10-05 03:30",
+                              "from":  "2026-10-05 03:05",
+                              "to":  "2026-10-05 03:50",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
@@ -2629,13 +2629,13 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 11-02 - rời",
-                             "status":  "planned",
+                             "status":  "in_progress",
                              "isMain":  false
                          },
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 10-03 - cập",
-                             "status":  "planned",
+                             "status":  "in_progress",
                              "isMain":  false
                          },
                          {
@@ -9553,7 +9553,7 @@ const OCC_DVHH = [
                      "VNL VISION"
                  ],
         "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -14961,7 +14961,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VOSPOROS",
         "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29693"
     },
@@ -14973,7 +14973,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "VOSPOROS",
         "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29693"
     },
@@ -15304,8 +15304,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29677-1",
         "tugId":  "VNL 03",
-        "from":  "2026-10-05 05:30",
-        "to":  "2026-10-05 06:00",
+        "from":  "2026-10-05 05:10",
+        "to":  "2026-10-05 05:50",
         "type":  "tow_in",
         "vessel":  "VIET THUAN 10-03",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
@@ -15316,8 +15316,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29677-2",
         "tugId":  "VNL 07",
-        "from":  "2026-10-05 05:30",
-        "to":  "2026-10-05 06:00",
+        "from":  "2026-10-05 05:10",
+        "to":  "2026-10-05 05:50",
         "type":  "tow_in",
         "vessel":  "VIET THUAN 10-03",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
@@ -15328,8 +15328,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29676-1",
         "tugId":  "VNL 03",
-        "from":  "2026-10-05 03:00",
-        "to":  "2026-10-05 03:30",
+        "from":  "2026-10-05 03:05",
+        "to":  "2026-10-05 03:50",
         "type":  "tow_in",
         "vessel":  "VIET THUAN 11-02",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
@@ -15340,8 +15340,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29676-2",
         "tugId":  "VNL 07",
-        "from":  "2026-10-05 03:00",
-        "to":  "2026-10-05 03:30",
+        "from":  "2026-10-05 03:05",
+        "to":  "2026-10-05 03:50",
         "type":  "tow_in",
         "vessel":  "VIET THUAN 11-02",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
@@ -16569,7 +16569,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "KYPROS SPIRIT/ FC",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ VẬN TẢI HIGH SEA",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2609-370"
     },
@@ -16581,7 +16581,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "KYPROS SPIRIT/ FC",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ VẬN TẢI HIGH SEA",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2609-370"
     },
