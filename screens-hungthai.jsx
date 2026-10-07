@@ -1,16 +1,17 @@
 /* OCC — Cảng Hưng Thái (bãi ICD)
    Bản đồ điều hành cho BOD: tàu tại cầu, mật độ bãi, xe chờ ở cổng, thiết bị.
 
-   NGUỒN DỮ LIỆU — đọc kỹ trước khi sửa:
-   • Sơ đồ bãi (vị trí, số hàng, số ô từng block): vẽ lại từ bản vẽ
-     "MB BÃI ICD 25.09.2026 - PA2". Số ô × 2 = TEU, khớp đúng bảng sức chứa
-     của bản vẽ (Bãi 1 1.080 · Bãi 2 1.060 · Bãi 3 3.578 · Bãi 4 5.746 · Depot 922).
-   • Trạng thái thiết bị (cẩu bờ, xe nâng, đầu kéo, cổng): DỮ LIỆU THẬT từ
-     OCC_EQUIPMENT (Google Sheet kỹ thuật, data.jsx tự sinh mỗi 8 tiếng).
-   • Mật độ bãi, tàu tại cầu, hàng xe ở cổng, vị trí thiết bị trên sơ đồ:
-     MÔ PHỎNG — ETVNL chưa có nguồn cho các mục này. Toàn bộ phần mô phỏng
-     gom trong htCreateSim() bên dưới; khi có nguồn thật, thay hàm đó bằng
-     dữ liệu export, giao diện không phải sửa.
+   NGUỒN DỮ LIỆU — màn hình này KHÔNG có số liệu mô phỏng. Chỉ hai nguồn:
+   • Sơ đồ bãi (vị trí, số hàng, số ô từng block, sức chứa, kho, đường, cầu
+     bến): vẽ lại từ bản vẽ "MB BÃI ICD 25.09.2026 - PA2". Số ô × 2 = TEU,
+     khớp bảng sức chứa của bản vẽ (Bãi 1 1.080 · Bãi 2 1.060 · Bãi 3 3.578 ·
+     Bãi 4 5.746 · Depot 922). Đây là số liệu THIẾT KẾ, không phải tồn thực tế.
+   • Trạng thái thiết bị (cẩu bờ, xe nâng, đầu kéo, cổng, cân): DỮ LIỆU THẬT
+     từ OCC_EQUIPMENT (Google Sheet kỹ thuật, data.jsx tự sinh mỗi 8 tiếng).
+
+   CHƯA CÓ NGUỒN nên KHÔNG hiển thị: tồn bãi thực tế theo block, tàu tại cầu,
+   hàng xe ở cổng, mật độ kho, và VỊ TRÍ từng thiết bị trên sơ đồ. Khi có
+   nguồn thật thì bổ sung, tuyệt đối không điền số minh hoạ vào chỗ trống.
 
    File này KHÔNG phụ thuộc thứ tự nạp ngoài việc phải đứng sau data.jsx và
    trước screens-operations.jsx. Mọi tên toàn cục đều có tiền tố HT_/ht để
@@ -75,7 +76,6 @@ const htOnQuay = (q, t, off) => {
   const ux = Math.cos(q.ang), uy = Math.sin(q.ang);
   return { x: q.A.x + ux * t * q.L + uy * off, y: q.A.y + uy * t * q.L - ux * off };
 };
-const htQuayT = (q, p) => ((p.x - q.A.x) * Math.cos(q.ang) + (p.y - q.A.y) * Math.sin(q.ang)) / q.L;
 
 const HT_BERTHS = [
   { id: "Cầu 1", q: HT_QUAY_MAIN,  t: 0.21, len: 96 },
@@ -87,45 +87,11 @@ const HT_BERTHS = [
   { id: "SL 3",  q: HT_QUAY_BARGE, t: 0.80, len: 52, barge: true },
 ];
 
-// Vị trí cẩu trên bản vẽ (5 cẩu ở cầu chính, 3 cẩu ở bến sà lan). Gán cẩu bờ HT
-// theo thứ tự mã vào các vị trí này — LÀ GÁN TẠM, chưa có dữ liệu cẩu nào đứng ở đâu.
-const HT_CRANE_SLOTS = [
-  { q: HT_QUAY_MAIN,  p: { x: 669.6, y: 533.6 } },
-  { q: HT_QUAY_MAIN,  p: { x: 697.5, y: 490.4 } },
-  { q: HT_QUAY_MAIN,  p: { x: 741.8, y: 421.8 } },
-  { q: HT_QUAY_MAIN,  p: { x: 770.4, y: 378.2 } },
-  { q: HT_QUAY_MAIN,  p: { x: 835.0, y: 278.2 } },
-  { q: HT_QUAY_BARGE, p: { x: 342.9, y: 703.2 } },
-  { q: HT_QUAY_BARGE, p: { x: 451.8, y: 669.3 } },
-  { q: HT_QUAY_BARGE, p: { x: 558.9, y: 631.8 } },
-].map(s => ({ ...s, t: htQuayT(s.q, s.p) }));
-
-// Vị trí đứng tạm của xe nâng trên sơ đồ (gán theo thứ tự)
-const HT_FORKLIFT_SPOTS = [[899,330],[899,452],[899,512],[704,622],[704,708],[480,762],[300,810],[350,812],[958,262],[985,212],[270,808],[960,300],[640,600],[820,600],[600,740]];
-
-// Tuyến chạy của đầu kéo nội bộ
-const HT_ROUTES = [
-  [[990,560],[899,560],[899,300],[878,262],[652,566],[704,582],[704,768],[990,768],[992,560]],
-  [[990,768],[620,770],[380,766],[347,766],[347,874],[990,874],[992,768]],
-  [[704,768],[560,768],[330,745],[312,724],[600,628],[650,580],[704,582]],
-].map(pts => {
-  const lens = [0];
-  for (let i = 1; i < pts.length; i++) lens.push(lens[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
-  return { pts, lens, total: lens[lens.length - 1] };
-});
-const htPosOn = (r, s) => {
-  s = ((s % r.total) + r.total) % r.total;
-  let i = 1; while (r.lens[i] < s) i++;
-  const f = (s - r.lens[i - 1]) / (r.lens[i] - r.lens[i - 1]);
-  const a = r.pts[i - 1], b = r.pts[i];
-  return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f];
-};
+/* Trước đây có HT_CRANE_SLOTS / HT_FORKLIFT_SPOTS / HT_ROUTES để vẽ cẩu, xe nâng
+   và đầu kéo chạy trên sơ đồ. Toạ độ đó là GÁN TẠM — hệ thống không biết thiết bị
+   nào đang đứng ở đâu — nên đã bỏ. Muốn vẽ lại thì cần nguồn vị trí thật. */
 
 /* ===== 2. Thiết bị — DỮ LIỆU THẬT từ OCC_EQUIPMENT ===== */
-const htEquipStatus = (e) =>
-  e.status === "ONLINE"  ? { key: "on",  label: "Sẵn sàng", badge: "success" } :
-  e.status === "OFFLINE" ? { key: "off", label: "Ngừng",    badge: "danger"  } :
-                           { key: "na",  label: "Chưa khai báo", badge: "neutral" };
 const htFmtSince = (s) => (s && /^\d{4}\/\d{2}\/\d{2}$/.test(s) ? `${s.slice(8, 10)}/${s.slice(5, 7)}/${s.slice(0, 4)}` : "");
 
 function htEquipment() {
@@ -138,101 +104,25 @@ function htEquipment() {
   return { cranes, forklifts, trucks, gates, scales };
 }
 
-/* ===== 3. MÔ PHỎNG — thay khối này khi có nguồn thật ===== */
-function htCreateSim() {
-  let seed = 20261006;
-  const rnd = () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; };
-  const mean = { A: 0.66, B: 0.58, C: 0.74, D: 0.82, E: 0.86 };
-  const occ = {};
-  HT_BLOCKS.forEach(b => { occ[b.id] = Math.max(0.18, Math.min(0.93, mean[b.yard] + (rnd() - 0.5) * 0.3)); });
-  occ.D17 = 0.963; occ.D19 = 0.918; occ.C14 = 0.905; occ.E3 = 0.95;
-  const ships = {
-    "Cầu 1": { name: "HT GLORY",      voy: "V.2641N", plan: 420, done: 268, rate: 32, etd: "18:30", st: "work" },
-    "Cầu 2": { name: "SÔNG ĐÀ 08",    voy: "V.118S",  plan: 260, done: 236, rate: 28, etd: "15:45", st: "work" },
-    "Cầu 3": { name: "PACIFIC PEARL", voy: "V.0939W", plan: 510, done: 96,  rate: 14, planRate: 30, etd: "23:00", st: "work" },
-    "Cầu 4": { name: "ĐÔNG DƯƠNG 15", voy: "V.207N",  plan: 180, done: 0,   rate: 0,  etd: "21:15", st: "prep", prepT: 0 },
-    "SL 1":  { name: "Sà lan HT-01",  voy: "",        plan: 120, done: 64,  rate: 18, etd: "16:20", st: "work" },
-    "SL 2":  null,
-    "SL 3":  { name: "Sà lan HT-03",  voy: "",        plan: 90,  done: 30,  rate: 16, etd: "17:10", st: "work" },
-  };
-  const waiting = [{ name: "MINH PHÁT 36", voy: "V.0412S", plan: 240, eta: "16:30" }];
-  const now = new Date(), hrs = now.getHours() + now.getMinutes() / 60;
-  const gate = { queue: 17, inToday: Math.round(hrs * 31), outToday: Math.round(hrs * 29), inside: 46 };
-  const whOcc = { K1: 0.71, K2: 0.54 };
-
-  const step = () => {
-    Object.keys(ships).forEach(k => {
-      const s = ships[k]; if (!s) return;
-      if (s.st === "work" && rnd() < s.rate / 55) s.done++;
-      if (s.st === "work" && s.done >= s.plan) { s.st = "done"; s.doneT = 0; }
-      if (s.st === "done" && ++s.doneT > 25) {
-        if (!k.startsWith("SL") && waiting.length) {
-          const w = waiting.shift();
-          ships[k] = { name: w.name, voy: w.voy, plan: w.plan, done: 0, rate: 0, etd: "02:30", st: "prep", prepT: 0 };
-          waiting.push({ name: "TRƯỜNG HẢI 09", voy: "V.311N", plan: 300, eta: "22:00" });
-        } else ships[k] = null;
-        return;
-      }
-      if (s.st === "prep" && ++s.prepT > 20) { s.st = "work"; s.rate = 26 + Math.round(rnd() * 8); }
-      if (s.st === "work" && !s.planRate && rnd() < 0.15) s.rate = Math.max(18, Math.min(40, s.rate + Math.round(rnd() * 4 - 2)));
-    });
-    const h = new Date().getHours();
-    const target = h < 6 ? 6 : h < 9 ? 14 : h < 17 ? 17 : h < 21 ? 12 : 8;
-    gate.queue = Math.max(0, Math.min(34, gate.queue + Math.round((target - gate.queue) * 0.15 + rnd() * 3 - 1.5)));
-    if (rnd() < 0.6) { gate.inToday++; gate.inside++; }
-    if (rnd() < 0.55 && gate.inside > 20) { gate.outToday++; gate.inside--; }
-    for (let i = 0; i < 3; i++) {
-      const b = HT_BLOCKS[Math.floor(rnd() * HT_BLOCKS.length)];
-      if (b.id === "D17") continue;
-      occ[b.id] = Math.max(0.15, Math.min(0.96, occ[b.id] + (rnd() - 0.5) * 0.04));
-    }
-  };
-  return { occ, ships, waiting, gate, whOcc, step, rnd };
-}
-
-/* ===== 4. Giao diện ===== */
+/* ===== 3. Giao diện ===== */
 const htFmt = (n) => Math.round(n).toLocaleString("vi-VN");
-const htOccColor = (p) => p < 0.4 ? "var(--ht-d0)" : p < 0.6 ? "var(--ht-d1)" : p < 0.75 ? "var(--ht-d2)" : p < 0.88 ? "var(--ht-d3)" : "var(--ht-d4)";
-const htHull = (len, beam) => { const h = len / 2, bw = beam / 2; return `M${-h},${-bw} L${h - 12},${-bw} Q${h + 2},0 ${h - 12},${bw} L${-h},${bw} Q${-h - 3},0 ${-h},${-bw} Z`; };
 const htDeg = (rad) => rad * 180 / Math.PI;
 
-function HTSrc({ real }) {
-  return real
-    ? <span className="badge success" title="Lấy từ danh mục thiết bị kỹ thuật, cập nhật mỗi 8 tiếng"><span className="pip"></span>Dữ liệu thật</span>
-    : <span className="badge warning" title="Chưa có nguồn dữ liệu — số liệu minh hoạ"><span className="pip"></span>Mô phỏng</span>;
+/* Hai nguồn duy nhất của màn hình. Không còn nhãn "Mô phỏng" — thứ gì chưa có
+   nguồn thì không hiển thị chứ không điền số minh hoạ. */
+function HTSrc({ plan }) {
+  return plan
+    ? <span className="badge neutral" title="Số liệu thiết kế theo bản vẽ MB bãi ICD 25/09/2026"><span className="pip"></span>Theo bản vẽ</span>
+    : <span className="badge success" title="Lấy từ danh mục thiết bị kỹ thuật, cập nhật mỗi 8 tiếng"><span className="pip"></span>Dữ liệu thật</span>;
 }
 
-function HTPortMap({ sim, equip, tilt, layers, onPick, picked }) {
-  const truckRefs = React.useRef([]);
-  const trucksOn = equip.trucks.filter(t => t.status === "ONLINE");
-  const trucksOff = equip.trucks.filter(t => t.status !== "ONLINE");
-
-  // Đầu kéo chạy bằng rAF, cập nhật thẳng thuộc tính transform — không render lại React mỗi khung hình
-  React.useEffect(() => {
-    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const st = trucksOn.map((t, i) => ({ r: HT_ROUTES[i % HT_ROUTES.length], s: (i * 137) % 900, v: 14 + (i * 7) % 9 }));
-    let raf = 0, last = performance.now();
-    const frame = (now) => {
-      const dt = Math.min(0.1, (now - last) / 1000); last = now;
-      st.forEach((o, i) => {
-        if (!reduce) o.s += o.v * dt;
-        const el = truckRefs.current[i];
-        if (el) { const p = htPosOn(o.r, o.s); el.setAttribute("transform", `translate(${p[0].toFixed(1)} ${p[1].toFixed(1)})`); }
-      });
-      if (!reduce) raf = requestAnimationFrame(frame);
-    };
-    raf = requestAnimationFrame(frame);
-    return () => cancelAnimationFrame(raf);
-  }, [trucksOn.length]);
-
-  const blockFace = (b) => {
-    const p = sim.occ[b.id], crit = p >= 0.95, warn = p >= 0.9;
-    return {
-      fill: layers.yard ? htOccColor(p) : "var(--ht-d0)",
-      stroke: layers.yard && (crit || warn) ? (crit ? "var(--ht-crit)" : "var(--ht-warn)") : (picked === b.id ? "var(--ht-fg)" : "none"),
-      strokeWidth: crit || warn || picked === b.id ? 1.4 : 0,
-    };
-  };
+function HTPortMap({ tilt, onPick, picked }) {
+  // Block tô một màu: hệ thống chưa biết block nào đang chứa bao nhiêu container.
+  const blockFace = (b) => ({
+    fill: "var(--ht-d0)",
+    stroke: picked === b.id ? "var(--ht-fg)" : "none",
+    strokeWidth: picked === b.id ? 1.4 : 0,
+  });
 
   const ql = (q, w) => (
     <g transform={`translate(${q.A.x} ${q.A.y}) rotate(${htDeg(q.ang)})`}>
@@ -303,156 +193,58 @@ function HTPortMap({ sim, equip, tilt, layers, onPick, picked }) {
                 <text className="ht-blabel" textAnchor="middle" x={x + b.w / 2} y={y + b.h / 2 + 2.3}
                       transform={vertical ? `rotate(-90 ${x + b.w / 2} ${y + b.h / 2})` : undefined}>{b.id}</text>
               </g>
-              {layers.yard && sim.occ[b.id] >= 0.95 && (
-                <circle className="ht-pulse" cx={b.rot ? b.rot.cx : b.x + b.w / 2} cy={b.rot ? b.rot.cy : b.y + b.h / 2} r={3} />
-              )}
             </g>
           );
         })}
       </g>
 
-      {/* Tàu tại cầu */}
-      {layers.ships && <g>
+      {/* Cầu bến theo bản vẽ. Hệ thống chưa có nguồn tàu nào đang cập cầu Hưng Thái,
+          nên chỉ vẽ vị trí cầu, không vẽ tàu. */}
+      <g>
         {HT_BERTHS.map(bt => {
-          const s = sim.ships[bt.id], beam = bt.barge ? 13 : 20;
+          const beam = bt.barge ? 13 : 20;
           const c = htOnQuay(bt.q, bt.t, bt.barge ? 13 : 19);
           const m = htOnQuay(bt.q, bt.t, -9);
-          const tag = htOnQuay(bt.q, bt.t, bt.barge ? 42 : 56);
           const deg = htDeg(bt.q.ang);
-          const bays = bt.barge ? 5 : 9, bw = (bt.len - 24) / bays;
-          const frac = s && s.plan ? s.done / s.plan : 0, doneBays = Math.floor(frac * bays);
-          const tw = bt.barge ? 62 : 80;
           return (
             <g key={bt.id}>
               <text x={m.x} y={m.y} className="ht-mlabel" textAnchor="middle" transform={`rotate(${deg} ${m.x} ${m.y})`}>{bt.id}</text>
-              <g className="ht-hit" transform={`translate(${c.x} ${c.y}) rotate(${deg})`} onClick={() => s && onPick({ kind: "ship", id: bt.id })}>
-                {!s && <rect x={-bt.len / 2} y={-beam / 2} width={bt.len} height={beam} rx={3} fill="none" stroke="var(--ht-dim)" strokeDasharray="3 3" />}
-                {s && <>
-                  <path d={htHull(bt.len + 2, beam + 2)} fill="var(--ht-shade)" transform="translate(1.5 2.5)" opacity={0.6} />
-                  <path d={htHull(bt.len, beam)} fill="var(--ht-hull)" stroke={s.st === "work" ? "var(--ht-ok)" : s.st === "done" ? "var(--ht-dim)" : "var(--ht-accent)"} strokeWidth={1.2} />
-                  {Array.from({ length: bays }, (_, i) => (
-                    <rect key={i} x={-bt.len / 2 + 4 + i * bw} y={-beam / 2 + 3} width={bw - 1.4} height={beam - 6} rx={0.6}
-                          fill={i < doneBays ? "var(--ht-bay-done)" : "var(--ht-bay)"} opacity={i < doneBays ? 0.35 : 1} />
-                  ))}
-                  {!bt.barge && <rect x={bt.len / 2 - 20} y={-beam / 2 + 2} width={7} height={beam - 4} fill="var(--ht-bridge)" />}
-                </>}
+              <g transform={`translate(${c.x} ${c.y}) rotate(${deg})`}>
+                <rect x={-bt.len / 2} y={-beam / 2} width={bt.len} height={beam} rx={3} fill="none" stroke="var(--ht-dim)" strokeDasharray="3 3" />
               </g>
-              {s && (
-                <g className="ht-shiptag" transform={`translate(${tag.x} ${tag.y})`}>
-                  <rect x={-tw / 2} y={-11} width={tw} height={21} rx={2} />
-                  <text x={-tw / 2 + 4} y={-2}>{s.name}</text>
-                  <text x={-tw / 2 + 4} y={7} className="t2">{s.st === "prep" ? "Chuẩn bị làm hàng" : s.st === "done" ? "Hoàn tất" : `${Math.round(frac * 100)}% · ${s.rate} m/h`}</text>
-                </g>
-              )}
             </g>
           );
         })}
-        {sim.waiting[0] && <>
-          <g className="ht-hit" transform={`translate(520 360) rotate(${htDeg(HT_QUAY_MAIN.ang)})`} onClick={() => onPick({ kind: "wait" })}>
-            <path d={htHull(86, 19)} fill="none" stroke="var(--ht-warn)" strokeDasharray="4 3" strokeWidth={1.1} />
-          </g>
-          <g className="ht-shiptag" transform="translate(470 318)">
-            <rect x={-40} y={-11} width={80} height={21} rx={2} />
-            <text x={-36} y={-2}>{sim.waiting[0].name}</text>
-            <text x={-36} y={7} className="t2">Chờ cầu · ETA {sim.waiting[0].eta}</text>
-          </g>
-          <text x={470} y={405} className="ht-mlabel" textAnchor="middle">Vùng neo chờ</text>
-        </>}
-      </g>}
+      </g>
 
-      {/* Cổng + hàng xe chờ */}
-      {layers.gate && <g>
+      {/* Cổng theo bản vẽ. Số xe đang chờ chưa có nguồn nên không vẽ hàng xe. */}
+      <g>
         {[0, 1, 2, 3].map(i => <g key={i}>
           <line x1={925} y1={549 + i * 7} x2={985} y2={549 + i * 7} stroke="var(--ht-dim)" strokeWidth={0.5} strokeDasharray="3 2" />
-          <rect x={952} y={550 + i * 7} width={5} height={5} fill="var(--ht-ok)" />
         </g>)}
         <text x={955} y={543} className="ht-mlabel" textAnchor="middle">Cổng Đường C2</text>
         <text x={990} y={900} className="ht-mlabel" textAnchor="end">Cổng Đường C1</text>
-        {Array.from({ length: Math.min(sim.gate.queue, 30) }, (_, i) => (
-          <rect key={i} x={1022} y={582 + i * 10} width={6} height={8} rx={1} fill={i < 6 ? "var(--ht-warn)" : "var(--ht-hull)"} opacity={i < 6 ? 0.95 : 0.7} />
-        ))}
-      </g>}
+      </g>
 
-      {/* Thiết bị — trạng thái thật, vị trí gán tạm */}
-      {layers.equip && <g>
-        {equip.cranes.slice(0, HT_CRANE_SLOTS.length).map((e, i) => {
-          const sl = HT_CRANE_SLOTS[i], p = htOnQuay(sl.q, sl.t, -2), stt = htEquipStatus(e);
-          const col = stt.key === "on" ? "var(--ht-ok)" : stt.key === "off" ? "var(--ht-crit)" : "var(--ht-dim)";
-          return (
-            <g key={e.id} className="ht-hit" transform={`translate(${p.x} ${p.y}) rotate(${htDeg(sl.q.ang)})`} onClick={() => onPick({ kind: "eq", id: e.id })}>
-              <rect x={-5} y={-3} width={10} height={8} rx={1} fill="var(--ht-quay)" stroke={col} strokeWidth={1.2} />
-              <line x1={0} y1={0} x2={-6} y2={-30} stroke={col} strokeWidth={1.6} strokeLinecap="round" />
-              {stt.key === "off" && <circle cx={0} cy={0} r={3} className="ht-pulse" />}
-            </g>
-          );
-        })}
-        {equip.forklifts.slice(0, HT_FORKLIFT_SPOTS.length).map((e, i) => {
-          const [x, y] = HT_FORKLIFT_SPOTS[i], stt = htEquipStatus(e);
-          const col = stt.key === "on" ? "var(--ht-ok)" : stt.key === "off" ? "var(--ht-crit)" : "var(--ht-dim)";
-          return (
-            <g key={e.id} className="ht-hit" transform={`translate(${x} ${y})`} onClick={() => onPick({ kind: "eq", id: e.id })}>
-              <rect x={-3.4} y={-3.4} width={6.8} height={6.8} rx={1.2} transform="rotate(45)" fill={col} stroke="var(--ht-water)" strokeWidth={1} />
-            </g>
-          );
-        })}
-        {trucksOn.map((e, i) => (
-          <g key={e.id} ref={el => (truckRefs.current[i] = el)} className="ht-hit" onClick={() => onPick({ kind: "eq", id: e.id })}>
-            <rect x={-2.6} y={-1.7} width={5.2} height={3.4} rx={0.8} fill="var(--ht-hull)" />
-          </g>
-        ))}
-        {trucksOff.map((e, i) => (
-          <g key={e.id} className="ht-hit" transform={`translate(${966 + (i % 4) * 7} ${872 + Math.floor(i / 4) * 6})`} onClick={() => onPick({ kind: "eq", id: e.id })}>
-            <rect x={-2.6} y={-1.7} width={5.2} height={3.4} rx={0.8} fill="var(--ht-crit)" />
-          </g>
-        ))}
-      </g>}
+      {/* Không vẽ cẩu / xe nâng / đầu kéo lên sơ đồ: trạng thái thì có thật nhưng
+          VỊ TRÍ thì không có nguồn. Trạng thái xem ở bảng "Thiết bị" bên dưới. */}
     </svg>
   );
 }
 
-function HTPickCard({ pick, sim, equip, onClose }) {
+function HTPickCard({ pick, onClose }) {
   if (!pick) return null;
-  let body = null;
-  if (pick.kind === "blk") {
-    const b = HT_BLOCKS.find(x => x.id === pick.id), y = HT_YARDS[b.yard], p = sim.occ[b.id];
-    body = <>
-      <h3>Block {b.id}</h3><div className="sub">{y.name} · {y.zone} <HTSrc /></div>
-      <dl>
-        <dt>Lấp đầy</dt><dd className={p >= 0.95 ? "crit" : p >= 0.9 ? "warn" : ""}>{Math.round(p * 100)}%</dd>
-        <dt>Đang chứa</dt><dd>{htFmt(b.cap * p)} / {htFmt(b.cap)} TEU</dd>
-        <dt>Quy mô (bản vẽ)</dt><dd>{b.rows} hàng · {b.boxes} ô</dd>
-      </dl>
-    </>;
-  } else if (pick.kind === "ship") {
-    const s = sim.ships[pick.id]; if (!s) return null;
-    body = <>
-      <h3>{s.name}</h3><div className="sub">{pick.id}{s.voy ? " · " + s.voy : ""} <HTSrc /></div>
-      <dl>
-        <dt>Tiến độ</dt><dd>{htFmt(s.done)} / {htFmt(s.plan)} move</dd>
-        <dt>Năng suất</dt><dd>{s.rate} move/giờ{s.planRate ? ` (KH ${s.planRate})` : ""}</dd>
-        <dt>Dự kiến rời</dt><dd>{s.etd}</dd>
-      </dl>
-    </>;
-  } else if (pick.kind === "wait") {
-    const w = sim.waiting[0]; if (!w) return null;
-    body = <>
-      <h3>{w.name}</h3><div className="sub">Vùng neo · {w.voy} <HTSrc /></div>
-      <dl><dt>Dự kiến cập</dt><dd>{w.eta}</dd><dt>Kế hoạch</dt><dd>{w.plan} move</dd></dl>
-    </>;
-  } else if (pick.kind === "eq") {
-    const all = [...equip.cranes, ...equip.forklifts, ...equip.trucks];
-    const e = all.find(x => x.id === pick.id); if (!e) return null;
-    const stt = htEquipStatus(e);
-    body = <>
-      <h3>{e.name}</h3><div className="sub">{e.id} <HTSrc real /></div>
-      <dl>
-        <dt>Trạng thái</dt><dd><span className={`badge ${stt.badge}`}><span className="pip"></span>{stt.label}</span></dd>
-        {e.detail && e.detail !== e.name && <><dt>Mô tả</dt><dd>{e.detail}</dd></>}
-        {stt.key === "off" && htFmtSince(e.offlineSince) && <><dt>Ngừng từ</dt><dd>{htFmtSince(e.offlineSince)}</dd></>}
-        <dt>Vị trí trên sơ đồ</dt><dd className="muted">Gán tạm</dd>
-      </dl>
-    </>;
-  }
+  const b = HT_BLOCKS.find(x => x.id === pick);
+  if (!b) return null;
+  const y = HT_YARDS[b.yard];
+  const body = <>
+    <h3>Block {b.id}</h3><div className="sub">{y.name} · {y.zone} <HTSrc plan /></div>
+    <dl>
+      <dt>Sức chứa</dt><dd>{htFmt(b.cap)} TEU</dd>
+      <dt>Quy mô</dt><dd>{b.rows} hàng · {b.boxes} ô</dd>
+      <dt>Đang chứa</dt><dd className="muted">Chưa có nguồn</dd>
+    </dl>
+  </>;
   return (
     <div className="ht-pick card">
       <button className="ht-pick-x" type="button" aria-label="Đóng" onClick={onClose}><Icon name="x" size={14} /></button>
@@ -462,20 +254,10 @@ function HTPickCard({ pick, sim, equip, onClose }) {
 }
 
 function HTPortView({ onClose }) {
-  const simRef = React.useRef(null);
-  if (!simRef.current) simRef.current = htCreateSim();
-  const sim = simRef.current;
   const equip = React.useMemo(htEquipment, []);
-  const [, setTick] = React.useState(0);
   const [tilt, setTilt] = React.useState(true);
-  const [layers, setLayers] = React.useState({ yard: true, ships: true, gate: true, equip: true });
   const [pick, setPick] = React.useState(null);
   const stageRef = React.useRef(null);
-
-  React.useEffect(() => {
-    const id = setInterval(() => { sim.step(); setTick(t => t + 1); }, 3000);
-    return () => clearInterval(id);
-  }, []);
 
   const toggleFull = () => {
     const el = stageRef.current; if (!el) return;
@@ -485,26 +267,13 @@ function HTPortView({ onClose }) {
     } catch (e) { /* trình duyệt không hỗ trợ — bỏ qua */ }
   };
 
-  // Tổng hợp
-  const yardUsed = (k) => HT_BLOCKS.filter(b => b.yard === k).reduce((a, b) => a + b.cap * sim.occ[b.id], 0);
-  const totalUsed = Object.keys(HT_YARDS).reduce((a, k) => a + yardUsed(k), 0);
-  const mainBerths = HT_BERTHS.filter(b => !b.barge);
-  const working = mainBerths.filter(b => sim.ships[b.id] && sim.ships[b.id].st === "work");
-  const bargeWorking = HT_BERTHS.filter(b => b.barge && sim.ships[b.id] && sim.ships[b.id].st === "work").length;
-  const avgRate = working.length ? working.reduce((a, b) => a + sim.ships[b.id].rate, 0) / working.length : 0;
-  const waitMin = Math.round(sim.gate.queue * 1.6 + 3);
   const on = (arr) => arr.filter(e => e.status === "ONLINE").length;
+  const offOf = (arr) => arr.filter(e => e.status === "OFFLINE");
 
-  // Cảnh báo: thiết bị ngừng (thật) trước, rồi các cảnh báo mô phỏng
-  const alerts = [];
-  [...equip.cranes, ...equip.forklifts, ...equip.trucks, ...equip.gates, ...equip.scales]
+  // Cảnh báo: chỉ thiết bị đang ngừng — dữ liệu thật, không suy đoán thêm
+  const alerts = [...equip.cranes, ...equip.forklifts, ...equip.trucks, ...equip.gates, ...equip.scales]
     .filter(e => e.status === "OFFLINE")
-    .forEach(e => alerts.push({ sev: 3, real: true, text: <><b>{e.name}</b> ({e.id}) đang ngừng{htFmtSince(e.offlineSince) ? ` từ ${htFmtSince(e.offlineSince)}` : ""}</> }));
-  mainBerths.forEach(b => { const s = sim.ships[b.id]; if (s && s.planRate && s.st === "work" && s.rate < s.planRate * 0.7) alerts.push({ sev: 3, text: <><b>{s.name}</b> ({b.id}) đạt {s.rate}/{s.planRate} move/giờ, nguy cơ trễ ETD {s.etd}</> }); });
-  HT_BLOCKS.filter(b => sim.occ[b.id] >= 0.9).sort((a, b) => sim.occ[b.id] - sim.occ[a.id]).slice(0, 4)
-    .forEach(b => alerts.push({ sev: sim.occ[b.id] >= 0.95 ? 3 : 2, text: <><b>{HT_YARDS[b.yard].name} · {b.id}</b> lấp đầy {Math.round(sim.occ[b.id] * 100)}%</> }));
-  if (sim.gate.queue > 15) alerts.push({ sev: 2, text: <><b>Cổng</b>: {sim.gate.queue} xe chờ, chờ trung bình {waitMin} phút</> });
-  alerts.sort((a, b) => (b.real ? 1 : 0) - (a.real ? 1 : 0) || b.sev - a.sev);
+    .map(e => ({ text: <><b>{e.name}</b> ({e.id}) đang ngừng{htFmtSince(e.offlineSince) ? ` từ ${htFmtSince(e.offlineSince)}` : ""}</> }));
 
   const equipRows = [
     { label: "Cẩu bờ Hưng Thái", items: equip.cranes },
@@ -538,117 +307,97 @@ function HTPortView({ onClose }) {
 
       <div className="ht-notice">
         <Icon name="alert" size={14} />
-        <span><b>Trạng thái thiết bị</b> là dữ liệu thật từ danh mục thiết bị kỹ thuật. <b>Mật độ bãi, tàu tại cầu và hàng xe ở cổng</b> đang là số liệu mô phỏng vì hệ thống chưa có nguồn cho các mục này.</span>
+        <span>Màn hình chỉ hiển thị <b>trạng thái thiết bị</b> (dữ liệu thật, làm mới mỗi 8 tiếng) và <b>sức chứa thiết kế theo bản vẽ</b>. Tồn bãi thực tế, tàu tại cầu và hàng xe ở cổng <b>chưa có nguồn dữ liệu</b> nên không hiển thị.</span>
       </div>
 
       <div className="kpi-grid kpi-grid-5">
         <div className="kpi">
-          <div className="lbl"><span className="swatch" style={{ background: "var(--st-info)" }} /> Tồn bãi</div>
-          <div className="val">{htFmt(totalUsed)}<small>/ {htFmt(HT_YARD_TOTAL)} TEU</small></div>
-          <div className="delta">{Math.round(totalUsed / HT_YARD_TOTAL * 100)}% sức chứa · <HTSrc /></div>
-        </div>
-        <div className="kpi">
-          <div className="lbl"><span className="swatch" style={{ background: "var(--st-success)" }} /> Tàu làm hàng</div>
-          <div className="val">{working.length}<small>/ 4 cầu</small></div>
-          <div className="delta">+{bargeWorking} sà lan · {sim.waiting.length} chờ cầu · <HTSrc /></div>
-        </div>
-        <div className="kpi">
-          <div className="lbl"><span className="swatch" style={{ background: "var(--brand-accent)" }} /> Xe chờ ở cổng</div>
-          <div className="val">{sim.gate.queue}<small>xe</small></div>
-          <div className="delta">Chờ TB {waitMin} phút · <HTSrc /></div>
-        </div>
-        <div className="kpi">
-          <div className="lbl"><span className="swatch" style={{ background: "#7C5BE0" }} /> Cẩu bờ sẵn sàng</div>
+          <div className="lbl"><span className="swatch" style={{ background: "#7C5BE0" }} /> Cẩu bờ Hưng Thái</div>
           <div className="val">{on(equip.cranes)}<small>/ {equip.cranes.length}</small></div>
-          <div className={`delta ${on(equip.cranes) < equip.cranes.length ? "down" : "up"}`}>
-            {equip.cranes.length - on(equip.cranes) > 0 ? `${equip.cranes.length - on(equip.cranes)} cẩu đang ngừng` : "Tất cả sẵn sàng"} · <HTSrc real />
+          <div className={`delta ${offOf(equip.cranes).length ? "down" : "up"}`}>
+            {offOf(equip.cranes).length ? `${offOf(equip.cranes).map(e => e.id).join(", ")} đang ngừng` : "Tất cả sẵn sàng"} · <HTSrc />
           </div>
         </div>
         <div className="kpi">
-          <div className="lbl"><span className="swatch" style={{ background: "var(--brand-ink)" }} /> Xe nâng · đầu kéo</div>
-          <div className="val">{on(equip.forklifts)}<small>/ {equip.forklifts.length}</small>&nbsp;·&nbsp;{on(equip.trucks)}<small>/ {equip.trucks.length}</small></div>
-          <div className="delta">Đang sẵn sàng · <HTSrc real /></div>
+          <div className="lbl"><span className="swatch" style={{ background: "var(--brand-ink)" }} /> Xe nâng</div>
+          <div className="val">{on(equip.forklifts)}<small>/ {equip.forklifts.length}</small></div>
+          <div className={`delta ${offOf(equip.forklifts).length ? "down" : "up"}`}>
+            {offOf(equip.forklifts).length ? `${offOf(equip.forklifts).length} xe đang ngừng` : "Tất cả sẵn sàng"} · <HTSrc />
+          </div>
+        </div>
+        <div className="kpi">
+          <div className="lbl"><span className="swatch" style={{ background: "var(--brand-accent)" }} /> Xe đầu kéo</div>
+          <div className="val">{on(equip.trucks)}<small>/ {equip.trucks.length}</small></div>
+          <div className={`delta ${offOf(equip.trucks).length ? "down" : "up"}`}>
+            {offOf(equip.trucks).length ? `${offOf(equip.trucks).length} xe đang ngừng` : "Tất cả sẵn sàng"} · <HTSrc />
+          </div>
+        </div>
+        <div className="kpi">
+          <div className="lbl"><span className="swatch" style={{ background: "var(--st-success)" }} /> Cổng & cầu cân</div>
+          <div className="val">{on(equip.gates) + on(equip.scales)}<small>/ {equip.gates.length + equip.scales.length}</small></div>
+          <div className="delta">{equip.gates.length} cổng · {equip.scales.length} cân · <HTSrc /></div>
+        </div>
+        <div className="kpi">
+          <div className="lbl"><span className="swatch" style={{ background: "var(--st-info)" }} /> Sức chứa bãi</div>
+          <div className="val">{htFmt(HT_YARD_TOTAL)}<small>TEU</small></div>
+          <div className="delta">{HT_BLOCKS.length} block · 5 bãi · <HTSrc plan /></div>
         </div>
       </div>
 
       <div className="ht-grid">
         <div className="card ht-mapcard" ref={stageRef}>
-          <div className="ht-maptools" role="group" aria-label="Lớp hiển thị">
-            {[["yard", "Mật độ bãi"], ["ships", "Tàu"], ["gate", "Cổng & xe"], ["equip", "Thiết bị"]].map(([k, l]) => (
-              <button key={k} type="button" className="ht-chip" aria-pressed={layers[k]} onClick={() => setLayers(s => ({ ...s, [k]: !s[k] }))}>
-                <i></i>{l}
-              </button>
-            ))}
-            <span className="ht-hint">Chạm vào block, tàu hoặc thiết bị để xem chi tiết</span>
+          <div className="ht-maptools">
+            <span className="ht-hint">Mặt bằng theo bản vẽ MB bãi ICD 25/09/2026 — chạm vào block để xem sức chứa</span>
           </div>
           <div className="ht-stage">
-            <HTPortMap sim={sim} equip={equip} tilt={tilt} layers={layers} onPick={setPick} picked={pick && pick.kind === "blk" ? pick.id : null} />
+            <HTPortMap tilt={tilt} onPick={p => setPick(p.id)} picked={pick} />
           </div>
-          <div className="ht-legend">
-            <span><i className="ht-sw"></i>Lấp đầy 0 → 100%</span>
-            <span><i className="ht-dot" style={{ background: "var(--ht-ok)" }}></i>Sẵn sàng</span>
-            <span><i className="ht-dot" style={{ background: "var(--ht-crit)" }}></i>Ngừng / quá tải</span>
-            <span><i className="ht-dot" style={{ background: "var(--ht-warn)" }}></i>Trên 90%</span>
-          </div>
-          <HTPickCard pick={pick} sim={sim} equip={equip} onClose={() => setPick(null)} />
+          <HTPickCard pick={pick} onClose={() => setPick(null)} />
         </div>
 
         <div className="ht-side">
           <div className="card">
-            <div className="card-head"><h3>Cầu tàu</h3><HTSrc /></div>
+            <div className="card-head"><h3>Cầu bến</h3><HTSrc plan /></div>
             <div className="ht-list">
-              {HT_BERTHS.map(b => {
-                const s = sim.ships[b.id];
-                if (!s) return (
-                  <div key={b.id} className="ht-berth"><span className="code">{b.id}</span><span className="nm muted">Trống</span><span className="badge neutral">Trống</span></div>
-                );
-                const pct = s.plan ? s.done / s.plan * 100 : 0, slow = s.planRate && s.rate < s.planRate * 0.7;
-                const badge = s.st === "work" ? (slow ? ["danger", "Chậm"] : ["success", "Làm hàng"]) : s.st === "prep" ? ["info", "Chuẩn bị"] : ["neutral", "Hoàn tất"];
-                return (
-                  <div key={b.id} className="ht-berth clickable" onClick={() => setPick({ kind: "ship", id: b.id })}>
-                    <span className="code">{b.id}</span>
-                    <span className="nm">{s.name}{s.voy && <small>{s.voy}</small>}</span>
-                    <span className={`badge ${badge[0]}`}><span className="pip"></span>{badge[1]}</span>
-                    <div className={`progress-track ${slow ? "late" : ""}`}><div className="pbar" style={{ width: `${pct}%` }} /></div>
-                    <span className="meta mono">{htFmt(s.done)}/{htFmt(s.plan)} move · {s.rate} m/h · rời {s.etd}</span>
-                  </div>
-                );
-              })}
-              {sim.waiting.map(w => (
-                <div key={w.name} className="ht-berth"><span className="code">Neo</span><span className="nm">{w.name}<small>{w.voy}</small></span><span className="badge warning"><span className="pip"></span>Chờ cầu</span>
-                  <span className="meta mono">ETA {w.eta} · {w.plan} move</span></div>
+              {HT_BERTHS.map(b => (
+                <div key={b.id} className="ht-berth">
+                  <span className="code">{b.id}</span>
+                  <span className="nm muted">{b.barge ? "Bến sà lan" : "Cầu chính"}</span>
+                  <span className="badge neutral">Chưa có nguồn</span>
+                </div>
               ))}
             </div>
+            <div className="ht-empty">Hệ thống chưa quản lý tàu cập cầu Hưng Thái. Khi có nguồn sẽ hiện tàu, tiến độ làm hàng và ETD tại đây.</div>
           </div>
 
           <div className="card">
-            <div className="card-head"><h3>Mật độ theo bãi</h3><HTSrc /></div>
+            <div className="card-head"><h3>Sức chứa theo bãi</h3><HTSrc plan /></div>
             <div className="ht-list">
               {Object.keys(HT_YARDS).map(k => {
-                const y = HT_YARDS[k], p = yardUsed(k) / y.cap;
+                const y = HT_YARDS[k];
+                const blocks = HT_BLOCKS.filter(b => b.yard === k);
                 return (
                   <div key={k} className="ht-yard">
-                    <div><b>{y.name}</b><small>{y.zone} · {htFmt(y.cap)} TEU</small></div>
-                    <div className={`progress-track ${p >= 0.9 ? "late" : ""}`}><div className="pbar" style={{ width: `${p * 100}%` }} /></div>
-                    <span className="mono">{Math.round(p * 100)}%</span>
+                    <div><b>{y.name}</b><small>{y.zone} · {blocks.length} block</small></div>
+                    <span className="mono">{htFmt(y.cap)} TEU</span>
                   </div>
                 );
               })}
               {HT_WAREHOUSES.map(w => (
                 <div key={w.id} className="ht-yard">
-                  <div><b>{w.name}</b><small>{w.area}</small></div>
-                  <div className="progress-track"><div className="pbar" style={{ width: `${sim.whOcc[w.id] * 100}%` }} /></div>
-                  <span className="mono">{Math.round(sim.whOcc[w.id] * 100)}%</span>
+                  <div><b>{w.name}</b><small>Kho hàng</small></div>
+                  <span className="mono">{w.area}</span>
                 </div>
               ))}
             </div>
+            <div className="ht-empty">Số liệu thiết kế theo bản vẽ. Tồn thực tế từng bãi chưa có nguồn.</div>
           </div>
         </div>
       </div>
 
       <div className="ht-grid-2">
         <div className="card">
-          <div className="card-head"><h3>Thiết bị</h3><HTSrc real /></div>
+          <div className="card-head"><h3>Thiết bị</h3><HTSrc /></div>
           <div className="ht-table-wrap">
             <table className="ht-table">
               <thead><tr><th>Nhóm</th><th>Sẵn sàng</th><th>Ngừng</th><th>Chưa khai báo</th><th>Đang ngừng</th></tr></thead>
@@ -672,15 +421,14 @@ function HTPortView({ onClose }) {
         </div>
 
         <div className="card">
-          <div className="card-head"><h3>Cổng & cảnh báo</h3><span className="sub mono">Xe trong cảng: {sim.gate.inside} · Vào {htFmt(sim.gate.inToday)} · Ra {htFmt(sim.gate.outToday)}</span></div>
-          <ul className="ht-alerts">
-            {alerts.slice(0, 8).map((a, i) => (
-              <li key={i} className={`sev${a.sev}`}>
-                <span>{a.text}</span>
-                {a.real ? <span className="badge success">Thật</span> : <span className="badge warning">Mô phỏng</span>}
-              </li>
-            ))}
-          </ul>
+          <div className="card-head"><h3>Thiết bị đang ngừng</h3><HTSrc /></div>
+          {alerts.length ? (
+            <ul className="ht-alerts">
+              {alerts.map((a, i) => <li key={i} className="sev3"><span>{a.text}</span></li>)}
+            </ul>
+          ) : (
+            <div className="ht-empty">Không có thiết bị nào đang ngừng.</div>
+          )}
         </div>
       </div>
     </div>

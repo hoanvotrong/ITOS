@@ -2648,3 +2648,13 @@ html, body {
   .ht-maptools, .ht-hint { display: none !important; }
   .ht-map.tilt { transform: none; }
 }
+
+/* Cảng Hưng Thái — chỗ chưa có nguồn dữ liệu: nói thẳng là chưa có,
+   không vẽ biểu đồ rỗng hay điền số minh hoạ. */
+.ht-empty {
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+  color: var(--t-secondary);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
