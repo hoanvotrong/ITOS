@@ -461,7 +461,7 @@ function HTPickCard({ pick, sim, equip, onClose }) {
   );
 }
 
-function HTPortView() {
+function HTPortView({ onClose }) {
   const simRef = React.useRef(null);
   if (!simRef.current) simRef.current = htCreateSim();
   const sim = simRef.current;
@@ -518,7 +518,7 @@ function HTPortView() {
     <div className="page ht-page" style={{ maxWidth: "none" }}>
       <div className="page-head">
         <div>
-          <h1>Cảng Hưng Thái</h1>
+          <h1>{onClose ? "Live monitor · Cảng Hưng Thái" : "Cảng Hưng Thái"}</h1>
           <div className="sub">Sơ đồ bãi ICD theo bản vẽ MB bãi 25/09/2026 · tàu tại cầu, mật độ bãi, cổng và thiết bị.</div>
         </div>
         <div className="actions">
@@ -528,6 +528,11 @@ function HTPortView() {
           <button className="btn btn-sm" type="button" onClick={toggleFull}>
             <Icon name="grid" size={14} /> Toàn màn hình
           </button>
+          {onClose && (
+            <button className="btn btn-sm primary" type="button" onClick={onClose}>
+              <Icon name="x" size={14} /> Đóng
+            </button>
+          )}
         </div>
       </div>
 
@@ -682,4 +687,21 @@ function HTPortView() {
   );
 }
 
-Object.assign(window, { HTPortView });
+/* Live monitor — mở từ nút "Live monitor" trên màn hình Timeline (screens-operations.jsx).
+   Lớp phủ toàn trang, đóng bằng nút Đóng hoặc phím Esc; khoá cuộn trang nền khi đang mở. */
+function HTLiveMonitor({ onClose }) {
+  React.useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape" && !document.fullscreenElement) onClose(); };
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+  }, [onClose]);
+  return (
+    <div className="ht-live" role="dialog" aria-modal="true" aria-label="Live monitor cảng Hưng Thái">
+      <HTPortView onClose={onClose} />
+    </div>
+  );
+}
+
+Object.assign(window, { HTPortView, HTLiveMonitor });

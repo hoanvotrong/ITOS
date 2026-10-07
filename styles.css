@@ -2510,6 +2510,12 @@ html, body {
   --ht-hull: #CDD9E1;  --ht-bay: #2A6F91;   --ht-bay-done: #9FB0BB; --ht-bridge: #5B6D78;
   --ht-d0: #1A3240; --ht-d1: #1D4A61; --ht-d2: #26698A; --ht-d3: #3A8FB6; --ht-d4: #78C1DE;
 }
+/* Live monitor: lớp phủ toàn trang, nằm trên topbar (30) và drawer sidebar (160) */
+.ht-live {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--bg-page); overflow-y: auto; overscroll-behavior: contain;
+  animation: fade-in .15s ease-out;
+}
 .ht-notice {
   display: flex; align-items: flex-start; gap: 8px;
   padding: 10px 14px; margin-bottom: var(--s-5);

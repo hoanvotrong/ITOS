@@ -853,6 +853,7 @@ function OCCScreen() {
   const [selectedDvhh, setSelectedDvhh] = React.useState(null);
   const [filter, setFilter] = React.useState("all");   // all | berth | service
   const [roster, setRoster] = React.useState(null);    // tug daily roster popover
+  const [live, setLive] = React.useState(false);       // Live monitor — bản đồ cảng Hưng Thái
 
   const { leftW, dayW } = useOccLayout();
 
@@ -1025,9 +1026,11 @@ function OCCScreen() {
         <div className="actions">
           <button className="btn ghost"><Icon name="download" size={14}/> Xuất báo cáo BOD</button>
           <button className="btn"><Icon name="refresh" size={14}/> Làm mới</button>
-          <button className="btn primary"><Icon name="radar" size={14}/> Live monitor</button>
+          <button className="btn primary" onClick={() => setLive(true)}><Icon name="radar" size={14}/> Live monitor</button>
         </div>
       </div>
+
+      {live && <HTLiveMonitor onClose={() => setLive(false)}/>}
 
       <OCCKpis/>
 
@@ -1546,10 +1549,6 @@ function OCCModule() {
           <span>Bến phao</span>
           <span className="count">{OCC_BERTHS.length}</span>
         </div>
-        <div className={`occ-side-item ${view === "hungthai" ? "active" : ""}`} onClick={() => selectView("hungthai")}>
-          <Icon name="layers" size={16}/>
-          <span>Cảng Hưng Thái</span>
-        </div>
 
         <div className="occ-side-section">Tài sản khai thác</div>
         <div className={`occ-side-item ${view === "tugs" ? "active" : ""}`} onClick={() => selectView("tugs")}>
@@ -1597,7 +1596,7 @@ function OCCModule() {
 
       <main style={{ minWidth: 0, overflow: "hidden" }}>
         <Topbar
-          crumbs={["Vinalogistics", "OCC — Điều hành Vận hành", { timeline: "Timeline", jobs: "Job-tàu", berths: "Bến phao", tugs: "Đội tàu lai", cranes: "ICD", daily: "Báo cáo ngày", hungthai: "Cảng Hưng Thái" }[view]]}
+          crumbs={["Vinalogistics", "OCC — Điều hành Vận hành", { timeline: "Timeline", jobs: "Job-tàu", berths: "Bến phao", tugs: "Đội tàu lai", cranes: "ICD", daily: "Báo cáo ngày" }[view]]}
           onToggleNav={() => setNavOpen(o => !o)}
         />
         {view === "timeline" && <OCCScreen/>}
@@ -1606,7 +1605,6 @@ function OCCModule() {
         {view === "tugs"     && <OCCFleetView kind="tug"/>}
         {view === "cranes"   && <OCCFleetView kind="crane"/>}
         {view === "daily"    && <OCCDailyReport/>}
-        {view === "hungthai" && <HTPortView/>}
       </main>
     </div>
   );
