@@ -87,14 +87,41 @@ const HT_BERTHS = [
   { id: "SL 3",  q: HT_QUAY_BARGE, t: 0.80, len: 52, barge: true },
 ];
 
-/* Cẩu bờ dọc cầu chính, thứ tự TRÁI -> PHẢI do bên vận hành cung cấp (14/10/2026).
-   Thứ tự là thật; KHOẢNG CÁCH giữa các cẩu là chia đều dọc cầu, chưa phải vị trí
-   đo đạc — đủ để biết cẩu nào đứng cạnh cẩu nào, không dùng để đo cự ly. */
+/* Cẩu bờ dọc tuyến cầu, thứ tự do bên vận hành cung cấp (14/10/2026):
+   đánh số BẮT ĐẦU TỪ BL1 — đầu cầu phía NAM, ngay bên phải khu Đất Công an tỉnh —
+   rồi chạy dọc bờ lên hướng bắc. Tuyến cầu gồm 2 đoạn nối tiếp: đoạn sà lan
+   (307,721)->(604,621) rồi đoạn chính (607,622)->(905,228).
+   Thứ tự là thật; KHOẢNG CÁCH chia đều, chưa phải vị trí đo đạc. */
 const HT_SHORE_CRANES = ["VNL-01", "VNL-02", "VNL-03", "VNL-05", "VNL-06", "VNL-07", "VNL-08"];
-const htCraneT = (i) => 0.10 + (0.80 * i) / (HT_SHORE_CRANES.length - 1);
+
+// Đi dọc cả tuyến bờ theo tỉ lệ 0..1, gốc 0 = đầu nam sát Đất Công an tỉnh
+const HT_WATERFRONT = [HT_QUAY_BARGE, HT_QUAY_MAIN];
+const HT_WF_LEN = HT_WATERFRONT.reduce((a, q) => a + q.L, 0);
+const htOnWaterfront = (u, off) => {
+  let s = Math.max(0, Math.min(1, u)) * HT_WF_LEN;
+  for (const q of HT_WATERFRONT) {
+    if (s <= q.L || q === HT_WATERFRONT[HT_WATERFRONT.length - 1]) {
+      return { p: htOnQuay(q, s / q.L, off), ang: q.ang };
+    }
+    s -= q.L;
+  }
+};
+const htCraneT = (i) => 0.06 + (0.88 * i) / (HT_SHORE_CRANES.length - 1);
 const htCraneAt = (code) => {
   const i = HT_SHORE_CRANES.indexOf(code);
   return i < 0 ? null : htCraneT(i);
+};
+
+/* Bến phao ngoài mặt nước. KHÔNG phải toạ độ hàng hải thật — chỉ là sơ đồ bố trí
+   tương đối để thấy tàu nào đang làm hàng ở bến nào. Các vùng được rải đều trên
+   một tuyến chéo giữa vùng nước trống, song song với bờ. */
+const HT_BUOY_LINE = { a: { x: 320, y: 520 }, b: { x: 845, y: 135 } };
+const htBuoyPos = (i, n) => {
+  const f = n <= 1 ? 0.5 : i / (n - 1);
+  return {
+    x: HT_BUOY_LINE.a.x + (HT_BUOY_LINE.b.x - HT_BUOY_LINE.a.x) * f,
+    y: HT_BUOY_LINE.a.y + (HT_BUOY_LINE.b.y - HT_BUOY_LINE.a.y) * f,
+  };
 };
 // "VNL-01" -> "VNL01" ; sheet "HT-VNL01-4530" -> "VNL01"
 const htOrderKey = (code) => String(code).toUpperCase().replace(/-/g, "");
@@ -132,7 +159,7 @@ function HTSrc({ plan }) {
     : <span className="badge success" title="Lấy từ danh mục thiết bị kỹ thuật, cập nhật mỗi 8 tiếng"><span className="pip"></span>Dữ liệu thật</span>;
 }
 
-function HTPortMap({ tilt, onPick, picked, quayVessels, shoreByKey }) {
+function HTPortMap({ tilt, onPick, picked, quayVessels, shoreByKey, buoyZones }) {
   // Block tô một màu: hệ thống chưa biết block nào đang chứa bao nhiêu container.
   const blockFace = (b) => ({
     fill: "var(--ht-d0)",
@@ -214,6 +241,33 @@ function HTPortMap({ tilt, onPick, picked, quayVessels, shoreByKey }) {
         })}
       </g>
 
+      {/* Bến phao ngoài mặt nước. Vị trí là SƠ ĐỒ BỐ TRÍ tương đối, không phải toạ độ
+          hàng hải — dùng để thấy tàu nào đang làm hàng ở bến nào. */}
+      <g>
+        {buoyZones.map((z, i) => {
+          const p = htBuoyPos(i, buoyZones.length);
+          const busy = !!z.job;
+          return (
+            <g key={z.id} className={busy ? "ht-hit" : undefined}
+               onClick={busy ? () => onPick({ kind: "bp", id: z.id }) : undefined}>
+              <ellipse cx={p.x} cy={p.y} rx={44} ry={25}
+                       fill={busy ? "rgba(21,128,61,0.10)" : "none"}
+                       stroke={busy ? "var(--ht-ok)" : "var(--ht-dim)"}
+                       strokeDasharray={busy ? undefined : "4 3"} strokeWidth={busy ? 1.2 : 0.9} />
+              <text x={p.x} y={p.y - 13} className="ht-mlabel" textAnchor="middle">{z.id}</text>
+              {busy && (
+                <>
+                  <g transform={`translate(${p.x} ${p.y + 3}) rotate(-36)`}>
+                    <path d={htHull(52, 15)} fill="var(--ht-hull)" stroke="var(--ht-ok)" strokeWidth={1.1} />
+                  </g>
+                  <text x={p.x} y={p.y + 26} className="ht-mlabel" textAnchor="middle">{z.job.vessel.name}</text>
+                </>
+              )}
+            </g>
+          );
+        })}
+      </g>
+
       {/* Bến sà lan theo bản vẽ — chưa có nguồn tàu nên chỉ vẽ vị trí trống. */}
       <g>
         {HT_BERTHS.filter(bt => bt.barge).map(bt => {
@@ -239,10 +293,10 @@ function HTPortMap({ tilt, onPick, picked, quayVessels, shoreByKey }) {
           if (!ts.length) return null;
           const t0 = Math.min(...ts), t1 = Math.max(...ts);
           const mid = (t0 + t1) / 2;
-          const span = Math.max(0.1, t1 - t0 + 0.09) * HT_QUAY_MAIN.L;
-          const c = htOnQuay(HT_QUAY_MAIN, mid, 20);
-          const tag = htOnQuay(HT_QUAY_MAIN, mid, 58);
-          const deg = htDeg(HT_QUAY_MAIN.ang);
+          const span = Math.max(0.08, t1 - t0 + 0.07) * HT_WF_LEN;
+          const c = htOnWaterfront(mid, 20).p;
+          const tag = htOnWaterfront(mid, 58).p;
+          const deg = htDeg(htOnWaterfront(mid, 0).ang);
           const stroke = v.status === "working" ? "var(--ht-ok)"
                        : v.status === "departing" ? "var(--ht-warn)" : "var(--ht-accent)";
           return (
@@ -266,16 +320,16 @@ function HTPortMap({ tilt, onPick, picked, quayVessels, shoreByKey }) {
       <g>
         {HT_SHORE_CRANES.map((code, i) => {
           const e = shoreByKey[htOrderKey(code)];
-          const p = htOnQuay(HT_QUAY_MAIN, htCraneT(i), -2);
+          const w = htOnWaterfront(htCraneT(i), -2);
           const col = !e ? "var(--ht-dim)"
                     : e.status === "ONLINE" ? "var(--ht-ok)"
                     : e.status === "OFFLINE" ? "var(--ht-crit)" : "var(--ht-dim)";
           return (
-            <g key={code} className="ht-hit" transform={`translate(${p.x} ${p.y}) rotate(${htDeg(HT_QUAY_MAIN.ang)})`}
+            <g key={code} className="ht-hit" transform={`translate(${w.p.x} ${w.p.y}) rotate(${htDeg(w.ang)})`}
                onClick={() => onPick({ kind: "crane", id: code })}>
               <rect x={-5} y={-3} width={10} height={8} rx={1} fill="var(--ht-quay)" stroke={col} strokeWidth={1.3} />
               <line x1={0} y1={0} x2={-6} y2={-30} stroke={col} strokeWidth={1.6} strokeLinecap="round" />
-              <text x={0} y={14} className="ht-mlabel" textAnchor="middle" transform="rotate(-39)">{code}</text>
+              <text x={0} y={14} className="ht-mlabel" textAnchor="middle" transform={`rotate(${-htDeg(w.ang)})`}>{code}</text>
               {e && e.status === "OFFLINE" && <circle cx={0} cy={0} r={3} className="ht-pulse" />}
             </g>
           );
@@ -297,7 +351,7 @@ function HTPortMap({ tilt, onPick, picked, quayVessels, shoreByKey }) {
   );
 }
 
-function HTPickCard({ pick, quayVessels, shoreByKey, onClose }) {
+function HTPickCard({ pick, quayVessels, shoreByKey, buoyZones, onClose }) {
   if (!pick) return null;
   let body = null;
 
@@ -325,6 +379,21 @@ function HTPickCard({ pick, quayVessels, shoreByKey, onClose }) {
         {v.eta && <><dt>Cập cầu</dt><dd>{v.eta}</dd></>}
         {v.etd && <><dt>Dự kiến rời</dt><dd>{v.etd}</dd></>}
         {v.note && <><dt>Ghi chú</dt><dd>{v.note}</dd></>}
+      </dl>
+    </>;
+  } else if (pick.kind === "bp") {
+    const z = buoyZones.find(x => x.id === pick.id);
+    if (!z || !z.job) return null;
+    const j = z.job;
+    body = <>
+      <h3>{j.vessel.name}</h3>
+      <div className="sub">{z.id} · {j.id} <HTSrc /></div>
+      <dl>
+        {j.cargo && j.cargo.name && <><dt>Hàng</dt><dd>{j.cargo.name}</dd></>}
+        <dt>Sản lượng</dt><dd>{j.qtyFinish} / {j.qtyTotal}</dd>
+        <dt>Tiến độ</dt><dd>{j.progress}%</dd>
+        {j.equipment && j.equipment.length > 0 && <><dt>Thiết bị</dt><dd>{j.equipment.join(", ")}</dd></>}
+        <dt>Vị trí trên sơ đồ</dt><dd className="muted">Sơ đồ bố trí, không phải toạ độ thật</dd>
       </dl>
     </>;
   } else if (pick.kind === "crane") {
@@ -362,6 +431,17 @@ function HTPortView({ onClose }) {
     return m;
   }, [equip]);
   const quayVessels = typeof HT_QUAY_VESSELS !== "undefined" ? HT_QUAY_VESSELS : [];
+
+  // Vùng bến phao: gồm các bến đang theo dõi + bất kỳ bến nào đang có tàu làm hàng
+  const buoyZones = React.useMemo(() => {
+    const jobs = typeof OCC_JOBS === "undefined" ? [] : OCC_JOBS;
+    const byBerth = {};
+    jobs.filter(j => j.status === "in_progress" || j.status === "delayed")
+        .forEach(j => { if (j.berthId && !byBerth[j.berthId]) byBerth[j.berthId] = j; });
+    const tracked = (typeof OCC_BERTHS === "undefined" ? [] : OCC_BERTHS).map(b => b.id);
+    const ids = Array.from(new Set(tracked.concat(Object.keys(byBerth)))).sort();
+    return ids.map(id => ({ id, job: byBerth[id] || null }));
+  }, []);
   const [tilt, setTilt] = React.useState(true);
   const [pick, setPick] = React.useState(null);
   const stageRef = React.useRef(null);
@@ -465,9 +545,9 @@ function HTPortView({ onClose }) {
           </div>
           <div className="ht-stage">
             <HTPortMap tilt={tilt} onPick={setPick} picked={pick && pick.kind === "blk" ? pick.id : null}
-                        quayVessels={quayVessels} shoreByKey={shoreByKey} />
+                        quayVessels={quayVessels} shoreByKey={shoreByKey} buoyZones={buoyZones} />
           </div>
-          <HTPickCard pick={pick} quayVessels={quayVessels} shoreByKey={shoreByKey} onClose={() => setPick(null)} />
+          <HTPickCard pick={pick} quayVessels={quayVessels} shoreByKey={shoreByKey} buoyZones={buoyZones} onClose={() => setPick(null)} />
         </div>
 
         <div className="ht-side">
