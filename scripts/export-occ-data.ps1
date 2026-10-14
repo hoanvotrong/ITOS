@@ -297,11 +297,46 @@ foreach ($t in $occTugs) {
   # Nhóm tàu lai để công suất trong cột status ("2400HP", "3730kW --> 5002HP")
   if ([string]::IsNullOrWhiteSpace($t.hp) -and "$($e.status)" -match '(?i)hp|kw') { $t.hp = "$($e.status)".Trim() }
 }
+# Cẩu: tên hai bên khác hẳn nhau nên NormId không ghép được.
+#   DB "Cẩu bờ VNL 01"      <->  Sheet "HT-VNL01-4530"
+#   DB "Cẩu nổi FC 06 - 01" <->  Sheet "FC06-01-4028"
+#   DB "Cẩu nổi VNL 08"     <->  Sheet "VNL08-K3035"
+# Quy tắc: bỏ tiền tố "Cẩu bờ/nổi", bỏ hậu tố mã model, bỏ dấu cách và gạch nối.
+# Tách riêng hai nhóm BỜ/NỔI vì DB có CẢ "Cẩu bờ VNL 08" lẫn "Cẩu nổi VNL 08" —
+# gộp chung sẽ gán nhầm trạng thái của cẩu này sang cẩu kia.
+function SheetCraneKey($id) {
+  $t = ("$id").ToUpperInvariant() -replace '\s', ''
+  $shore = $t.StartsWith("HT-")
+  if ($shore) { $t = $t.Substring(3) }
+  $t = $t -replace '-(K?\d{3,5})$', ''
+  $t = $t -replace '-', ''
+  if ($shore) { return "BO:$t" }
+  return "NOI:$t"
+}
+function DbCraneKey($name) {
+  $t = ("$name").ToUpperInvariant().Trim()
+  if ($t -match '^CẨU\s*BỜ\s*(.+)$')  { return "BO:"  + ((($Matches[1]) -replace '\s', '') -replace '-', '') }
+  if ($t -match '^CẨU\s*NỔI\s*(.+)$') { return "NOI:" + ((($Matches[1]) -replace '\s', '') -replace '-', '') }
+  return $null
+}
+$craneSheetByKey = @{}
+foreach ($e in $occEquipment) {
+  if (-not "$($e.category)".StartsWith("5.")) { continue }
+  $k = SheetCraneKey $e.id
+  if ($k -and -not $craneSheetByKey.ContainsKey($k)) { $craneSheetByKey[$k] = $e }
+}
+$craneMatched = 0
 foreach ($c in $occCranes) {
-  $e = $equipByKey[(NormId $c.id)]
-  if (-not $e) { continue }
+  $k = DbCraneKey $c.id
+  if (-not $k -or -not $craneSheetByKey.ContainsKey($k)) { continue }
+  $e = $craneSheetByKey[$k]
+  $craneMatched++
   $st = SheetState $e
   if ($st) { $c.status = $st; $c.offlineSince = $e.offlineSince }
+  if ([string]::IsNullOrWhiteSpace($c.cap) -and $e.detail) { $c.cap = $e.detail }
+}
+if ($occEquipment.Count -gt 0) {
+  Write-Host "Cẩu: ghép được $craneMatched/$($occCranes.Count) cẩu với sheet kỹ thuật." -ForegroundColor Green
 }
 
 # ============================================================
@@ -589,6 +624,56 @@ foreach ($bkKey in $tugGroups.Keys) {
     $occTugTasks += $task
   }
 }
+
+# ============================================================
+# resources: CẨU KHAI THÁC — suy ra từ các ca làm hàng
+# ============================================================
+# LoadingUnloadingDetails rỗng trên toàn DB nên các hàng cẩu trên Timeline không
+# có thanh nào. Nhưng mỗi ca trong ICDUploadingCargo đã có giờ bắt đầu/kết thúc
+# kèm tên thiết bị — đủ để dựng lịch cẩu THẬT từ chính dữ liệu đó.
+# Tên thiết bị (FloatingCranes) ngắn hơn tên trong bảng Cranes:
+#   "VNL 09" <-> "Cẩu nổi VNL 09",  "FC 06" <-> "Cẩu nổi FC 06"
+function CraneShortKey($s) {
+  $t = ("$s").ToUpperInvariant().Trim()
+  $t = $t -replace '^CẨU\s*(BỜ|NỔI|CHÂN\s*RAY)\s*', ''
+  return (($t -replace '\s', '') -replace '-', '')
+}
+# DB có CẢ "Cẩu bờ VNL 08" lẫn "Cẩu nổi VNL 08" -> bỏ tiền tố xong thì trùng khoá.
+# Thiết bị trong ca làm hàng lấy từ bảng FloatingCranes nên LUÔN là cẩu nổi:
+# duyệt cẩu nổi trước để nó chiếm khoá, tránh gắn ca làm hàng nhầm sang cẩu bờ.
+$craneIdByShort = @{}
+foreach ($onlyFloating in @($true, $false)) {
+  foreach ($c in $occCranes) {
+    $isFloating = ("$($c.id)").ToUpperInvariant() -match '^CẨU\s*NỔI'
+    if ($onlyFloating -and -not $isFloating) { continue }
+    $k = CraneShortKey $c.id
+    if ($k -and -not $craneIdByShort.ContainsKey($k)) { $craneIdByShort[$k] = $c.id }
+  }
+}
+$craneOpCount = 0
+$newCraneIds = @()
+foreach ($job in $occJobs) {
+  foreach ($op in $job.cargoOps) {
+    $dev = "$($op.device)".Trim()
+    if (-not $dev) { continue }
+    $k = CraneShortKey $dev
+    if (-not $craneIdByShort.ContainsKey($k)) {
+      # Thiết bị có làm hàng thật nhưng không nằm trong bảng Cranes (nhà thầu,
+      # thiết bị thuê...) — vẫn phải hiện vì đó là công việc có thật.
+      $occCranes += [ordered]@{ id = $dev; cap = "Ghi nhận qua ca làm hàng"; status = "active" }
+      $craneIdByShort[$k] = $dev
+      $newCraneIds += $dev
+    }
+    $job.resources += [ordered]@{
+      type = "crane"; id = $craneIdByShort[$k]
+      from = $op.from; to = $op.to
+      role = "Làm hàng $($op.qty)"
+    }
+    $craneOpCount++
+  }
+}
+$extraMsg = if ($newCraneIds.Count) { " | thêm $($newCraneIds.Count) thiết bị ngoài bảng Cranes: $($newCraneIds -join ', ')" } else { "" }
+Write-Host "Cẩu: gắn $craneOpCount ca làm hàng vào lịch cẩu$extraMsg." -ForegroundColor Green
 
 $conn.Close()
 Write-Host "Đã đóng kết nối. Job: $($occJobs.Count) | DVHH: $($occDvhh.Count) | Tug tasks: $($occTugTasks.Count) | Bến phao: $($occBerths.Count) | Tàu lai: $($occTugs.Count) | Cẩu: $($occCranes.Count)" -ForegroundColor Green

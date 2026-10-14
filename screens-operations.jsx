@@ -90,11 +90,22 @@ function OCCKpis() {
   const tugsTotal = OCC_TUGS.length;
   const cranesActive = OCC_CRANES.filter(c => c.status === "active").length;
   const cranesTotal = OCC_CRANES.length;
-  // Sản lượng tháng (tổng MT xếp/dỡ — số khối lượng các job đang & đã hoàn thành)
-  const totalMT = OCC_JOBS
-    .filter(j => j.status === "in_progress" || j.status === "completed" || j.status === "delayed")
-    .reduce((sum, j) => sum + parseInt((j.cargo?.qty || "0").replace(/\D/g, ""), 10), 0);
-  const tonnageDisp = (totalMT / 1000).toFixed(0) + " nghìn MT";
+  // Sản lượng tháng — cộng sản lượng TỪNG CA LÀM HÀNG theo tháng.
+  // Trước đây ô này cộng khối lượng hàng của mọi job trong cửa sổ 4 tháng rồi gắn
+  // nhãn "tháng", nên số bị phóng đại nhiều lần; phần trăm so tháng trước thì ghi cứng.
+  // Chuỗi dạng "19.500 MT": dấu chấm là ngăn nghìn, phải bỏ trước khi đọc số.
+  const occQty = (s) => parseFloat(String(s || "").replace(/[^\d.,]/g, "").replace(/\./g, "").replace(/,/g, ".")) || 0;
+  const tonByMonth = {};
+  OCC_JOBS.forEach(j => (j.cargoOps || []).forEach(o => {
+    const k = (o.from || "").slice(0, 7);
+    if (k) tonByMonth[k] = (tonByMonth[k] || 0) + occQty(o.qty);
+  }));
+  const pad2 = (n) => String(n).padStart(2, "0");
+  const prevDate = new Date(Date.UTC(OCC_WINDOW.year, OCC_WINDOW.month - 2, 1));
+  const prevMonthNum = prevDate.getUTCMonth() + 1;
+  const curTon = tonByMonth[`${OCC_WINDOW.year}-${pad2(OCC_WINDOW.month)}`] || 0;
+  const prevTon = tonByMonth[`${prevDate.getUTCFullYear()}-${pad2(prevMonthNum)}`] || 0;
+  const fmtTon = (v) => Math.round(v).toLocaleString("vi-VN");
   return (
     <div className="kpi-grid kpi-grid-5">
       <div className="kpi">
@@ -131,9 +142,12 @@ function OCCKpis() {
         </div>
       </div>
       <div className="kpi">
-        <div className="lbl"><span className="swatch" style={{ background: "var(--brand-ink)" }} /> Sản lượng tháng</div>
-        <div className="val" style={{ fontSize: 24 }}>{tonnageDisp}</div>
-        <div className="delta up"><Icon name="arrowUp" size={12}/> +8,2% so tháng trước</div>
+        <div className="lbl"><span className="swatch" style={{ background: "var(--brand-ink)" }} /> Sản lượng tháng {OCC_WINDOW.month}</div>
+        <div className="val" style={{ fontSize: 24 }}>{fmtTon(curTon)}<small>MT</small></div>
+        <div className="delta">
+          Tới ngày {OCC_WINDOW.todayDate}
+          {prevTon > 0 && <> · tháng {prevMonthNum}: {fmtTon(prevTon)} MT</>}
+        </div>
       </div>
     </div>
   );

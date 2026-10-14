@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-10-14 10:33 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-10-14 11:14 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  14,
     "todayCol":  75,
-    "todayHour":  10.55
+    "todayHour":  11.23
 };
 
 const OCC_BERTHS = [
@@ -143,32 +143,38 @@ const OCC_CRANES = [
     {
         "id":  "Cẩu bờ VNL 01",
         "cap":  "152 Kw – cont (260 Kw at 40%ED)",
-        "status":  "active"
+        "status":  "active",
+        "offlineSince":  "2026/02/07"
     },
     {
         "id":  "Cẩu bờ VNL 02",
         "cap":  "152 Kw – cont (260 Kw at 40%ED)",
-        "status":  "active"
+        "status":  "active",
+        "offlineSince":  "2026/09/09"
     },
     {
         "id":  "Cẩu bờ VNL 03",
         "cap":  "150 Kw – cont (250 Kw at 40%ED)",
-        "status":  "active"
+        "status":  "active",
+        "offlineSince":  "2026/08/21"
     },
     {
         "id":  "Cẩu bờ VNL 05",
-        "cap":  "",
-        "status":  "active"
+        "cap":  "GL6019/5022/4524/4027/3630",
+        "status":  "active",
+        "offlineSince":  "2026/04/03"
     },
     {
         "id":  "Cẩu bờ VNL 06",
-        "cap":  "",
-        "status":  "active"
+        "cap":  "GL6019/5022/4524/4027/3630",
+        "status":  "active",
+        "offlineSince":  "2026/01/24"
     },
     {
         "id":  "Cẩu bờ VNL 07",
-        "cap":  "",
-        "status":  "active"
+        "cap":  "GL4530/MLC/3636-2",
+        "status":  "active",
+        "offlineSince":  "2026/10/05"
     },
     {
         "id":  "Cẩu bờ VNL 08",
@@ -187,27 +193,51 @@ const OCC_CRANES = [
     },
     {
         "id":  "Cẩu nổi FC 06 - 01",
-        "cap":  "",
-        "status":  "active"
+        "cap":  "GL4028/Gr3028",
+        "status":  "active",
+        "offlineSince":  "2026/02/07"
     },
     {
         "id":  "Cẩu nổi FC 06 - 02",
-        "cap":  "",
-        "status":  "active"
+        "cap":  "GL4026/Gr3326 (28m)",
+        "status":  "active",
+        "offlineSince":  "2026/06/30"
     },
     {
         "id":  "Cẩu nổi VNL 08",
-        "cap":  "",
-        "status":  "active"
+        "cap":  "K3035-4HD",
+        "status":  "active",
+        "offlineSince":  "2026/07/06"
     },
     {
         "id":  "Cẩu nổi VNL 09",
-        "cap":  "",
-        "status":  "active"
+        "cap":  "K3036-4HD",
+        "status":  "active",
+        "offlineSince":  "2026/06/24"
     },
     {
         "id":  "Cẩu tàu",
         "cap":  "",
+        "status":  "active"
+    },
+    {
+        "id":  "ITC 02",
+        "cap":  "Ghi nhận qua ca làm hàng",
+        "status":  "active"
+    },
+    {
+        "id":  "ITC 01",
+        "cap":  "Ghi nhận qua ca làm hàng",
+        "status":  "active"
+    },
+    {
+        "id":  "TÍN THÀNH PT 06",
+        "cap":  "Ghi nhận qua ca làm hàng",
+        "status":  "active"
+    },
+    {
+        "id":  "TÍN THÀNH PT 04",
+        "cap":  "Ghi nhận qua ca làm hàng",
         "status":  "active"
     }
 ];
@@ -1849,6 +1879,27 @@ const OCC_JOBS = [
                               "from":  "2026-10-07 08:35",
                               "to":  "2026-10-07 10:25",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 02",
+                              "from":  "2026-10-08 09:30",
+                              "to":  "2026-10-09 06:00",
+                              "role":  "Làm hàng 6.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 02",
+                              "from":  "2026-10-09 06:00",
+                              "to":  "2026-10-10 06:00",
+                              "role":  "Làm hàng 5.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 02",
+                              "from":  "2026-10-10 06:00",
+                              "to":  "2026-10-11 06:00",
+                              "role":  "Làm hàng 6.500 MT"
                           }
                       ],
         "services":  [
@@ -2100,6 +2151,20 @@ const OCC_JOBS = [
                               "from":  "2026-10-11 14:10",
                               "to":  "2026-10-11 18:40",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-12 03:30",
+                              "to":  "2026-10-12 06:00",
+                              "role":  "Làm hàng 1.100 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-10-12 03:30",
+                              "to":  "2026-10-12 06:00",
+                              "role":  "Làm hàng 900 MT"
                           }
                       ],
         "services":  [
@@ -2148,13 +2213,13 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 12-01 - rời",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  false
                          },
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 11-05 - cập",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  false
                          }
                      ],
@@ -2338,6 +2403,48 @@ const OCC_JOBS = [
                               "from":  "2026-10-07 09:40",
                               "to":  "2026-10-07 11:40",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-10-08 08:40",
+                              "to":  "2026-10-09 06:00",
+                              "role":  "Làm hàng 2.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-10-09 06:00",
+                              "to":  "2026-10-10 06:00",
+                              "role":  "Làm hàng 2.700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-10-10 06:00",
+                              "to":  "2026-10-11 06:00",
+                              "role":  "Làm hàng 5.700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-10-10 06:00",
+                              "to":  "2026-10-11 06:00",
+                              "role":  "Làm hàng 1.600 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-10-11 06:00",
+                              "to":  "2026-10-12 06:00",
+                              "role":  "Làm hàng 5.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-10-11 06:00",
+                              "to":  "2026-10-12 06:00",
+                              "role":  "Làm hàng 3.200 MT"
                           }
                       ],
         "services":  [
@@ -2487,6 +2594,55 @@ const OCC_JOBS = [
                               "from":  "2026-09-21 14:55",
                               "to":  "2026-09-21 16:45",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-23 06:30",
+                              "to":  "2026-09-24 06:00",
+                              "role":  "Làm hàng 350 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-24 06:00",
+                              "to":  "2026-09-25 06:00",
+                              "role":  "Làm hàng 2.050 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-25 06:00",
+                              "to":  "2026-09-26 06:00",
+                              "role":  "Làm hàng 3.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-26 06:00",
+                              "to":  "2026-09-27 06:00",
+                              "role":  "Làm hàng 2.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-27 06:00",
+                              "to":  "2026-09-28 06:00",
+                              "role":  "Làm hàng 3.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-29 06:00",
+                              "to":  "2026-09-30 06:00",
+                              "role":  "Làm hàng 2.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-30 06:00",
+                              "to":  "2026-09-30 12:00",
+                              "role":  "Làm hàng 3.159 MT"
                           }
                       ],
         "services":  [
@@ -2697,6 +2853,139 @@ const OCC_JOBS = [
                               "from":  "2026-09-29 16:30",
                               "to":  "2026-09-29 21:00",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-09-30 01:30",
+                              "to":  "2026-09-30 06:00",
+                              "role":  "Làm hàng 1.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-30 01:30",
+                              "to":  "2026-09-30 06:00",
+                              "role":  "Làm hàng 500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-09-30 06:00",
+                              "to":  "2026-10-01 06:00",
+                              "role":  "Làm hàng 6.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-30 06:00",
+                              "to":  "2026-10-01 06:00",
+                              "role":  "Làm hàng 6.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-01 06:00",
+                              "to":  "2026-10-02 06:00",
+                              "role":  "Làm hàng 4.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-10-01 06:00",
+                              "to":  "2026-10-02 06:00",
+                              "role":  "Làm hàng 3.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-02 06:00",
+                              "to":  "2026-10-03 06:00",
+                              "role":  "Làm hàng 6.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-10-02 06:00",
+                              "to":  "2026-10-03 06:00",
+                              "role":  "Làm hàng 8.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-03 06:00",
+                              "to":  "2026-10-04 06:00",
+                              "role":  "Làm hàng 3.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-10-03 06:00",
+                              "to":  "2026-10-04 06:00",
+                              "role":  "Làm hàng 3.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-10-04 06:00",
+                              "to":  "2026-10-05 06:00",
+                              "role":  "Làm hàng 2.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-10-05 06:00",
+                              "to":  "2026-10-06 06:00",
+                              "role":  "Làm hàng 2.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-10-06 06:00",
+                              "to":  "2026-10-07 06:00",
+                              "role":  "Làm hàng 4.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-10-07 06:00",
+                              "to":  "2026-10-08 06:00",
+                              "role":  "Làm hàng 7.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-07 06:00",
+                              "to":  "2026-10-08 06:00",
+                              "role":  "Làm hàng 3.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-10-08 06:00",
+                              "to":  "2026-10-09 06:00",
+                              "role":  "Làm hàng 7.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-08 06:00",
+                              "to":  "2026-10-09 06:00",
+                              "role":  "Làm hàng 8.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-10-09 06:00",
+                              "to":  "2026-10-10 06:00",
+                              "role":  "Làm hàng 6.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-09 06:00",
+                              "to":  "2026-10-10 06:00",
+                              "role":  "Làm hàng 6.000 MT"
                           }
                       ],
         "services":  [
@@ -3137,6 +3426,83 @@ const OCC_JOBS = [
                               "from":  "2026-09-27 14:00",
                               "to":  "2026-09-27 16:20",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-09-27 22:10",
+                              "to":  "2026-09-28 06:00",
+                              "role":  "Làm hàng 4.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-27 22:10",
+                              "to":  "2026-09-28 06:00",
+                              "role":  "Làm hàng 3.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-09-28 06:00",
+                              "to":  "2026-09-29 06:00",
+                              "role":  "Làm hàng 2.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-28 06:00",
+                              "to":  "2026-09-29 06:00",
+                              "role":  "Làm hàng 2.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-09-29 06:00",
+                              "to":  "2026-09-30 06:00",
+                              "role":  "Làm hàng 5.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-29 06:00",
+                              "to":  "2026-09-30 06:00",
+                              "role":  "Làm hàng 4.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-10-02 06:00",
+                              "to":  "2026-10-03 06:00",
+                              "role":  "Làm hàng 7.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-10-03 06:00",
+                              "to":  "2026-10-04 06:00",
+                              "role":  "Làm hàng 8.700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-10-04 06:00",
+                              "to":  "2026-10-05 06:00",
+                              "role":  "Làm hàng 4.700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-10-05 06:00",
+                              "to":  "2026-10-06 06:00",
+                              "role":  "Làm hàng 8.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-10-06 06:00",
+                              "to":  "2026-10-07 06:00",
+                              "role":  "Làm hàng 2.500 MT"
                           }
                       ],
         "services":  [
@@ -3401,6 +3767,76 @@ const OCC_JOBS = [
                               "from":  "2026-10-01 03:40",
                               "to":  "2026-10-01 07:55",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-10-04 14:55",
+                              "to":  "2026-10-05 06:00",
+                              "role":  "Làm hàng 4.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-04 14:55",
+                              "to":  "2026-10-05 06:00",
+                              "role":  "Làm hàng 4.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-10-05 06:00",
+                              "to":  "2026-10-06 06:00",
+                              "role":  "Làm hàng 7.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-05 06:00",
+                              "to":  "2026-10-06 06:00",
+                              "role":  "Làm hàng 4.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-10-06 06:00",
+                              "to":  "2026-10-07 06:00",
+                              "role":  "Làm hàng 8.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-06 06:00",
+                              "to":  "2026-10-07 06:00",
+                              "role":  "Làm hàng 8.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-10-07 06:00",
+                              "to":  "2026-10-08 06:00",
+                              "role":  "Làm hàng 13.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-07 06:00",
+                              "to":  "2026-10-08 06:00",
+                              "role":  "Làm hàng 3.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-10-08 06:00",
+                              "to":  "2026-10-09 06:00",
+                              "role":  "Làm hàng 8.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-10-09 06:00",
+                              "to":  "2026-10-10 06:00",
+                              "role":  "Làm hàng 8.800 MT"
                           }
                       ],
         "services":  [
@@ -3721,6 +4157,90 @@ const OCC_JOBS = [
                               "from":  "2026-10-02 04:00",
                               "to":  "2026-10-02 05:50",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-10-02 15:30",
+                              "to":  "2026-10-03 06:00",
+                              "role":  "Làm hàng 5.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-10-03 06:00",
+                              "to":  "2026-10-04 06:00",
+                              "role":  "Làm hàng 9.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-10-04 06:00",
+                              "to":  "2026-10-05 06:00",
+                              "role":  "Làm hàng 5.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 02",
+                              "from":  "2026-10-04 06:00",
+                              "to":  "2026-10-05 06:00",
+                              "role":  "Làm hàng 6.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-10-06 06:00",
+                              "to":  "2026-10-07 06:00",
+                              "role":  "Làm hàng 5.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 02",
+                              "from":  "2026-10-06 06:00",
+                              "to":  "2026-10-07 06:00",
+                              "role":  "Làm hàng 6.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-10-07 06:00",
+                              "to":  "2026-10-08 06:00",
+                              "role":  "Làm hàng 3.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 02",
+                              "from":  "2026-10-07 06:00",
+                              "to":  "2026-10-08 06:00",
+                              "role":  "Làm hàng 4.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-10-08 06:00",
+                              "to":  "2026-10-09 06:00",
+                              "role":  "Làm hàng 7.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-10-09 06:00",
+                              "to":  "2026-10-10 06:00",
+                              "role":  "Làm hàng 5.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-10-10 06:00",
+                              "to":  "2026-10-11 06:00",
+                              "role":  "Làm hàng 4.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-11 06:00",
+                              "to":  "2026-10-12 06:00",
+                              "role":  "Làm hàng 7.000 MT"
                           }
                       ],
         "services":  [
@@ -4268,6 +4788,202 @@ const OCC_JOBS = [
                               "from":  "2026-09-13 21:35",
                               "to":  "2026-09-13 23:59",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-14 11:40",
+                              "to":  "2026-09-15 06:00",
+                              "role":  "Làm hàng 3.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-15 06:00",
+                              "to":  "2026-09-16 06:00",
+                              "role":  "Làm hàng 5.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-16 06:00",
+                              "to":  "2026-09-17 06:00",
+                              "role":  "Làm hàng 2.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-17 06:00",
+                              "to":  "2026-09-18 06:00",
+                              "role":  "Làm hàng 3.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-18 06:00",
+                              "to":  "2026-09-19 06:00",
+                              "role":  "Làm hàng 1.900 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-18 06:00",
+                              "to":  "2026-09-19 06:00",
+                              "role":  "Làm hàng 1.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-19 06:00",
+                              "to":  "2026-09-20 06:00",
+                              "role":  "Làm hàng 2.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-19 06:00",
+                              "to":  "2026-09-20 06:00",
+                              "role":  "Làm hàng 1.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-20 06:00",
+                              "to":  "2026-09-21 06:00",
+                              "role":  "Làm hàng 200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-20 06:00",
+                              "to":  "2026-09-21 06:00",
+                              "role":  "Làm hàng 100 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-21 06:00",
+                              "to":  "2026-09-22 06:00",
+                              "role":  "Làm hàng 2.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-21 06:00",
+                              "to":  "2026-09-22 06:00",
+                              "role":  "Làm hàng 1.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-22 06:00",
+                              "to":  "2026-09-23 06:00",
+                              "role":  "Làm hàng 1.442 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-22 06:00",
+                              "to":  "2026-09-23 06:00",
+                              "role":  "Làm hàng 1.400 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-23 06:00",
+                              "to":  "2026-09-24 06:00",
+                              "role":  "Làm hàng 500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-09-23 06:00",
+                              "to":  "2026-09-24 06:00",
+                              "role":  "Làm hàng 300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-24 06:00",
+                              "to":  "2026-09-25 06:00",
+                              "role":  "Làm hàng 1.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-09-24 06:00",
+                              "to":  "2026-09-25 06:00",
+                              "role":  "Làm hàng 1.900 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-25 06:00",
+                              "to":  "2026-09-26 06:00",
+                              "role":  "Làm hàng 2.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-09-25 06:00",
+                              "to":  "2026-09-26 06:00",
+                              "role":  "Làm hàng 2.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-26 06:00",
+                              "to":  "2026-09-27 06:00",
+                              "role":  "Làm hàng 3.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-09-26 06:00",
+                              "to":  "2026-09-27 06:00",
+                              "role":  "Làm hàng 3.700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-27 06:00",
+                              "to":  "2026-09-28 06:00",
+                              "role":  "Làm hàng 1.388 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-09-27 06:00",
+                              "to":  "2026-09-28 06:00",
+                              "role":  "Làm hàng 2.400 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-09-28 06:00",
+                              "to":  "2026-09-29 06:00",
+                              "role":  "Làm hàng 3.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-09-29 06:00",
+                              "to":  "2026-09-30 06:00",
+                              "role":  "Làm hàng 1.700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-09-30 06:00",
+                              "to":  "2026-10-01 06:00",
+                              "role":  "Làm hàng 1.900 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-10-01 06:00",
+                              "to":  "2026-10-01 13:00",
+                              "role":  "Làm hàng 1.724 MT"
                           }
                       ],
         "services":  [
@@ -5230,6 +5946,118 @@ const OCC_JOBS = [
                               "from":  "2026-09-07 05:50",
                               "to":  "2026-09-07 07:35",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-07 19:30",
+                              "to":  "2026-09-08 06:00",
+                              "role":  "Làm hàng 4.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-08 06:00",
+                              "to":  "2026-09-09 06:00",
+                              "role":  "Làm hàng 4.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-09 06:00",
+                              "to":  "2026-09-10 06:00",
+                              "role":  "Làm hàng 10.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-11 06:00",
+                              "to":  "2026-09-12 06:00",
+                              "role":  "Làm hàng 560 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-11 06:00",
+                              "to":  "2026-09-12 06:00",
+                              "role":  "Làm hàng 440 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-12 06:00",
+                              "to":  "2026-09-13 06:00",
+                              "role":  "Làm hàng 7.600 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-12 06:00",
+                              "to":  "2026-09-13 06:00",
+                              "role":  "Làm hàng 6.400 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-13 06:00",
+                              "to":  "2026-09-14 06:00",
+                              "role":  "Làm hàng 4.004 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-13 06:00",
+                              "to":  "2026-09-14 06:00",
+                              "role":  "Làm hàng 2.700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-14 06:00",
+                              "to":  "2026-09-15 06:00",
+                              "role":  "Làm hàng 7.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-15 06:00",
+                              "to":  "2026-09-16 06:00",
+                              "role":  "Làm hàng 3.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-09-15 06:00",
+                              "to":  "2026-09-16 06:00",
+                              "role":  "Làm hàng 2.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-16 06:00",
+                              "to":  "2026-09-17 06:00",
+                              "role":  "Làm hàng 3.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-09-16 06:00",
+                              "to":  "2026-09-17 06:00",
+                              "role":  "Làm hàng 3.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-17 06:00",
+                              "to":  "2026-09-17 20:30",
+                              "role":  "Làm hàng 2.571 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-09-17 06:00",
+                              "to":  "2026-09-17 20:30",
+                              "role":  "Làm hàng 4.225 MT"
                           }
                       ],
         "services":  [
@@ -6112,6 +6940,97 @@ const OCC_JOBS = [
                               "from":  "2026-08-29 13:30",
                               "to":  "2026-08-29 15:15",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-30 01:50",
+                              "to":  "2026-08-30 06:00",
+                              "role":  "Làm hàng 1.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-30 06:00",
+                              "to":  "2026-08-31 06:00",
+                              "role":  "Làm hàng 7.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-31 06:00",
+                              "to":  "2026-09-01 06:00",
+                              "role":  "Làm hàng 5.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-09-01 06:00",
+                              "to":  "2026-09-02 06:00",
+                              "role":  "Làm hàng 6.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-01 06:00",
+                              "to":  "2026-09-02 06:00",
+                              "role":  "Làm hàng 4.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-09-02 06:00",
+                              "to":  "2026-09-03 06:00",
+                              "role":  "Làm hàng 6.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-02 06:00",
+                              "to":  "2026-09-03 06:00",
+                              "role":  "Làm hàng 7.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-09-03 06:00",
+                              "to":  "2026-09-04 06:00",
+                              "role":  "Làm hàng 6.700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-03 06:00",
+                              "to":  "2026-09-04 06:00",
+                              "role":  "Làm hàng 8.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-09-04 06:00",
+                              "to":  "2026-09-05 06:00",
+                              "role":  "Làm hàng 6.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-04 06:00",
+                              "to":  "2026-09-05 06:00",
+                              "role":  "Làm hàng 8.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-09-05 06:00",
+                              "to":  "2026-09-05 17:00",
+                              "role":  "Làm hàng 2.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-05 06:00",
+                              "to":  "2026-09-05 17:00",
+                              "role":  "Làm hàng 2.450 MT"
                           }
                       ],
         "services":  [
@@ -6580,6 +7499,111 @@ const OCC_JOBS = [
                               "from":  "2026-08-22 06:15",
                               "to":  "2026-08-22 08:35",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-26 15:30",
+                              "to":  "2026-08-27 06:00",
+                              "role":  "Làm hàng 6.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-26 15:30",
+                              "to":  "2026-08-27 06:00",
+                              "role":  "Làm hàng 5.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-27 06:00",
+                              "to":  "2026-08-28 06:00",
+                              "role":  "Làm hàng 1.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-27 06:00",
+                              "to":  "2026-08-28 06:00",
+                              "role":  "Làm hàng 7.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-28 06:00",
+                              "to":  "2026-08-29 06:00",
+                              "role":  "Làm hàng 1.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-28 06:00",
+                              "to":  "2026-08-29 06:00",
+                              "role":  "Làm hàng 2.700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-29 06:00",
+                              "to":  "2026-08-30 06:00",
+                              "role":  "Làm hàng 7.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-29 06:00",
+                              "to":  "2026-08-30 06:00",
+                              "role":  "Làm hàng 7.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-30 06:00",
+                              "to":  "2026-08-31 06:00",
+                              "role":  "Làm hàng 4.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-30 06:00",
+                              "to":  "2026-08-31 06:00",
+                              "role":  "Làm hàng 5.700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-31 06:00",
+                              "to":  "2026-09-01 06:00",
+                              "role":  "Làm hàng 5.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-31 06:00",
+                              "to":  "2026-09-01 06:00",
+                              "role":  "Làm hàng 3.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-01 06:00",
+                              "to":  "2026-09-02 06:00",
+                              "role":  "Làm hàng 3.571 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-09-01 06:00",
+                              "to":  "2026-09-02 06:00",
+                              "role":  "Làm hàng 8.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-09-02 06:00",
+                              "to":  "2026-09-02 06:30",
+                              "role":  "Làm hàng 629 MT"
                           }
                       ],
         "services":  [
@@ -6879,6 +7903,97 @@ const OCC_JOBS = [
                               "from":  "2026-08-24 17:30",
                               "to":  "2026-08-24 19:30",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-25 04:00",
+                              "to":  "2026-08-25 06:00",
+                              "role":  "Làm hàng 300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-25 06:00",
+                              "to":  "2026-08-26 06:00",
+                              "role":  "Làm hàng 2.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-25 06:00",
+                              "to":  "2026-08-26 06:00",
+                              "role":  "Làm hàng 4.900 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-26 06:00",
+                              "to":  "2026-08-27 06:00",
+                              "role":  "Làm hàng 2.209 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-26 06:00",
+                              "to":  "2026-08-27 06:00",
+                              "role":  "Làm hàng 3.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-26 06:00",
+                              "to":  "2026-08-27 07:00",
+                              "role":  "Làm hàng 1.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-27 06:00",
+                              "to":  "2026-08-28 06:00",
+                              "role":  "Làm hàng 5.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-27 06:00",
+                              "to":  "2026-08-28 06:00",
+                              "role":  "Làm hàng 3.100 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-28 06:00",
+                              "to":  "2026-08-29 06:00",
+                              "role":  "Làm hàng 800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-29 06:00",
+                              "to":  "2026-08-30 06:00",
+                              "role":  "Làm hàng 114 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-30 06:00",
+                              "to":  "2026-08-31 06:00",
+                              "role":  "Làm hàng 5.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-31 06:00",
+                              "to":  "2026-09-01 06:00",
+                              "role":  "Làm hàng 4.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-09-01 06:00",
+                              "to":  "2026-09-01 15:20",
+                              "role":  "Làm hàng 1.378 MT"
                           }
                       ],
         "services":  [
@@ -7293,6 +8408,118 @@ const OCC_JOBS = [
                               "from":  "2026-08-20 20:55",
                               "to":  "2026-08-20 23:10",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-21 03:45",
+                              "to":  "2026-08-22 06:00",
+                              "role":  "Làm hàng 1.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-22 06:00",
+                              "to":  "2026-08-23 06:00",
+                              "role":  "Làm hàng 11.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-23 06:00",
+                              "to":  "2026-08-24 07:00",
+                              "role":  "Làm hàng 7.360 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-08-27 06:00",
+                              "to":  "2026-08-28 06:00",
+                              "role":  "Làm hàng 6.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-08-28 06:00",
+                              "to":  "2026-08-29 06:00",
+                              "role":  "Làm hàng 4.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-08-30 06:00",
+                              "to":  "2026-08-31 06:00",
+                              "role":  "Làm hàng 4.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-08-31 06:00",
+                              "to":  "2026-09-01 06:00",
+                              "role":  "Làm hàng 6.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-09-01 06:00",
+                              "to":  "2026-09-02 06:00",
+                              "role":  "Làm hàng 4.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-01 06:00",
+                              "to":  "2026-09-02 06:00",
+                              "role":  "Làm hàng 3.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-09-02 06:00",
+                              "to":  "2026-09-03 06:00",
+                              "role":  "Làm hàng 2.400 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-02 06:00",
+                              "to":  "2026-09-03 06:00",
+                              "role":  "Làm hàng 3.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-09-05 06:00",
+                              "to":  "2026-09-06 06:00",
+                              "role":  "Làm hàng 5.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-05 06:00",
+                              "to":  "2026-09-06 06:00",
+                              "role":  "Làm hàng 2.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-09-07 06:00",
+                              "to":  "2026-09-08 06:00",
+                              "role":  "Làm hàng 1.902 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-07 06:00",
+                              "to":  "2026-09-08 06:00",
+                              "role":  "Làm hàng 3.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-09-08 06:00",
+                              "to":  "2026-09-09 00:25",
+                              "role":  "Làm hàng 4.938 MT"
                           }
                       ],
         "services":  [
@@ -7768,6 +8995,153 @@ const OCC_JOBS = [
                               "from":  "2026-08-16 15:45",
                               "to":  "2026-08-16 17:10",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-17 00:30",
+                              "to":  "2026-08-18 06:00",
+                              "role":  "Làm hàng 2.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-08-17 00:30",
+                              "to":  "2026-08-18 06:00",
+                              "role":  "Làm hàng 3.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-18 06:00",
+                              "to":  "2026-08-19 06:00",
+                              "role":  "Làm hàng 8.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-08-18 06:00",
+                              "to":  "2026-08-19 06:00",
+                              "role":  "Làm hàng 7.700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-19 06:00",
+                              "to":  "2026-08-20 06:00",
+                              "role":  "Làm hàng 800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-20 06:00",
+                              "to":  "2026-08-21 06:00",
+                              "role":  "Làm hàng 7.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-08-20 06:00",
+                              "to":  "2026-08-21 06:00",
+                              "role":  "Làm hàng 9.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-21 06:00",
+                              "to":  "2026-08-22 06:00",
+                              "role":  "Làm hàng 2.600 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-08-21 06:00",
+                              "to":  "2026-08-22 06:00",
+                              "role":  "Làm hàng 1.900 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-22 06:00",
+                              "to":  "2026-08-23 06:00",
+                              "role":  "Làm hàng 800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-08-22 06:00",
+                              "to":  "2026-08-23 06:00",
+                              "role":  "Làm hàng 1.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-23 06:00",
+                              "to":  "2026-08-24 06:00",
+                              "role":  "Làm hàng 4.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-08-23 06:00",
+                              "to":  "2026-08-24 06:00",
+                              "role":  "Làm hàng 4.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-24 06:00",
+                              "to":  "2026-08-25 06:00",
+                              "role":  "Làm hàng 7.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-08-24 06:00",
+                              "to":  "2026-08-25 06:00",
+                              "role":  "Làm hàng 10.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-25 06:00",
+                              "to":  "2026-08-26 06:00",
+                              "role":  "Làm hàng 5.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-08-25 06:00",
+                              "to":  "2026-08-26 06:00",
+                              "role":  "Làm hàng 4.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-26 06:00",
+                              "to":  "2026-08-27 06:00",
+                              "role":  "Làm hàng 6.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-08-26 06:00",
+                              "to":  "2026-08-27 06:00",
+                              "role":  "Làm hàng 5.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-27 06:00",
+                              "to":  "2026-08-27 08:55",
+                              "role":  "Làm hàng 957 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-08-27 06:00",
+                              "to":  "2026-08-27 08:55",
+                              "role":  "Làm hàng 980 MT"
                           }
                       ],
         "services":  [
@@ -8297,6 +9671,111 @@ const OCC_JOBS = [
                               "from":  "2026-08-16 04:40",
                               "to":  "2026-08-16 06:50",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-16 13:30",
+                              "to":  "2026-08-17 06:00",
+                              "role":  "Làm hàng 3.900 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-16 13:30",
+                              "to":  "2026-08-17 06:00",
+                              "role":  "Làm hàng 4.600 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-17 06:00",
+                              "to":  "2026-08-18 06:00",
+                              "role":  "Làm hàng 5.400 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-17 06:00",
+                              "to":  "2026-08-18 06:00",
+                              "role":  "Làm hàng 6.600 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-18 06:00",
+                              "to":  "2026-08-19 06:00",
+                              "role":  "Làm hàng 4.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-18 06:00",
+                              "to":  "2026-08-19 06:00",
+                              "role":  "Làm hàng 4.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-19 06:00",
+                              "to":  "2026-08-20 06:00",
+                              "role":  "Làm hàng 6.100 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-19 06:00",
+                              "to":  "2026-08-20 06:00",
+                              "role":  "Làm hàng 7.400 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-20 06:00",
+                              "to":  "2026-08-21 06:00",
+                              "role":  "Làm hàng 6.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-20 06:00",
+                              "to":  "2026-08-21 06:00",
+                              "role":  "Làm hàng 6.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-21 06:00",
+                              "to":  "2026-08-22 06:00",
+                              "role":  "Làm hàng 5.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-21 06:00",
+                              "to":  "2026-08-22 06:00",
+                              "role":  "Làm hàng 6.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-22 06:00",
+                              "to":  "2026-08-23 06:00",
+                              "role":  "Làm hàng 5.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-22 06:00",
+                              "to":  "2026-08-23 06:00",
+                              "role":  "Làm hàng 9.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-23 06:00",
+                              "to":  "2026-08-23 14:20",
+                              "role":  "Làm hàng 3.705 MT"
                           }
                       ],
         "services":  [
@@ -8765,6 +10244,125 @@ const OCC_JOBS = [
                               "from":  "2026-08-03 05:10",
                               "to":  "2026-08-03 07:20",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-03 19:00",
+                              "to":  "2026-08-04 06:00",
+                              "role":  "Làm hàng 3.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-04 06:00",
+                              "to":  "2026-08-05 06:00",
+                              "role":  "Làm hàng 8.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-05 06:00",
+                              "to":  "2026-08-06 06:00",
+                              "role":  "Làm hàng 5.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-05 06:00",
+                              "to":  "2026-08-06 06:00",
+                              "role":  "Làm hàng 4.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-06 06:00",
+                              "to":  "2026-08-07 06:00",
+                              "role":  "Làm hàng 7.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-06 06:00",
+                              "to":  "2026-08-07 06:00",
+                              "role":  "Làm hàng 6.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-07 06:00",
+                              "to":  "2026-08-08 06:00",
+                              "role":  "Làm hàng 3.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-07 06:00",
+                              "to":  "2026-08-08 06:00",
+                              "role":  "Làm hàng 2.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-08 06:00",
+                              "to":  "2026-08-09 06:00",
+                              "role":  "Làm hàng 1.600 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-08 06:00",
+                              "to":  "2026-08-09 06:00",
+                              "role":  "Làm hàng 1.400 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-09 06:00",
+                              "to":  "2026-08-10 06:00",
+                              "role":  "Làm hàng 6.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-09 06:00",
+                              "to":  "2026-08-10 06:00",
+                              "role":  "Làm hàng 5.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-10 06:00",
+                              "to":  "2026-08-11 06:00",
+                              "role":  "Làm hàng 4.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-10 06:00",
+                              "to":  "2026-08-11 06:00",
+                              "role":  "Làm hàng 3.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-11 06:00",
+                              "to":  "2026-08-12 06:00",
+                              "role":  "Làm hàng 6.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-11 06:00",
+                              "to":  "2026-08-12 06:00",
+                              "role":  "Làm hàng 5.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-12 06:00",
+                              "to":  "2026-08-12 09:00",
+                              "role":  "Làm hàng 1.000 MT"
                           }
                       ],
         "services":  [
@@ -9374,6 +10972,76 @@ const OCC_JOBS = [
                               "from":  "2026-08-01 15:30",
                               "to":  "2026-08-01 17:00",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-02 13:30",
+                              "to":  "2026-08-03 06:00",
+                              "role":  "Làm hàng 8.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-04 06:00",
+                              "to":  "2026-08-05 06:00",
+                              "role":  "Làm hàng 11.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-06 06:00",
+                              "to":  "2026-08-07 06:00",
+                              "role":  "Làm hàng 5.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-07 06:00",
+                              "to":  "2026-08-08 06:00",
+                              "role":  "Làm hàng 5.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-08 06:00",
+                              "to":  "2026-08-09 06:00",
+                              "role":  "Làm hàng 2.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-09 06:00",
+                              "to":  "2026-08-10 06:00",
+                              "role":  "Làm hàng 9.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-10 06:00",
+                              "to":  "2026-08-11 06:00",
+                              "role":  "Làm hàng 10.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-11 06:00",
+                              "to":  "2026-08-12 06:00",
+                              "role":  "Làm hàng 12.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-12 06:00",
+                              "to":  "2026-08-13 06:00",
+                              "role":  "Làm hàng 7.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-13 06:00",
+                              "to":  "2026-08-13 10:00",
+                              "role":  "Làm hàng 3.500 MT"
                           }
                       ],
         "services":  [
@@ -9666,6 +11334,97 @@ const OCC_JOBS = [
                               "from":  "2026-08-01 03:45",
                               "to":  "2026-08-01 04:25",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-07-27 13:00",
+                              "to":  "2026-07-28 06:00",
+                              "role":  "Làm hàng 7.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-07-27 13:00",
+                              "to":  "2026-07-28 06:00",
+                              "role":  "Làm hàng 7.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-07-28 06:00",
+                              "to":  "2026-07-29 06:00",
+                              "role":  "Làm hàng 6.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-07-28 06:00",
+                              "to":  "2026-07-29 06:00",
+                              "role":  "Làm hàng 3.933 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-07-28 06:00",
+                              "to":  "2026-07-29 06:00",
+                              "role":  "Làm hàng 3.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-07-29 06:00",
+                              "to":  "2026-07-30 06:00",
+                              "role":  "Làm hàng 7.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-07-29 06:00",
+                              "to":  "2026-07-30 06:00",
+                              "role":  "Làm hàng 7.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-07-30 06:00",
+                              "to":  "2026-07-31 06:00",
+                              "role":  "Làm hàng 6.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-07-30 06:00",
+                              "to":  "2026-07-31 06:00",
+                              "role":  "Làm hàng 7.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-07-31 06:00",
+                              "to":  "2026-08-01 06:00",
+                              "role":  "Làm hàng 5.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-07-31 06:00",
+                              "to":  "2026-08-01 06:00",
+                              "role":  "Làm hàng 4.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-08-01 06:00",
+                              "to":  "2026-08-02 11:40",
+                              "role":  "Làm hàng 8.095 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-08-01 06:00",
+                              "to":  "2026-08-02 11:40",
+                              "role":  "Làm hàng 2.776 MT"
                           }
                       ],
         "services":  [
@@ -9939,6 +11698,167 @@ const OCC_JOBS = [
                               "from":  "2026-08-03 19:00",
                               "to":  "2026-08-03 21:40",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-07-23 09:30",
+                              "to":  "2026-07-24 06:00",
+                              "role":  "Làm hàng 4.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-07-23 09:30",
+                              "to":  "2026-07-24 06:00",
+                              "role":  "Làm hàng 3.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-07-24 06:00",
+                              "to":  "2026-07-25 06:00",
+                              "role":  "Làm hàng 3.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-07-24 06:00",
+                              "to":  "2026-07-25 06:00",
+                              "role":  "Làm hàng 3.700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-07-25 06:00",
+                              "to":  "2026-07-26 06:00",
+                              "role":  "Làm hàng 3.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-07-25 06:00",
+                              "to":  "2026-07-26 06:00",
+                              "role":  "Làm hàng 2.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-07-26 06:00",
+                              "to":  "2026-07-27 06:00",
+                              "role":  "Làm hàng 1.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-07-26 06:00",
+                              "to":  "2026-07-27 06:00",
+                              "role":  "Làm hàng 800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-07-27 06:00",
+                              "to":  "2026-07-28 06:00",
+                              "role":  "Làm hàng 2.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-07-28 06:00",
+                              "to":  "2026-07-29 06:00",
+                              "role":  "Làm hàng 2.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-07-28 06:00",
+                              "to":  "2026-07-29 06:00",
+                              "role":  "Làm hàng 700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-07-29 06:00",
+                              "to":  "2026-07-30 06:00",
+                              "role":  "Làm hàng 3.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-07-29 06:00",
+                              "to":  "2026-07-30 06:00",
+                              "role":  "Làm hàng 1.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-07-30 06:00",
+                              "to":  "2026-07-31 06:00",
+                              "role":  "Làm hàng 400 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-07-30 06:00",
+                              "to":  "2026-07-31 06:00",
+                              "role":  "Làm hàng 2.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-07-31 06:00",
+                              "to":  "2026-08-01 06:00",
+                              "role":  "Làm hàng 3.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-01 06:00",
+                              "to":  "2026-08-02 06:00",
+                              "role":  "Làm hàng 3.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-02 06:00",
+                              "to":  "2026-08-03 06:00",
+                              "role":  "Làm hàng 6.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-03 06:00",
+                              "to":  "2026-08-04 06:00",
+                              "role":  "Làm hàng 2.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-03 06:00",
+                              "to":  "2026-08-04 06:00",
+                              "role":  "Làm hàng 1.100 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-04 06:00",
+                              "to":  "2026-08-05 06:00",
+                              "role":  "Làm hàng 2.300 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-08-04 06:00",
+                              "to":  "2026-08-05 06:00",
+                              "role":  "Làm hàng 2.392 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-08-05 06:00",
+                              "to":  "2026-08-05 09:30",
+                              "role":  "Làm hàng 1.386 MT"
                           }
                       ],
         "services":  [
@@ -10186,6 +12106,90 @@ const OCC_JOBS = [
                               "from":  "2026-08-01 05:00",
                               "to":  "2026-08-01 06:00",
                               "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-07-23 00:30",
+                              "to":  "2026-07-23 06:00",
+                              "role":  "Làm hàng 2.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-07-23 06:00",
+                              "to":  "2026-07-24 06:00",
+                              "role":  "Làm hàng 8.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-07-24 06:00",
+                              "to":  "2026-07-25 06:00",
+                              "role":  "Làm hàng 4.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-07-24 06:00",
+                              "to":  "2026-07-25 06:00",
+                              "role":  "Làm hàng 3.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-07-25 06:00",
+                              "to":  "2026-07-26 06:00",
+                              "role":  "Làm hàng 7.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-07-26 06:00",
+                              "to":  "2026-07-27 06:00",
+                              "role":  "Làm hàng 1.481 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-07-26 06:00",
+                              "to":  "2026-07-27 06:00",
+                              "role":  "Làm hàng 5.700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-07-27 06:00",
+                              "to":  "2026-07-28 06:00",
+                              "role":  "Làm hàng 8.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-07-28 06:00",
+                              "to":  "2026-07-29 06:00",
+                              "role":  "Làm hàng 10.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-07-29 06:00",
+                              "to":  "2026-07-30 06:00",
+                              "role":  "Làm hàng 9.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-07-30 06:00",
+                              "to":  "2026-07-31 06:00",
+                              "role":  "Làm hàng 8.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-07-31 06:00",
+                              "to":  "2026-07-31 15:00",
+                              "role":  "Làm hàng 5.419 MT"
                           }
                       ],
         "services":  [
