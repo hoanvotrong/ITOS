@@ -87,9 +87,24 @@ const HT_BERTHS = [
   { id: "SL 3",  q: HT_QUAY_BARGE, t: 0.80, len: 52, barge: true },
 ];
 
-/* Trước đây có HT_CRANE_SLOTS / HT_FORKLIFT_SPOTS / HT_ROUTES để vẽ cẩu, xe nâng
-   và đầu kéo chạy trên sơ đồ. Toạ độ đó là GÁN TẠM — hệ thống không biết thiết bị
-   nào đang đứng ở đâu — nên đã bỏ. Muốn vẽ lại thì cần nguồn vị trí thật. */
+/* Cẩu bờ dọc cầu chính, thứ tự TRÁI -> PHẢI do bên vận hành cung cấp (14/10/2026).
+   Thứ tự là thật; KHOẢNG CÁCH giữa các cẩu là chia đều dọc cầu, chưa phải vị trí
+   đo đạc — đủ để biết cẩu nào đứng cạnh cẩu nào, không dùng để đo cự ly. */
+const HT_SHORE_CRANES = ["VNL-01", "VNL-02", "VNL-03", "VNL-05", "VNL-06", "VNL-07", "VNL-08"];
+const htCraneT = (i) => 0.10 + (0.80 * i) / (HT_SHORE_CRANES.length - 1);
+const htCraneAt = (code) => {
+  const i = HT_SHORE_CRANES.indexOf(code);
+  return i < 0 ? null : htCraneT(i);
+};
+// "VNL-01" -> "VNL01" ; sheet "HT-VNL01-4530" -> "VNL01"
+const htOrderKey = (code) => String(code).toUpperCase().replace(/-/g, "");
+const htSheetShoreKey = (sheetId) => {
+  const p = String(sheetId).toUpperCase().split("-");
+  return p.length >= 2 && p[0] === "HT" ? p[1] : null;
+};
+
+/* Xe nâng và đầu kéo vẫn KHÔNG vẽ lên sơ đồ: trạng thái thì có thật nhưng vị trí
+   thì không có nguồn. Trạng thái xem ở bảng "Thiết bị". */
 
 /* ===== 2. Thiết bị — DỮ LIỆU THẬT từ OCC_EQUIPMENT ===== */
 const htFmtSince = (s) => (s && /^\d{4}\/\d{2}\/\d{2}$/.test(s) ? `${s.slice(8, 10)}/${s.slice(5, 7)}/${s.slice(0, 4)}` : "");
@@ -106,6 +121,7 @@ function htEquipment() {
 
 /* ===== 3. Giao diện ===== */
 const htFmt = (n) => Math.round(n).toLocaleString("vi-VN");
+const htHull = (len, beam) => { const h = len / 2, bw = beam / 2; return `M${-h},${-bw} L${h - 12},${-bw} Q${h + 2},0 ${h - 12},${bw} L${-h},${bw} Q${-h - 3},0 ${-h},${-bw} Z`; };
 const htDeg = (rad) => rad * 180 / Math.PI;
 
 /* Hai nguồn duy nhất của màn hình. Không còn nhãn "Mô phỏng" — thứ gì chưa có
@@ -116,7 +132,7 @@ function HTSrc({ plan }) {
     : <span className="badge success" title="Lấy từ danh mục thiết bị kỹ thuật, cập nhật mỗi 8 tiếng"><span className="pip"></span>Dữ liệu thật</span>;
 }
 
-function HTPortMap({ tilt, onPick, picked }) {
+function HTPortMap({ tilt, onPick, picked, quayVessels, shoreByKey }) {
   // Block tô một màu: hệ thống chưa biết block nào đang chứa bao nhiêu container.
   const blockFace = (b) => ({
     fill: "var(--ht-d0)",
@@ -198,20 +214,69 @@ function HTPortMap({ tilt, onPick, picked }) {
         })}
       </g>
 
-      {/* Cầu bến theo bản vẽ. Hệ thống chưa có nguồn tàu nào đang cập cầu Hưng Thái,
-          nên chỉ vẽ vị trí cầu, không vẽ tàu. */}
+      {/* Bến sà lan theo bản vẽ — chưa có nguồn tàu nên chỉ vẽ vị trí trống. */}
       <g>
-        {HT_BERTHS.map(bt => {
-          const beam = bt.barge ? 13 : 20;
-          const c = htOnQuay(bt.q, bt.t, bt.barge ? 13 : 19);
+        {HT_BERTHS.filter(bt => bt.barge).map(bt => {
+          const c = htOnQuay(bt.q, bt.t, 13);
           const m = htOnQuay(bt.q, bt.t, -9);
           const deg = htDeg(bt.q.ang);
           return (
             <g key={bt.id}>
               <text x={m.x} y={m.y} className="ht-mlabel" textAnchor="middle" transform={`rotate(${deg} ${m.x} ${m.y})`}>{bt.id}</text>
               <g transform={`translate(${c.x} ${c.y}) rotate(${deg})`}>
-                <rect x={-bt.len / 2} y={-beam / 2} width={bt.len} height={beam} rx={3} fill="none" stroke="var(--ht-dim)" strokeDasharray="3 3" />
+                <rect x={-bt.len / 2} y={-6.5} width={bt.len} height={13} rx={3} fill="none" stroke="var(--ht-dim)" strokeDasharray="3 3" />
               </g>
+            </g>
+          );
+        })}
+      </g>
+
+      {/* Tàu tại cầu bến — khai báo trong quay-status.jsx. Tàu được vẽ trải đúng
+          theo các cẩu bờ đang phục vụ nó. */}
+      <g>
+        {quayVessels.map((v, i) => {
+          const ts = (v.cranes || []).map(htCraneAt).filter(t => t != null);
+          if (!ts.length) return null;
+          const t0 = Math.min(...ts), t1 = Math.max(...ts);
+          const mid = (t0 + t1) / 2;
+          const span = Math.max(0.1, t1 - t0 + 0.09) * HT_QUAY_MAIN.L;
+          const c = htOnQuay(HT_QUAY_MAIN, mid, 20);
+          const tag = htOnQuay(HT_QUAY_MAIN, mid, 58);
+          const deg = htDeg(HT_QUAY_MAIN.ang);
+          const stroke = v.status === "working" ? "var(--ht-ok)"
+                       : v.status === "departing" ? "var(--ht-warn)" : "var(--ht-accent)";
+          return (
+            <g key={`qv${i}`}>
+              <g className="ht-hit" transform={`translate(${c.x} ${c.y}) rotate(${deg})`}
+                 onClick={() => onPick({ kind: "ship", id: i })}>
+                <path d={htHull(span, 21)} fill="var(--ht-shade)" transform="translate(1.5 2.5)" opacity={0.6} />
+                <path d={htHull(span, 19)} fill="var(--ht-hull)" stroke={stroke} strokeWidth={1.3} />
+              </g>
+              <g className="ht-shiptag" transform={`translate(${tag.x} ${tag.y})`}>
+                <rect x={-42} y={-11} width={84} height={21} rx={2} />
+                <text x={-38} y={-2}>{v.vessel}</text>
+                <text x={-38} y={7} className="t2">{v.berth}{v.cranes && v.cranes.length ? ` · ${v.cranes.join(", ")}` : ""}</text>
+              </g>
+            </g>
+          );
+        })}
+      </g>
+
+      {/* Cẩu bờ — trạng thái thật từ danh mục kỹ thuật, thứ tự dọc cầu do vận hành cung cấp */}
+      <g>
+        {HT_SHORE_CRANES.map((code, i) => {
+          const e = shoreByKey[htOrderKey(code)];
+          const p = htOnQuay(HT_QUAY_MAIN, htCraneT(i), -2);
+          const col = !e ? "var(--ht-dim)"
+                    : e.status === "ONLINE" ? "var(--ht-ok)"
+                    : e.status === "OFFLINE" ? "var(--ht-crit)" : "var(--ht-dim)";
+          return (
+            <g key={code} className="ht-hit" transform={`translate(${p.x} ${p.y}) rotate(${htDeg(HT_QUAY_MAIN.ang)})`}
+               onClick={() => onPick({ kind: "crane", id: code })}>
+              <rect x={-5} y={-3} width={10} height={8} rx={1} fill="var(--ht-quay)" stroke={col} strokeWidth={1.3} />
+              <line x1={0} y1={0} x2={-6} y2={-30} stroke={col} strokeWidth={1.6} strokeLinecap="round" />
+              <text x={0} y={14} className="ht-mlabel" textAnchor="middle" transform="rotate(-39)">{code}</text>
+              {e && e.status === "OFFLINE" && <circle cx={0} cy={0} r={3} className="ht-pulse" />}
             </g>
           );
         })}
@@ -232,19 +297,54 @@ function HTPortMap({ tilt, onPick, picked }) {
   );
 }
 
-function HTPickCard({ pick, onClose }) {
+function HTPickCard({ pick, quayVessels, shoreByKey, onClose }) {
   if (!pick) return null;
-  const b = HT_BLOCKS.find(x => x.id === pick);
-  if (!b) return null;
-  const y = HT_YARDS[b.yard];
-  const body = <>
-    <h3>Block {b.id}</h3><div className="sub">{y.name} · {y.zone} <HTSrc plan /></div>
-    <dl>
-      <dt>Sức chứa</dt><dd>{htFmt(b.cap)} TEU</dd>
-      <dt>Quy mô</dt><dd>{b.rows} hàng · {b.boxes} ô</dd>
-      <dt>Đang chứa</dt><dd className="muted">Chưa có nguồn</dd>
-    </dl>
-  </>;
+  let body = null;
+
+  if (pick.kind === "blk") {
+    const b = HT_BLOCKS.find(x => x.id === pick.id);
+    if (!b) return null;
+    const y = HT_YARDS[b.yard];
+    body = <>
+      <h3>Block {b.id}</h3><div className="sub">{y.name} · {y.zone} <HTSrc plan /></div>
+      <dl>
+        <dt>Sức chứa</dt><dd>{htFmt(b.cap)} TEU</dd>
+        <dt>Quy mô</dt><dd>{b.rows} hàng · {b.boxes} ô</dd>
+        <dt>Đang chứa</dt><dd className="muted">Chưa có nguồn</dd>
+      </dl>
+    </>;
+  } else if (pick.kind === "ship") {
+    const v = quayVessels[pick.id];
+    if (!v) return null;
+    body = <>
+      <h3>{v.vessel}</h3>
+      <div className="sub">{v.berth}{v.voyage ? ` · ${v.voyage}` : ""} <span className="badge neutral"><span className="pip"></span>Nhập tay</span></div>
+      <dl>
+        {v.cargo && <><dt>Hàng</dt><dd>{v.cargo}</dd></>}
+        {v.cranes && v.cranes.length > 0 && <><dt>Cẩu phục vụ</dt><dd>{v.cranes.join(", ")}</dd></>}
+        {v.eta && <><dt>Cập cầu</dt><dd>{v.eta}</dd></>}
+        {v.etd && <><dt>Dự kiến rời</dt><dd>{v.etd}</dd></>}
+        {v.note && <><dt>Ghi chú</dt><dd>{v.note}</dd></>}
+      </dl>
+    </>;
+  } else if (pick.kind === "crane") {
+    const e = shoreByKey[htOrderKey(pick.id)];
+    body = <>
+      <h3>Cẩu bờ {pick.id}</h3>
+      <div className="sub">{e ? e.id : "Chưa có trong danh mục kỹ thuật"} <HTSrc /></div>
+      <dl>
+        <dt>Trạng thái</dt>
+        <dd>{!e ? <span className="muted">Chưa khai báo</span>
+             : e.status === "ONLINE" ? <span className="badge success"><span className="pip"></span>Sẵn sàng</span>
+             : e.status === "OFFLINE" ? <span className="badge danger"><span className="pip"></span>Ngừng</span>
+             : <span className="muted">{e.status || "Chưa khai báo"}</span>}</dd>
+        {e && e.detail && <><dt>Mô tả</dt><dd>{e.detail}</dd></>}
+        {e && e.status === "OFFLINE" && htFmtSince(e.offlineSince) && <><dt>Ngừng từ</dt><dd>{htFmtSince(e.offlineSince)}</dd></>}
+        <dt>Vị trí</dt><dd className="muted">Thứ tự dọc cầu · khoảng cách chia đều</dd>
+      </dl>
+    </>;
+  }
+  if (!body) return null;
   return (
     <div className="ht-pick card">
       <button className="ht-pick-x" type="button" aria-label="Đóng" onClick={onClose}><Icon name="x" size={14} /></button>
@@ -255,6 +355,13 @@ function HTPickCard({ pick, onClose }) {
 
 function HTPortView({ onClose }) {
   const equip = React.useMemo(htEquipment, []);
+  // Cẩu bờ HT-* tra theo mã ngắn ("VNL01") để khớp với thứ tự dọc cầu
+  const shoreByKey = React.useMemo(() => {
+    const m = {};
+    equip.cranes.forEach(e => { const k = htSheetShoreKey(e.id); if (k) m[k] = e; });
+    return m;
+  }, [equip]);
+  const quayVessels = typeof HT_QUAY_VESSELS !== "undefined" ? HT_QUAY_VESSELS : [];
   const [tilt, setTilt] = React.useState(true);
   const [pick, setPick] = React.useState(null);
   const stageRef = React.useRef(null);
@@ -357,12 +464,43 @@ function HTPortView({ onClose }) {
             <span className="ht-hint">Mặt bằng theo bản vẽ MB bãi ICD 25/09/2026 — chạm vào block để xem sức chứa</span>
           </div>
           <div className="ht-stage">
-            <HTPortMap tilt={tilt} onPick={p => setPick(p.id)} picked={pick} />
+            <HTPortMap tilt={tilt} onPick={setPick} picked={pick && pick.kind === "blk" ? pick.id : null}
+                        quayVessels={quayVessels} shoreByKey={shoreByKey} />
           </div>
-          <HTPickCard pick={pick} onClose={() => setPick(null)} />
+          <HTPickCard pick={pick} quayVessels={quayVessels} shoreByKey={shoreByKey} onClose={() => setPick(null)} />
         </div>
 
         <div className="ht-side">
+          <div className="card">
+            <div className="card-head">
+              <h3>Tàu tại cầu bến</h3>
+              <span className="badge neutral" title="Khai báo tay trong quay-status.jsx"><span className="pip"></span>Nhập tay</span>
+            </div>
+            {quayVessels.length ? (
+              <div className="ht-list">
+                {quayVessels.map((v, i) => (
+                  <div key={i} className="ht-berth clickable" onClick={() => setPick({ kind: "ship", id: i })}>
+                    <span className="code">{v.berth}</span>
+                    <span className="nm">{v.vessel}{v.cargo && <small>{v.cargo}</small>}</span>
+                    <span className={`badge ${v.status === "working" ? "success" : v.status === "departing" ? "warning" : "info"}`}>
+                      <span className="pip"></span>
+                      {v.status === "working" ? "Làm hàng" : v.status === "departing" ? "Chuẩn bị rời" : "Đã cập"}
+                    </span>
+                    <span className="meta mono">
+                      {v.cranes && v.cranes.length ? v.cranes.join(", ") : "—"}{v.etd ? ` · rời ${v.etd}` : ""}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="ht-empty">
+                Chưa khai báo tàu nào tại cầu. Module cầu bến của phần mềm (bảng <b>BerthBooking</b>) hiện chưa
+                có dữ liệu, nên tàu tại cầu khai báo tay trong <b>quay-status.jsx</b> — thêm một dòng là tàu
+                hiện ngay trên sơ đồ, trải đúng theo các cẩu đang phục vụ.
+              </div>
+            )}
+          </div>
+
           <div className="card">
             <div className="card-head"><h3>Tàu đang làm hàng</h3><HTSrc /></div>
             {working.length ? (
