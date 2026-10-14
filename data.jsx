@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-10-14 11:14 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-10-14 14:00 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  14,
     "todayCol":  75,
-    "todayHour":  11.23
+    "todayHour":  14
 };
 
 const OCC_BERTHS = [
@@ -12410,7 +12410,7 @@ const OCC_DVHH = [
                      "VNL VISION"
                  ],
         "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN HẢI NAM",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -12536,7 +12536,7 @@ const OCC_DVHH = [
                      "VNL RELIANCE"
                  ],
         "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN HẢI NAM",
-        "status":  "in_progress",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -18510,7 +18510,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "LANTANA PLANET",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN HẢI NAM",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29778"
     },
@@ -18522,7 +18522,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "LANTANA PLANET",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN HẢI NAM",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29778"
     },
@@ -18762,7 +18762,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "LANTANA PLANET",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN HẢI NAM",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29766"
     },
