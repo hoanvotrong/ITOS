@@ -270,6 +270,13 @@ function HTPortView({ onClose }) {
   const on = (arr) => arr.filter(e => e.status === "ONLINE").length;
   const offOf = (arr) => arr.filter(e => e.status === "OFFLINE");
 
+  // Tàu đang làm hàng — dữ liệu thật từ DB. Lưu ý: đây là tàu ở BẾN PHAO, hàng
+  // chuyển tải về bãi ICD; DB không có bến nào thuộc cầu Hưng Thái nên không
+  // thể đặt các tàu này lên Cầu 1-4 của sơ đồ.
+  const working = React.useMemo(() => (typeof OCC_JOBS === "undefined" ? [] : OCC_JOBS)
+    .filter(j => j.status === "in_progress" || j.status === "delayed")
+    .sort((a, b) => (b.progress || 0) - (a.progress || 0)), []);
+
   // Cảnh báo: chỉ thiết bị đang ngừng — dữ liệu thật, không suy đoán thêm
   const alerts = [...equip.cranes, ...equip.forklifts, ...equip.trucks, ...equip.gates, ...equip.scales]
     .filter(e => e.status === "OFFLINE")
@@ -357,17 +364,33 @@ function HTPortView({ onClose }) {
 
         <div className="ht-side">
           <div className="card">
-            <div className="card-head"><h3>Cầu bến</h3><HTSrc plan /></div>
-            <div className="ht-list">
-              {HT_BERTHS.map(b => (
-                <div key={b.id} className="ht-berth">
-                  <span className="code">{b.id}</span>
-                  <span className="nm muted">{b.barge ? "Bến sà lan" : "Cầu chính"}</span>
-                  <span className="badge neutral">Chưa có nguồn</span>
-                </div>
-              ))}
+            <div className="card-head"><h3>Tàu đang làm hàng</h3><HTSrc /></div>
+            {working.length ? (
+              <div className="ht-list">
+                {working.map(j => (
+                  <div key={j.id} className="ht-berth">
+                    <span className="code">{j.berthId}</span>
+                    <span className="nm">
+                      {j.vessel.name}
+                      {j.equipment && j.equipment.length > 0 && <small>{j.equipment.join(" · ")}</small>}
+                    </span>
+                    <span className={`badge ${j.status === "delayed" ? "danger" : "success"}`}>
+                      <span className="pip"></span>{j.progress}%
+                    </span>
+                    <div className={`progress-track ${j.status === "delayed" ? "late" : ""}`}>
+                      <div className="pbar" style={{ width: `${Math.min(100, j.progress)}%` }} />
+                    </div>
+                    <span className="meta mono">{j.qtyFinish} / {j.qtyTotal}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="ht-empty">Hiện không có tàu nào đang làm hàng.</div>
+            )}
+            <div className="ht-empty">
+              Đây là tàu neo tại <b>bến phao</b>, hàng chuyển tải bằng sà lan về bãi ICD — không phải tàu cập cầu Hưng Thái.
+              Cầu 1–4 và SL 1–3 trên sơ đồ chưa có nguồn dữ liệu tàu.
             </div>
-            <div className="ht-empty">Hệ thống chưa quản lý tàu cập cầu Hưng Thái. Khi có nguồn sẽ hiện tàu, tiến độ làm hàng và ETD tại đây.</div>
           </div>
 
           <div className="card">
