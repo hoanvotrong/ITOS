@@ -79,12 +79,12 @@ const occStatusMeta = {
 
 /* === KPI strip — BOD numbers === */
 function OCCKpis() {
-  const inOp = OCC_JOBS.filter(j => j.status === "in_progress").length;
+  const inOp = OCC_JOBS.filter(occAtBerth).length;
   const delayed = OCC_JOBS.filter(j => j.status === "delayed").length;
   const planned = OCC_JOBS.filter(j => j.status === "planned").length;
   // Bến đang sửa chữa/nâng cấp không tính là "đang dùng", kể cả khi còn booking chưa đóng trên hệ thống
   const repairBerths = OCC_BERTHS.filter(b => occBerthInRepair(b.id)).length;
-  const usedBerths = new Set(OCC_JOBS.filter(j => (j.status === "in_progress" || j.status === "delayed") && occBerthTracked(j.berthId) && !occBerthInRepair(j.berthId)).map(j => j.berthId)).size;
+  const usedBerths = new Set(OCC_JOBS.filter(j => occAtBerth(j) && occBerthTracked(j.berthId) && !occBerthInRepair(j.berthId)).map(j => j.berthId)).size;
   const totalBerths = OCC_BERTHS.length;
   const tugsActive = OCC_TUGS.filter(t => t.status === "active").length;
   const tugsTotal = OCC_TUGS.length;
@@ -1532,7 +1532,7 @@ function OCCModule() {
   }, []);
 
   const win = OCC_WINDOW;
-  const inOp = OCC_JOBS.filter(j => j.status === "in_progress").length;
+  const inOp = OCC_JOBS.filter(occAtBerth).length;
   const delayed = OCC_JOBS.filter(j => j.status === "delayed").length;
   const planned = OCC_JOBS.filter(j => j.status === "planned").length;
   const usedBerths = new Set(OCC_JOBS.filter(j => (j.status === "in_progress" || j.status === "delayed") && occBerthTracked(j.berthId) && !occBerthInRepair(j.berthId)).map(j => j.berthId)).size;
@@ -1629,7 +1629,9 @@ function OCCModule() {
 function OCCJobsView() {
   const [drawerJob, setDrawerJob] = React.useState(null);
   const groups = [
-    { label: "Đang khai thác", items: OCC_JOBS.filter(j => j.status === "in_progress" || j.status === "delayed") },
+    { label: "Đang khai thác", items: OCC_JOBS.filter(occAtBerth) },
+    // Booking chưa đóng dù đã quá ETD — tách riêng để điều độ nhìn thấy mà xử lý
+    { label: "Quá ETD · booking chưa đóng", items: OCC_JOBS.filter(occPastEtd), warn: true },
     { label: "Đã lên kế hoạch",  items: OCC_JOBS.filter(j => j.status === "planned") },
     { label: "Hoàn thành",       items: OCC_JOBS.filter(j => j.status === "completed") },
   ];
@@ -1646,10 +1648,15 @@ function OCCJobsView() {
         </div>
       </div>
 
-      {groups.map(g => (
+      {groups.filter(g => !g.warn || g.items.length > 0).map(g => (
         <div key={g.label} className="card" style={{ marginBottom: 16 }}>
           <div className="card-head">
             <h3>{g.label} <span className="muted" style={{ fontWeight: 500, marginLeft: 4 }}>({g.items.length})</span></h3>
+            {g.warn && (
+              <span className="badge danger" title="Đã quá giờ rời bến nhưng booking trên hệ thống vẫn đang mở">
+                <span className="pip"></span>Cần đóng booking
+              </span>
+            )}
           </div>
           <div className="tbl-wrap">
             <table className="tbl">
@@ -1723,7 +1730,7 @@ function OCCBerthsView() {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
         {OCC_BERTHS.map(b => {
-          const currentJob = OCC_JOBS.find(j => j.berthId === b.id && (j.status === "in_progress" || j.status === "delayed"));
+          const currentJob = OCC_JOBS.find(j => j.berthId === b.id && occAtBerth(j));
           const nextJob = OCC_JOBS.find(j => j.berthId === b.id && j.status === "planned");
           const repair = occBerthInRepair(b.id) ? occBerthStatus(b.id) : null;
           const isUsed = !!currentJob && !repair;

@@ -436,7 +436,7 @@ function HTPortView({ onClose }) {
   const buoyZones = React.useMemo(() => {
     const jobs = typeof OCC_JOBS === "undefined" ? [] : OCC_JOBS;
     const byBerth = {};
-    jobs.filter(j => j.status === "in_progress" || j.status === "delayed")
+    jobs.filter(occAtBerth)
         .forEach(j => { if (j.berthId && !byBerth[j.berthId]) byBerth[j.berthId] = j; });
     const tracked = (typeof OCC_BERTHS === "undefined" ? [] : OCC_BERTHS).map(b => b.id);
     const ids = Array.from(new Set(tracked.concat(Object.keys(byBerth)))).sort();
@@ -461,7 +461,7 @@ function HTPortView({ onClose }) {
   // chuyển tải về bãi ICD; DB không có bến nào thuộc cầu Hưng Thái nên không
   // thể đặt các tàu này lên Cầu 1-4 của sơ đồ.
   const working = React.useMemo(() => (typeof OCC_JOBS === "undefined" ? [] : OCC_JOBS)
-    .filter(j => j.status === "in_progress" || j.status === "delayed")
+    .filter(occAtBerth)
     .sort((a, b) => (b.progress || 0) - (a.progress || 0)), []);
 
   // Cảnh báo: chỉ thiết bị đang ngừng — dữ liệu thật, không suy đoán thêm
