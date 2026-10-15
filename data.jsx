@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-10-15 09:01 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-10-15 14:00 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  15,
     "todayCol":  76,
-    "todayHour":  9.02
+    "todayHour":  14
 };
 
 const OCC_BERTHS = [
@@ -1765,7 +1765,7 @@ const OCC_JOBS = [
                               "type":  "tug",
                               "id":  "VNL RUBY",
                               "from":  "2026-10-14 01:00",
-                              "to":  "2026-10-16 12:00",
+                              "to":  "2026-10-14 12:00",
                               "role":  "Hỗ trợ cập/rời phao"
                           }
                       ],
@@ -1957,14 +1957,14 @@ const OCC_JOBS = [
                    },
         "cargo":  {
                       "name":  "Than đá",
-                      "qty":  "19.500 MT",
+                      "qty":  "18.483 MT",
                       "op":  ""
                   },
         "berthId":  "BP 12",
         "customer":  "CÔNG TY TNHH VẬN TẢI VIỆT THUẬN",
         "contract":  "",
         "pic":  "",
-        "status":  "in_progress",
+        "status":  "completed",
         "progress":  95,
         "start":  "2026-10-07 10:25",
         "end":  "2026-10-11 14:00",
@@ -2110,14 +2110,14 @@ const OCC_JOBS = [
                               "id":  "ITC 02",
                               "from":  "2026-10-10 06:00",
                               "to":  "2026-10-11 06:00",
-                              "role":  "Làm hàng 6.500 MT"
+                              "role":  "Làm hàng 6.483 MT"
                           }
                       ],
         "services":  [
                          {
                              "kind":  "khai_thac",
                              "label":  "VIET THUAN 80-03/ FC",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  true
                          },
                          {
@@ -2141,7 +2141,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 11-01 - rời",
-                             "status":  "completed",
+                             "status":  "in_progress",
                              "isMain":  false
                          },
                          {
@@ -2153,7 +2153,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "EPIC 09 - rời",
-                             "status":  "completed",
+                             "status":  "in_progress",
                              "isMain":  false
                          },
                          {
@@ -2185,7 +2185,7 @@ const OCC_JOBS = [
                          {
                              "from":  "2026-10-10 06:00",
                              "to":  "2026-10-11 06:00",
-                             "qty":  "6.500 MT",
+                             "qty":  "6.483 MT",
                              "device":  "ITC 02"
                          }
                      ],
@@ -2193,8 +2193,8 @@ const OCC_JOBS = [
                           "ITC 02"
                       ],
         "qtyTotal":  "19.500 MT",
-        "qtyFinish":  "18.500 MT",
-        "qtyRemain":  "1.000 MT",
+        "qtyFinish":  "18.483 MT",
+        "qtyRemain":  "1.017 MT",
         "notes":  "",
         "risks":  [
 
@@ -2223,13 +2223,27 @@ const OCC_JOBS = [
         "contract":  "",
         "pic":  "",
         "status":  "in_progress",
-        "progress":  3,
+        "progress":  59,
         "start":  "2026-10-11 18:40",
         "end":  "2026-10-19 12:00",
         "eta":  "2026-10-11 18:40",
         "etd":  "2026-10-19 12:00",
         "revenue":  "0 ₫",
         "resources":  [
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 07",
+                              "from":  "2026-10-15 22:00",
+                              "to":  "2026-10-15 22:30",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL RUBY",
+                              "from":  "2026-10-15 22:00",
+                              "to":  "2026-10-15 22:30",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
                           {
                               "type":  "tug",
                               "id":  "VNL 07",
@@ -2418,6 +2432,48 @@ const OCC_JOBS = [
                               "from":  "2026-10-12 03:30",
                               "to":  "2026-10-12 06:00",
                               "role":  "Làm hàng 900 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-12 06:00",
+                              "to":  "2026-10-13 06:00",
+                              "role":  "Làm hàng 7.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-10-12 06:00",
+                              "to":  "2026-10-13 06:00",
+                              "role":  "Làm hàng 6.700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-13 06:00",
+                              "to":  "2026-10-14 06:00",
+                              "role":  "Làm hàng 9.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-10-13 06:00",
+                              "to":  "2026-10-14 06:00",
+                              "role":  "Làm hàng 7.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-14 06:00",
+                              "to":  "2026-10-15 06:00",
+                              "role":  "Làm hàng 7.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-10-14 06:00",
+                              "to":  "2026-10-15 06:00",
+                              "role":  "Làm hàng 4.500 MT"
                           }
                       ],
         "services":  [
@@ -2492,6 +2548,12 @@ const OCC_JOBS = [
                              "label":  "VIET THUAN 11-02 - rời",
                              "status":  "planned",
                              "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 10-03 - cập",
+                             "status":  "planned",
+                             "isMain":  false
                          }
                      ],
         "cargoOps":  [
@@ -2506,6 +2568,42 @@ const OCC_JOBS = [
                              "to":  "2026-10-12 06:00",
                              "qty":  "900 MT",
                              "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-10-12 06:00",
+                             "to":  "2026-10-13 06:00",
+                             "qty":  "7.800 MT",
+                             "device":  "ITC 01"
+                         },
+                         {
+                             "from":  "2026-10-12 06:00",
+                             "to":  "2026-10-13 06:00",
+                             "qty":  "6.700 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-10-13 06:00",
+                             "to":  "2026-10-14 06:00",
+                             "qty":  "9.000 MT",
+                             "device":  "ITC 01"
+                         },
+                         {
+                             "from":  "2026-10-13 06:00",
+                             "to":  "2026-10-14 06:00",
+                             "qty":  "7.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-10-14 06:00",
+                             "to":  "2026-10-15 06:00",
+                             "qty":  "7.000 MT",
+                             "device":  "ITC 01"
+                         },
+                         {
+                             "from":  "2026-10-14 06:00",
+                             "to":  "2026-10-15 06:00",
+                             "qty":  "4.500 MT",
+                             "device":  "VNL 09"
                          }
                      ],
         "equipment":  [
@@ -2513,8 +2611,8 @@ const OCC_JOBS = [
                           "VNL 09"
                       ],
         "qtyTotal":  "75.000 MT",
-        "qtyFinish":  "2.000 MT",
-        "qtyRemain":  "73.000 MT",
+        "qtyFinish":  "44.000 MT",
+        "qtyRemain":  "31.000 MT",
         "notes":  "",
         "risks":  [
 
@@ -2542,12 +2640,12 @@ const OCC_JOBS = [
         "customer":  "CÔNG TY CỔ PHẦN THUẬN HẢI COMMODITIES",
         "contract":  "",
         "pic":  "",
-        "status":  "in_progress",
-        "progress":  55,
+        "status":  "completed",
+        "progress":  100,
         "start":  "2026-10-07 18:00",
-        "end":  "2026-10-15 12:00",
+        "end":  "2026-10-14 17:00",
         "eta":  "2026-10-07 18:00",
-        "etd":  "2026-10-15 12:00",
+        "etd":  "2026-10-14 17:00",
         "revenue":  "0 ₫",
         "resources":  [
 
@@ -2556,7 +2654,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "khai_thac",
                              "label":  "KANG CHENG/ SC",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  true
                          }
                      ],
@@ -2590,14 +2688,32 @@ const OCC_JOBS = [
                              "to":  "2026-10-12 06:00",
                              "qty":  "12.500 MT",
                              "device":  ""
+                         },
+                         {
+                             "from":  "2026-10-12 06:00",
+                             "to":  "2026-10-13 06:00",
+                             "qty":  "11.000 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-10-13 06:00",
+                             "to":  "2026-10-14 06:00",
+                             "qty":  "10.700 MT",
+                             "device":  ""
+                         },
+                         {
+                             "from":  "2026-10-14 06:00",
+                             "to":  "2026-10-14 17:00",
+                             "qty":  "2.572 MT",
+                             "device":  ""
                          }
                      ],
         "equipment":  [
 
                       ],
         "qtyTotal":  "54.072 MT",
-        "qtyFinish":  "29.800 MT",
-        "qtyRemain":  "24.272 MT",
+        "qtyFinish":  "54.072 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -2626,11 +2742,11 @@ const OCC_JOBS = [
         "contract":  "",
         "pic":  "",
         "status":  "in_progress",
-        "progress":  37,
+        "progress":  76,
         "start":  "2026-10-07 11:40",
-        "end":  "2026-10-16 12:00",
+        "end":  "2026-10-19 12:00",
         "eta":  "2026-10-07 11:40",
-        "etd":  "2026-10-16 12:00",
+        "etd":  "2026-10-19 12:00",
         "revenue":  "0 ₫",
         "resources":  [
                           {
@@ -2716,6 +2832,48 @@ const OCC_JOBS = [
                               "from":  "2026-10-11 06:00",
                               "to":  "2026-10-12 06:00",
                               "role":  "Làm hàng 3.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-10-12 06:00",
+                              "to":  "2026-10-13 06:00",
+                              "role":  "Làm hàng 5.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-10-12 06:00",
+                              "to":  "2026-10-13 06:00",
+                              "role":  "Làm hàng 4.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-10-13 06:00",
+                              "to":  "2026-10-14 06:00",
+                              "role":  "Làm hàng 5.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-10-13 06:00",
+                              "to":  "2026-10-14 06:00",
+                              "role":  "Làm hàng 2.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-10-14 06:00",
+                              "to":  "2026-10-15 06:00",
+                              "role":  "Làm hàng 2.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-10-14 06:00",
+                              "to":  "2026-10-15 06:00",
+                              "role":  "Làm hàng 3.500 MT"
                           }
                       ],
         "services":  [
@@ -2780,6 +2938,42 @@ const OCC_JOBS = [
                              "to":  "2026-10-12 06:00",
                              "qty":  "3.200 MT",
                              "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-10-12 06:00",
+                             "to":  "2026-10-13 06:00",
+                             "qty":  "5.000 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-10-12 06:00",
+                             "to":  "2026-10-13 06:00",
+                             "qty":  "4.000 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-10-13 06:00",
+                             "to":  "2026-10-14 06:00",
+                             "qty":  "5.000 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-10-13 06:00",
+                             "to":  "2026-10-14 06:00",
+                             "qty":  "2.800 MT",
+                             "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-10-14 06:00",
+                             "to":  "2026-10-15 06:00",
+                             "qty":  "2.200 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-10-14 06:00",
+                             "to":  "2026-10-15 06:00",
+                             "qty":  "3.500 MT",
+                             "device":  "VNL 08"
                          }
                      ],
         "equipment":  [
@@ -2787,8 +2981,8 @@ const OCC_JOBS = [
                           "VNL 08"
                       ],
         "qtyTotal":  "57.350 MT",
-        "qtyFinish":  "21.000 MT",
-        "qtyRemain":  "36.350 MT",
+        "qtyFinish":  "43.500 MT",
+        "qtyRemain":  "13.850 MT",
         "notes":  "",
         "risks":  [
 
@@ -3019,8 +3213,8 @@ const OCC_JOBS = [
         "customer":  "CÔNG TY CỔ PHẦN THUẬN HẢI COMMODITIES",
         "contract":  "",
         "pic":  "",
-        "status":  "in_progress",
-        "progress":  98,
+        "status":  "completed",
+        "progress":  100,
         "start":  "2026-09-29 21:00",
         "end":  "2026-10-10 14:00",
         "eta":  "2026-09-29 21:00",
@@ -3128,14 +3322,14 @@ const OCC_JOBS = [
                           {
                               "type":  "crane",
                               "id":  "ITC 01",
-                              "from":  "2026-09-30 01:30",
+                              "from":  "2026-09-30 01:50",
                               "to":  "2026-09-30 06:00",
                               "role":  "Làm hàng 1.200 MT"
                           },
                           {
                               "type":  "crane",
                               "id":  "Cẩu nổi VNL 08",
-                              "from":  "2026-09-30 01:30",
+                              "from":  "2026-09-30 01:50",
                               "to":  "2026-09-30 06:00",
                               "role":  "Làm hàng 500 MT"
                           },
@@ -3248,22 +3442,22 @@ const OCC_JOBS = [
                               "type":  "crane",
                               "id":  "Cẩu nổi VNL 08",
                               "from":  "2026-10-09 06:00",
-                              "to":  "2026-10-10 06:00",
-                              "role":  "Làm hàng 6.000 MT"
+                              "to":  "2026-10-10 09:00",
+                              "role":  "Làm hàng 8.081 MT"
                           },
                           {
                               "type":  "crane",
                               "id":  "ITC 01",
                               "from":  "2026-10-09 06:00",
                               "to":  "2026-10-10 06:00",
-                              "role":  "Làm hàng 6.000 MT"
+                              "role":  "Làm hàng 5.749 MT"
                           }
                       ],
         "services":  [
                          {
                              "kind":  "khai_thac",
                              "label":  "CATHARINA OLDENDORFF/ FC",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  true
                          },
                          {
@@ -3311,13 +3505,13 @@ const OCC_JOBS = [
                      ],
         "cargoOps":  [
                          {
-                             "from":  "2026-09-30 01:30",
+                             "from":  "2026-09-30 01:50",
                              "to":  "2026-09-30 06:00",
                              "qty":  "1.200 MT",
                              "device":  "ITC 01"
                          },
                          {
-                             "from":  "2026-09-30 01:30",
+                             "from":  "2026-09-30 01:50",
                              "to":  "2026-09-30 06:00",
                              "qty":  "500 MT",
                              "device":  "VNL 08"
@@ -3414,14 +3608,14 @@ const OCC_JOBS = [
                          },
                          {
                              "from":  "2026-10-09 06:00",
-                             "to":  "2026-10-10 06:00",
-                             "qty":  "6.000 MT",
+                             "to":  "2026-10-10 09:00",
+                             "qty":  "8.081 MT",
                              "device":  "VNL 08"
                          },
                          {
                              "from":  "2026-10-09 06:00",
                              "to":  "2026-10-10 06:00",
-                             "qty":  "6.000 MT",
+                             "qty":  "5.749 MT",
                              "device":  "ITC 01"
                          }
                      ],
@@ -3430,8 +3624,8 @@ const OCC_JOBS = [
                           "VNL 08"
                       ],
         "qtyTotal":  "92.630 MT",
-        "qtyFinish":  "90.800 MT",
-        "qtyRemain":  "1.830 MT",
+        "qtyFinish":  "92.630 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -3452,18 +3646,18 @@ const OCC_JOBS = [
                    },
         "cargo":  {
                       "name":  "Than đá",
-                      "qty":  "52.500 MT",
+                      "qty":  "53.517 MT",
                       "op":  ""
                   },
         "berthId":  "BP 09",
         "customer":  "CÔNG TY TNHH VẬN TẢI VIỆT THUẬN",
         "contract":  "",
         "pic":  "",
-        "status":  "in_progress",
-        "progress":  101,
-        "start":  "2026-09-27 16:10",
+        "status":  "completed",
+        "progress":  102,
+        "start":  "2026-09-27 16:20",
         "end":  "2026-10-07 08:00",
-        "eta":  "2026-09-27 16:10",
+        "eta":  "2026-09-27 16:20",
         "etd":  "2026-10-07 08:00",
         "revenue":  "0 ₫",
         "resources":  [
@@ -3731,14 +3925,14 @@ const OCC_JOBS = [
                               "id":  "ITC 01",
                               "from":  "2026-09-29 06:00",
                               "to":  "2026-09-30 06:00",
-                              "role":  "Làm hàng 5.200 MT"
+                              "role":  "Làm hàng 5.300 MT"
                           },
                           {
                               "type":  "crane",
                               "id":  "Cẩu nổi VNL 08",
                               "from":  "2026-09-29 06:00",
                               "to":  "2026-09-30 06:00",
-                              "role":  "Làm hàng 4.800 MT"
+                              "role":  "Làm hàng 4.989 MT"
                           },
                           {
                               "type":  "crane",
@@ -3773,14 +3967,14 @@ const OCC_JOBS = [
                               "id":  "Cẩu nổi FC 06",
                               "from":  "2026-10-06 06:00",
                               "to":  "2026-10-07 06:00",
-                              "role":  "Làm hàng 2.500 MT"
+                              "role":  "Làm hàng 2.528 MT"
                           }
                       ],
         "services":  [
                          {
                              "kind":  "khai_thac",
                              "label":  "VIET THUAN 80-03/ FC",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  true
                          },
                          {
@@ -3810,7 +4004,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 11-05 - rời",
-                             "status":  "completed",
+                             "status":  "in_progress",
                              "isMain":  false
                          },
                          {
@@ -3828,7 +4022,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 12-01 - rời",
-                             "status":  "completed",
+                             "status":  "in_progress",
                              "isMain":  false
                          },
                          {
@@ -3846,7 +4040,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 11-03 - rời",
-                             "status":  "completed",
+                             "status":  "in_progress",
                              "isMain":  false
                          },
                          {
@@ -3858,7 +4052,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 11-02 - rời",
-                             "status":  "completed",
+                             "status":  "in_progress",
                              "isMain":  false
                          },
                          {
@@ -3870,7 +4064,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 10-03 - rời",
-                             "status":  "completed",
+                             "status":  "in_progress",
                              "isMain":  false
                          },
                          {
@@ -3914,13 +4108,13 @@ const OCC_JOBS = [
                          {
                              "from":  "2026-09-29 06:00",
                              "to":  "2026-09-30 06:00",
-                             "qty":  "5.200 MT",
+                             "qty":  "5.300 MT",
                              "device":  "ITC 01"
                          },
                          {
                              "from":  "2026-09-29 06:00",
                              "to":  "2026-09-30 06:00",
-                             "qty":  "4.800 MT",
+                             "qty":  "4.989 MT",
                              "device":  "VNL 08"
                          },
                          {
@@ -3950,7 +4144,7 @@ const OCC_JOBS = [
                          {
                              "from":  "2026-10-06 06:00",
                              "to":  "2026-10-07 06:00",
-                             "qty":  "2.500 MT",
+                             "qty":  "2.528 MT",
                              "device":  "FC 06"
                          }
                      ],
@@ -3960,8 +4154,8 @@ const OCC_JOBS = [
                           "FC 06"
                       ],
         "qtyTotal":  "52.500 MT",
-        "qtyFinish":  "53.200 MT",
-        "qtyRemain":  "-700 MT",
+        "qtyFinish":  "53.517 MT",
+        "qtyRemain":  "-1.017 MT",
         "notes":  "",
         "risks":  [
 
@@ -3989,8 +4183,8 @@ const OCC_JOBS = [
         "customer":  "CÔNG TY CỔ PHẦN DỊCH VỤ HÀNG HẢI VOSCO",
         "contract":  "",
         "pic":  "",
-        "status":  "in_progress",
-        "progress":  97,
+        "status":  "completed",
+        "progress":  100,
         "start":  "2026-10-01 07:55",
         "end":  "2026-10-10 20:00",
         "eta":  "2026-10-01 07:55",
@@ -4093,7 +4287,7 @@ const OCC_JOBS = [
                               "id":  "ITC 01",
                               "from":  "2026-10-07 06:00",
                               "to":  "2026-10-08 06:00",
-                              "role":  "Làm hàng 3.000 MT"
+                              "role":  "Làm hàng 3.543 MT"
                           },
                           {
                               "type":  "crane",
@@ -4108,13 +4302,20 @@ const OCC_JOBS = [
                               "from":  "2026-10-09 06:00",
                               "to":  "2026-10-10 06:00",
                               "role":  "Làm hàng 8.800 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 06",
+                              "from":  "2026-10-10 06:00",
+                              "to":  "2026-10-10 11:58",
+                              "role":  "Làm hàng 1.850 MT"
                           }
                       ],
         "services":  [
                          {
                              "kind":  "khai_thac",
                              "label":  "CATALINA/ FC",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  true
                          },
                          {
@@ -4182,7 +4383,7 @@ const OCC_JOBS = [
                          {
                              "from":  "2026-10-07 06:00",
                              "to":  "2026-10-08 06:00",
-                             "qty":  "3.000 MT",
+                             "qty":  "3.543 MT",
                              "device":  "ITC 01"
                          },
                          {
@@ -4196,6 +4397,12 @@ const OCC_JOBS = [
                              "to":  "2026-10-10 06:00",
                              "qty":  "8.800 MT",
                              "device":  "TÍN THÀNH PT 06"
+                         },
+                         {
+                             "from":  "2026-10-10 06:00",
+                             "to":  "2026-10-10 11:58",
+                             "qty":  "1.850 MT",
+                             "device":  "TÍN THÀNH PT 06"
                          }
                      ],
         "equipment":  [
@@ -4203,8 +4410,8 @@ const OCC_JOBS = [
                           "ITC 01"
                       ],
         "qtyTotal":  "71.493 MT",
-        "qtyFinish":  "69.100 MT",
-        "qtyRemain":  "2.393 MT",
+        "qtyFinish":  "71.493 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -4232,8 +4439,8 @@ const OCC_JOBS = [
         "customer":  "CÔNG TY TNHH VẬN TẢI VIỆT THUẬN",
         "contract":  "",
         "pic":  "",
-        "status":  "in_progress",
-        "progress":  90,
+        "status":  "completed",
+        "progress":  100,
         "start":  "2026-10-02 05:50",
         "end":  "2026-10-12 09:30",
         "eta":  "2026-10-02 05:50",
@@ -4483,7 +4690,7 @@ const OCC_JOBS = [
                               "id":  "ITC 02",
                               "from":  "2026-10-07 06:00",
                               "to":  "2026-10-08 06:00",
-                              "role":  "Làm hàng 4.000 MT"
+                              "role":  "Làm hàng 2.429 MT"
                           },
                           {
                               "type":  "crane",
@@ -4509,16 +4716,30 @@ const OCC_JOBS = [
                           {
                               "type":  "crane",
                               "id":  "ITC 01",
-                              "from":  "2026-10-11 06:00",
-                              "to":  "2026-10-12 06:00",
+                              "from":  "2026-10-10 06:00",
+                              "to":  "2026-10-11 06:00",
                               "role":  "Làm hàng 7.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-10-11 06:00",
+                              "to":  "2026-10-11 19:30",
+                              "role":  "Làm hàng 4.421 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-10-11 06:00",
+                              "to":  "2026-10-11 19:30",
+                              "role":  "Làm hàng 4.350 MT"
                           }
                       ],
         "services":  [
                          {
                              "kind":  "khai_thac",
                              "label":  "VIET THUAN 80-06/ FC",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  true
                          },
                          {
@@ -4542,7 +4763,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 168 - rời",
-                             "status":  "completed",
+                             "status":  "in_progress",
                              "isMain":  false
                          },
                          {
@@ -4560,7 +4781,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 215-01 - rời",
-                             "status":  "completed",
+                             "status":  "in_progress",
                              "isMain":  false
                          },
                          {
@@ -4578,7 +4799,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 215-03 - rời",
-                             "status":  "completed",
+                             "status":  "in_progress",
                              "isMain":  false
                          },
                          {
@@ -4596,7 +4817,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 215-01 - rời",
-                             "status":  "completed",
+                             "status":  "in_progress",
                              "isMain":  false
                          },
                          {
@@ -4652,7 +4873,7 @@ const OCC_JOBS = [
                          {
                              "from":  "2026-10-07 06:00",
                              "to":  "2026-10-08 06:00",
-                             "qty":  "4.000 MT",
+                             "qty":  "2.429 MT",
                              "device":  "ITC 02"
                          },
                          {
@@ -4674,9 +4895,21 @@ const OCC_JOBS = [
                              "device":  "VNL 09"
                          },
                          {
-                             "from":  "2026-10-11 06:00",
-                             "to":  "2026-10-12 06:00",
+                             "from":  "2026-10-10 06:00",
+                             "to":  "2026-10-11 06:00",
                              "qty":  "7.000 MT",
+                             "device":  "ITC 01"
+                         },
+                         {
+                             "from":  "2026-10-11 06:00",
+                             "to":  "2026-10-11 19:30",
+                             "qty":  "4.421 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-10-11 06:00",
+                             "to":  "2026-10-11 19:30",
+                             "qty":  "4.350 MT",
                              "device":  "ITC 01"
                          }
                      ],
@@ -4686,8 +4919,8 @@ const OCC_JOBS = [
                           "ITC 01"
                       ],
         "qtyTotal":  "75.000 MT",
-        "qtyFinish":  "67.800 MT",
-        "qtyRemain":  "7.200 MT",
+        "qtyFinish":  "75.000 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -12672,6 +12905,58 @@ const OCC_JOBS = [
 
 const OCC_DVHH = [
     {
+        "id":  "DV-29794",
+        "title":  "Lai dắt ZIM MOUNT OLYMPUS",
+        "from":  "2026-10-17 03:00",
+        "to":  "2026-10-17 04:00",
+        "tugs":  [
+                     "VNL RELIANCE",
+                     "VNL VISION",
+                     "VNL FUTURE"
+                 ],
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29793",
+        "title":  "Lai dắt ZIM MOUNT OLYMPUS",
+        "from":  "2026-10-15 21:00",
+        "to":  "2026-10-15 22:00",
+        "tugs":  [
+                     "VNL FUTURE",
+                     "VNL RELIANCE",
+                     "VNL VISION"
+                 ],
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29792",
+        "title":  "Lai dắt MACALLAN 3 \u0026 PETRUS",
+        "from":  "2026-10-15 11:30",
+        "to":  "2026-10-15 12:00",
+        "tugs":  [
+                     "VNL 07"
+                 ],
+        "customer":  "CÔNG TY TNHH VẬN TẢI BIỂN LONG THANH",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29791",
+        "title":  "Lai dắt VIET PHAT 68",
+        "from":  "2026-10-15 11:30",
+        "to":  "2026-10-15 12:00",
+        "tugs":  [
+                     "VNL 05"
+                 ],
+        "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
         "id":  "DV-29786",
         "title":  "Lai dắt XING GUANG 11",
         "from":  "2026-10-15 03:30",
@@ -18836,14 +19121,146 @@ const OCC_TUG_TASK_TYPES = {
 
 const OCC_TUG_TASKS = [
     {
+        "id":  "TT-29795-1",
+        "tugId":  "VNL 07",
+        "from":  "2026-10-15 22:00",
+        "to":  "2026-10-15 22:30",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 10-03",
+        "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-103"
+    },
+    {
+        "id":  "TT-29795-2",
+        "tugId":  "VNL RUBY",
+        "from":  "2026-10-15 22:00",
+        "to":  "2026-10-15 22:30",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 10-03",
+        "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-103"
+    },
+    {
+        "id":  "TT-29794-1",
+        "tugId":  "VNL RELIANCE",
+        "from":  "2026-10-17 03:00",
+        "to":  "2026-10-17 04:00",
+        "type":  "tow_in",
+        "vessel":  "ZIM MOUNT OLYMPUS",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29794"
+    },
+    {
+        "id":  "TT-29794-2",
+        "tugId":  "VNL VISION",
+        "from":  "2026-10-17 03:00",
+        "to":  "2026-10-17 04:00",
+        "type":  "tow_in",
+        "vessel":  "ZIM MOUNT OLYMPUS",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29794"
+    },
+    {
+        "id":  "TT-29794-3",
+        "tugId":  "VNL FUTURE",
+        "from":  "2026-10-17 03:00",
+        "to":  "2026-10-17 04:00",
+        "type":  "tow_in",
+        "vessel":  "ZIM MOUNT OLYMPUS",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29794"
+    },
+    {
+        "id":  "TT-29793-1",
+        "tugId":  "VNL FUTURE",
+        "from":  "2026-10-15 21:00",
+        "to":  "2026-10-15 22:00",
+        "type":  "tow_in",
+        "vessel":  "ZIM MOUNT OLYMPUS",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29793"
+    },
+    {
+        "id":  "TT-29793-2",
+        "tugId":  "VNL RELIANCE",
+        "from":  "2026-10-15 21:00",
+        "to":  "2026-10-15 22:00",
+        "type":  "tow_in",
+        "vessel":  "ZIM MOUNT OLYMPUS",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29793"
+    },
+    {
+        "id":  "TT-29793-3",
+        "tugId":  "VNL VISION",
+        "from":  "2026-10-15 21:00",
+        "to":  "2026-10-15 22:00",
+        "type":  "tow_in",
+        "vessel":  "ZIM MOUNT OLYMPUS",
+        "customer":  "ZIM VIETNAM LLC",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29793"
+    },
+    {
+        "id":  "TT-29792-1",
+        "tugId":  "VNL 07",
+        "from":  "2026-10-15 11:30",
+        "to":  "2026-10-15 12:00",
+        "type":  "tow_in",
+        "vessel":  "MACALLAN 3 \u0026 PETRUS",
+        "customer":  "CÔNG TY TNHH VẬN TẢI BIỂN LONG THANH",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29792"
+    },
+    {
+        "id":  "TT-29792-2",
+        "tugId":  "VNL 07",
+        "from":  "2026-10-15 11:30",
+        "to":  "2026-10-15 12:00",
+        "type":  "tow_in",
+        "vessel":  "MACALLAN 3 \u0026 PETRUS",
+        "customer":  "CÔNG TY TNHH VẬN TẢI BIỂN LONG THANH",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29792"
+    },
+    {
+        "id":  "TT-29791-1",
+        "tugId":  "VNL 05",
+        "from":  "2026-10-15 11:30",
+        "to":  "2026-10-15 12:00",
+        "type":  "tow_in",
+        "vessel":  "VIET PHAT 68",
+        "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29791"
+    },
+    {
         "id":  "TT-29790-1",
         "tugId":  "VNL RUBY",
         "from":  "2026-10-14 01:00",
-        "to":  "2026-10-16 12:00",
+        "to":  "2026-10-14 12:00",
         "type":  "tow_in",
         "vessel":  "TRAN MINH 36",
         "customer":  "CÔNG TY TNHH MAI NGÂN TRÍ",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2610-311"
     },
