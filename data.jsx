@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-10-14 14:00 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-10-15 09:01 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -23,9 +23,9 @@ const OCC_WINDOW = {
     "endDay":  122,
     "month":  10,
     "year":  2026,
-    "todayDate":  14,
-    "todayCol":  75,
-    "todayHour":  14
+    "todayDate":  15,
+    "todayCol":  76,
+    "todayHour":  9.02
 };
 
 const OCC_BERTHS = [
@@ -401,7 +401,7 @@ const OCC_EQUIPMENT = [
         "id":  "SMRM-R63",
         "name":  "Xương 72R-01867",
         "detail":  "72R-01867",
-        "status":  "OFFLINE",
+        "status":  "ONLINE",
         "category":  "8. SMRM",
         "offlineSince":  "2026/10/07"
     },
@@ -721,7 +721,7 @@ const OCC_EQUIPMENT = [
         "id":  "RS01",
         "name":  "Xe nâng hàng",
         "detail":  "72LA-1994",
-        "status":  "OFFLINE",
+        "status":  "ONLINE",
         "category":  "9. Xe nâng",
         "offlineSince":  "2026/10/10"
     },
@@ -1735,6 +1735,217 @@ const occColForDate = (y, mo, da) => {
 
 const OCC_JOBS = [
     {
+        "id":  "2610-311",
+        "vessel":  {
+                       "name":  "TRAN MINH 36",
+                       "flag":  "241",
+                       "dwt":  "5355.9",
+                       "imo":  "9487330",
+                       "loa":  "92.25",
+                       "type":  ""
+                   },
+        "cargo":  {
+                      "name":  "",
+                      "qty":  "0 MT",
+                      "op":  ""
+                  },
+        "berthId":  "BP 02",
+        "customer":  "CÔNG TY TNHH MAI NGÂN TRÍ",
+        "contract":  "",
+        "pic":  "",
+        "status":  "in_progress",
+        "progress":  50,
+        "start":  "2026-10-14 18:00",
+        "end":  "2026-10-16 12:00",
+        "eta":  "2026-10-14 18:00",
+        "etd":  "2026-10-16 12:00",
+        "revenue":  "0 ₫",
+        "resources":  [
+                          {
+                              "type":  "tug",
+                              "id":  "VNL RUBY",
+                              "from":  "2026-10-14 01:00",
+                              "to":  "2026-10-16 12:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          }
+                      ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "TRAN MINH 36",
+                             "status":  "in_progress",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "TRAN MINH 36 - CẬP",
+                             "status":  "planned",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "0 MT",
+        "qtyFinish":  "0 MT",
+        "qtyRemain":  "0 MT",
+        "notes":  "",
+        "risks":  [
+
+                  ],
+        "logs":  [
+
+                 ]
+    },
+    {
+        "id":  "2610-310",
+        "vessel":  {
+                       "name":  "MACALLAN 1 \u0026 MOUTON",
+                       "flag":  "134",
+                       "dwt":  "9000",
+                       "imo":  "9668001",
+                       "loa":  "95.83",
+                       "type":  ""
+                   },
+        "cargo":  {
+                      "name":  "",
+                      "qty":  "0 MT",
+                      "op":  ""
+                  },
+        "berthId":  "BP 13",
+        "customer":  "CÔNG TY TNHH VẬN TẢI BIỂN LONG THANH",
+        "contract":  "",
+        "pic":  "",
+        "status":  "in_progress",
+        "progress":  50,
+        "start":  "2026-10-14 16:00",
+        "end":  "2026-10-17 12:00",
+        "eta":  "2026-10-14 16:00",
+        "etd":  "2026-10-17 12:00",
+        "revenue":  "0 ₫",
+        "resources":  [
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 07",
+                              "from":  "2026-10-14 01:00",
+                              "to":  "2026-10-14 12:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          }
+                      ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "MACALLAN 1 \u0026 MOUTON",
+                             "status":  "in_progress",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "MACALLAN 1 \u0026 MOUTON - CẬP",
+                             "status":  "planned",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "0 MT",
+        "qtyFinish":  "0 MT",
+        "qtyRemain":  "0 MT",
+        "notes":  "",
+        "risks":  [
+
+                  ],
+        "logs":  [
+
+                 ]
+    },
+    {
+        "id":  "2610-309",
+        "vessel":  {
+                       "name":  "LL SATRIDA \u0026 LL 3222",
+                       "flag":  "103",
+                       "dwt":  "9500",
+                       "imo":  "",
+                       "loa":  "96.56",
+                       "type":  ""
+                   },
+        "cargo":  {
+                      "name":  "",
+                      "qty":  "0 MT",
+                      "op":  ""
+                  },
+        "berthId":  "BP 13",
+        "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI AN BÌNH",
+        "contract":  "",
+        "pic":  "",
+        "status":  "completed",
+        "progress":  100,
+        "start":  "2026-10-11 15:20",
+        "end":  "2026-10-14 11:00",
+        "eta":  "2026-10-11 15:20",
+        "etd":  "2026-10-14 11:00",
+        "revenue":  "0 ₫",
+        "resources":  [
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 07",
+                              "from":  "2026-10-14 11:00",
+                              "to":  "2026-10-14 11:30",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 07",
+                              "from":  "2026-10-11 14:30",
+                              "to":  "2026-10-11 15:20",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          }
+                      ],
+        "services":  [
+                         {
+                             "kind":  "khai_thac",
+                             "label":  "LL SATRIDA \u0026 LL 3222",
+                             "status":  "completed",
+                             "isMain":  true
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "LL SATRIDA \u0026 LL 3222 - CẬP",
+                             "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "LL SATRIDA \u0026 LL 3222 - RỜI",
+                             "status":  "planned",
+                             "isMain":  false
+                         }
+                     ],
+        "cargoOps":  [
+
+                     ],
+        "equipment":  [
+
+                      ],
+        "qtyTotal":  "0 MT",
+        "qtyFinish":  "0 MT",
+        "qtyRemain":  "0 MT",
+        "notes":  "",
+        "risks":  [
+
+                  ],
+        "logs":  [
+
+                 ]
+    },
+    {
         "id":  "2610-165",
         "vessel":  {
                        "name":  "VIET THUAN 80-03/ FC",
@@ -2021,6 +2232,48 @@ const OCC_JOBS = [
         "resources":  [
                           {
                               "type":  "tug",
+                              "id":  "VNL 07",
+                              "from":  "2026-10-15 04:00",
+                              "to":  "2026-10-15 04:30",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL VOYAGER",
+                              "from":  "2026-10-15 04:00",
+                              "to":  "2026-10-15 04:30",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 05",
+                              "from":  "2026-10-14 10:30",
+                              "to":  "2026-10-14 11:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 07",
+                              "from":  "2026-10-14 10:30",
+                              "to":  "2026-10-14 11:00",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 05",
+                              "from":  "2026-10-14 10:00",
+                              "to":  "2026-10-14 10:30",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 07",
+                              "from":  "2026-10-14 10:00",
+                              "to":  "2026-10-14 10:30",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
                               "id":  "VNL 05",
                               "from":  "2026-10-13 16:50",
                               "to":  "2026-10-13 17:30",
@@ -2220,6 +2473,24 @@ const OCC_JOBS = [
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 11-05 - cập",
                              "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-05 - rời",
+                             "status":  "planned",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-02 - cập",
+                             "status":  "planned",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 11-02 - rời",
+                             "status":  "planned",
                              "isMain":  false
                          }
                      ],
@@ -12401,6 +12672,68 @@ const OCC_JOBS = [
 
 const OCC_DVHH = [
     {
+        "id":  "DV-29786",
+        "title":  "Lai dắt XING GUANG 11",
+        "from":  "2026-10-15 03:30",
+        "to":  "2026-10-15 04:00",
+        "tugs":  [
+                     "VNL 05",
+                     "VNL EXPLORER"
+                 ],
+        "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29785",
+        "title":  "Lai dắt PHUC THUAN 69",
+        "from":  "2026-10-14 18:30",
+        "to":  "2026-10-14 19:00",
+        "tugs":  [
+                     "VNL 05"
+                 ],
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI AN TM",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29784",
+        "title":  "Lai dắt HOANG ANH 88",
+        "from":  "2026-10-14 17:00",
+        "to":  "2026-10-14 17:30",
+        "tugs":  [
+                     "VNL 05"
+                 ],
+        "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29783",
+        "title":  "Lai dắt AULAC AURORA",
+        "from":  "2026-10-14 16:30",
+        "to":  "2026-10-14 17:30",
+        "tugs":  [
+                     "VNL VISION"
+                 ],
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI LONG HẢI",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29782",
+        "title":  "Lai dắt MP KAMSARMAX 1",
+        "from":  "2026-10-14 15:00",
+        "to":  "2026-10-14 16:00",
+        "tugs":  [
+                     "VNL EXPLORER",
+                     "VNL VOYAGER"
+                 ],
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
         "id":  "DV-29778",
         "title":  "Lai dắt LANTANA PLANET",
         "from":  "2026-10-14 10:30",
@@ -12449,7 +12782,7 @@ const OCC_DVHH = [
                      "VNL RUBY"
                  ],
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -18503,6 +18836,210 @@ const OCC_TUG_TASK_TYPES = {
 
 const OCC_TUG_TASKS = [
     {
+        "id":  "TT-29790-1",
+        "tugId":  "VNL RUBY",
+        "from":  "2026-10-14 01:00",
+        "to":  "2026-10-16 12:00",
+        "type":  "tow_in",
+        "vessel":  "TRAN MINH 36",
+        "customer":  "CÔNG TY TNHH MAI NGÂN TRÍ",
+        "status":  "in_progress",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-311"
+    },
+    {
+        "id":  "TT-29789-1",
+        "tugId":  "VNL 07",
+        "from":  "2026-10-14 11:00",
+        "to":  "2026-10-14 11:30",
+        "type":  "tow_in",
+        "vessel":  "LL SATRIDA \u0026 LL 3222",
+        "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI AN BÌNH",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-309"
+    },
+    {
+        "id":  "TT-29788-1",
+        "tugId":  "VNL 07",
+        "from":  "2026-10-14 01:00",
+        "to":  "2026-10-14 12:00",
+        "type":  "tow_in",
+        "vessel":  "MACALLAN 1 \u0026 MOUTON",
+        "customer":  "CÔNG TY TNHH VẬN TẢI BIỂN LONG THANH",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-310"
+    },
+    {
+        "id":  "TT-29787-1",
+        "tugId":  "VNL 07",
+        "from":  "2026-10-11 14:30",
+        "to":  "2026-10-11 15:20",
+        "type":  "tow_in",
+        "vessel":  "LL SATRIDA \u0026 LL 3222",
+        "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI AN BÌNH",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-309"
+    },
+    {
+        "id":  "TT-29786-1",
+        "tugId":  "VNL 05",
+        "from":  "2026-10-15 03:30",
+        "to":  "2026-10-15 04:00",
+        "type":  "tow_in",
+        "vessel":  "XING GUANG 11",
+        "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29786"
+    },
+    {
+        "id":  "TT-29786-2",
+        "tugId":  "VNL EXPLORER",
+        "from":  "2026-10-15 03:30",
+        "to":  "2026-10-15 04:00",
+        "type":  "tow_in",
+        "vessel":  "XING GUANG 11",
+        "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI SÀI GÒN (SMC)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29786"
+    },
+    {
+        "id":  "TT-29785-1",
+        "tugId":  "VNL 05",
+        "from":  "2026-10-14 18:30",
+        "to":  "2026-10-14 19:00",
+        "type":  "tow_in",
+        "vessel":  "PHUC THUAN 69",
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI AN TM",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29785"
+    },
+    {
+        "id":  "TT-29784-1",
+        "tugId":  "VNL 05",
+        "from":  "2026-10-14 17:00",
+        "to":  "2026-10-14 17:30",
+        "type":  "tow_in",
+        "vessel":  "HOANG ANH 88",
+        "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29784"
+    },
+    {
+        "id":  "TT-29783-1",
+        "tugId":  "VNL VISION",
+        "from":  "2026-10-14 16:30",
+        "to":  "2026-10-14 17:30",
+        "type":  "tow_in",
+        "vessel":  "AULAC AURORA",
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI LONG HẢI",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29783"
+    },
+    {
+        "id":  "TT-29782-1",
+        "tugId":  "VNL EXPLORER",
+        "from":  "2026-10-14 15:00",
+        "to":  "2026-10-14 16:00",
+        "type":  "tow_in",
+        "vessel":  "MP KAMSARMAX 1",
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29782"
+    },
+    {
+        "id":  "TT-29782-2",
+        "tugId":  "VNL VOYAGER",
+        "from":  "2026-10-14 15:00",
+        "to":  "2026-10-14 16:00",
+        "type":  "tow_in",
+        "vessel":  "MP KAMSARMAX 1",
+        "customer":  "CÔNG TY TNHH DỊCH VỤ HÀNG HẢI VÀ ĐẠI LÝ OCEANIC",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29782"
+    },
+    {
+        "id":  "TT-29781-1",
+        "tugId":  "VNL 07",
+        "from":  "2026-10-15 04:00",
+        "to":  "2026-10-15 04:30",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 11-02",
+        "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-103"
+    },
+    {
+        "id":  "TT-29781-2",
+        "tugId":  "VNL VOYAGER",
+        "from":  "2026-10-15 04:00",
+        "to":  "2026-10-15 04:30",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 11-02",
+        "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-103"
+    },
+    {
+        "id":  "TT-29780-1",
+        "tugId":  "VNL 05",
+        "from":  "2026-10-14 10:30",
+        "to":  "2026-10-14 11:00",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 11-02",
+        "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-103"
+    },
+    {
+        "id":  "TT-29780-2",
+        "tugId":  "VNL 07",
+        "from":  "2026-10-14 10:30",
+        "to":  "2026-10-14 11:00",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 11-02",
+        "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-103"
+    },
+    {
+        "id":  "TT-29779-1",
+        "tugId":  "VNL 05",
+        "from":  "2026-10-14 10:00",
+        "to":  "2026-10-14 10:30",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 11-05",
+        "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-103"
+    },
+    {
+        "id":  "TT-29779-2",
+        "tugId":  "VNL 07",
+        "from":  "2026-10-14 10:00",
+        "to":  "2026-10-14 10:30",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 11-05",
+        "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-103"
+    },
+    {
         "id":  "TT-29778-1",
         "tugId":  "VNL RELIANCE",
         "from":  "2026-10-14 10:30",
@@ -18582,7 +19119,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "ZIM ALBATROSS",
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29775"
     },
@@ -18594,7 +19131,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "ZIM ALBATROSS",
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29775"
     },
