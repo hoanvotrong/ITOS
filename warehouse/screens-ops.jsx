@@ -6,25 +6,38 @@ const customerOptions = db => [...db.customers].sort((a, b) => a.code.localeComp
 const cargoOptions = db => [...db.cargos].sort((a, b) => a.code.localeCompare(b.code)).map(g => ({ value: g.id, label: `${g.code} · ${g.name}` }));
 const warehouseOptions = db => db.warehouses.map(w => ({ value: w.id, label: `Kho ${w.code}` }));
 
-function ZoneSelect({ value, onChange, db, lk, loads, placeholder = '— Chọn khu xếp hàng —', filter, showRoom = true, ...rest }) {
+// customerId: đưa các khu dành cho khách hàng này lên nhóm đầu, đánh dấu khu của khách khác
+function ZoneSelect({ value, onChange, db, lk, loads, placeholder = '— Chọn khu xếp hàng —', filter, showRoom = true, customerId, ...rest }) {
+  const opt = z => {
+    const w = lk.wh[z.warehouseId];
+    const owner = z.customerId && z.customerId !== customerId ? ` · khu của ${lk.cust[z.customerId]?.code}` : '';
+    return (
+      <option key={z.id} value={z.id}>
+        {customerId && z.customerId === customerId ? `${w?.code} · ` : ''}{z.code} · {zoneBays(z, w)}
+        {showRoom ? ` · trống ${fmtQty(Math.max(0, z.capacity - (loads.get(z.id) || 0)), 0)} t` : ''}{owner}
+      </option>
+    );
+  };
+  const base = db.zones.filter(z => !filter || filter(z)).sort((a, b) => a.code.localeCompare(b.code));
+  const own = customerId ? base.filter(z => z.customerId === customerId) : [];
   return (
     <select value={value || ''} onChange={e => onChange(e.target.value)} {...rest}>
       <option value="">{placeholder}</option>
+      {own.length > 0 && <optgroup label={`Khu của ${lk.cust[customerId]?.code}`}>{own.map(opt)}</optgroup>}
       {db.warehouses.map(w => {
-        const zs = db.zones.filter(z => z.warehouseId === w.id && (!filter || filter(z))).sort((a, b) => a.code.localeCompare(b.code));
+        const zs = base.filter(z => z.warehouseId === w.id && !own.includes(z));
         if (!zs.length) return null;
-        return (
-          <optgroup key={w.id} label={`Kho ${w.code}`}>
-            {zs.map(z => (
-              <option key={z.id} value={z.id}>
-                {z.code} · {zoneBays(z, w)}{showRoom ? ` · trống ${fmtQty(Math.max(0, z.capacity - (loads.get(z.id) || 0)), 0)} t` : ''}
-              </option>
-            ))}
-          </optgroup>
-        );
+        return <optgroup key={w.id} label={`Kho ${w.code}`}>{zs.map(opt)}</optgroup>;
       })}
     </select>
   );
+}
+
+// khu của khách hàng còn trống nhiều nhất
+function bestOwnZone(db, loads, customerId) {
+  const own = db.zones.filter(z => z.customerId === customerId);
+  own.sort((a, b) => (b.capacity - (loads.get(b.id) || 0)) - (a.capacity - (loads.get(a.id) || 0)));
+  return own[0]?.id || '';
 }
 
 /* ---------------- Tổng quan ---------------- */
@@ -256,6 +269,9 @@ function TxnScreen({ type, db, store, stock, loads, lk, params, nav }) {
     const dest = type === 'IN' ? f.zoneId : type === 'TRANSFER' && f.toZoneId !== f.zoneId ? f.toZoneId : null;
     if (dest) {
       const z = lk.zone[dest];
+      const holder = type === 'TRANSFER' ? (f.toCustomerId || f.customerId) : f.customerId;
+      if (z.customerId && z.customerId !== holder &&
+        !confirm(`Khu ${zoneLabel(z, lk)} đang dành cho ${lk.cust[z.customerId]?.name}. Vẫn để hàng của ${lk.cust[holder]?.name} vào khu này?`)) return;
       const after = (loads.get(dest) || 0) + qty;
       if (z.capacity > 0 && after > z.capacity + EPS &&
         !confirm(`Khu ${zoneLabel(z, lk)} sẽ vượt sức chứa: ${fmtQty(after)} / ${fmtQty(z.capacity)} tấn. Vẫn ghi phiếu?`)) return;
@@ -303,19 +319,26 @@ function TxnScreen({ type, db, store, stock, loads, lk, params, nav }) {
               <input value={nextDocNo(db, type, f.date || todayISO()).no} readOnly className="mono" />
             </Field>
             <Field label="Khách hàng (chủ hàng)" required error={err.customerId} span={2}>
-              <Select value={f.customerId} onChange={v => set({ customerId: v })} options={customerOptions(db)} placeholder="— Chọn khách hàng —" />
+              <Select value={f.customerId} options={customerOptions(db)} placeholder="— Chọn khách hàng —"
+                onChange={v => {
+                  const patch = { customerId: v };
+                  // nhập kho: tự chọn khu dành cho khách nếu chưa chọn khu, hoặc khu đang chọn thuộc khách khác
+                  const cur = lk.zone[f.zoneId];
+                  if (type === 'IN' && v && (!cur || (cur.customerId && cur.customerId !== v))) patch.zoneId = bestOwnZone(db, loads, v) || f.zoneId;
+                  set(patch);
+                }} />
             </Field>
             <Field label="Hàng hóa" required error={err.cargoId}>
               <Select value={f.cargoId} onChange={v => set({ cargoId: v })} options={cargoOptions(db)} placeholder="— Chọn hàng —" />
             </Field>
             <Field label={type === 'IN' ? 'Nhập vào khu' : 'Từ khu'} required error={err.zoneId}
               hint={type !== 'IN' && f.customerId && f.cargoId && f.zoneId ? `Tồn khả dụng: ${fmtQty(available)} t` : null}>
-              <ZoneSelect value={f.zoneId} onChange={v => set({ zoneId: v })} db={db} lk={lk} loads={loads} showRoom={type === 'IN'} />
+              <ZoneSelect value={f.zoneId} onChange={v => set({ zoneId: v })} db={db} lk={lk} loads={loads} showRoom={type === 'IN'} customerId={type === 'IN' ? f.customerId : ''} />
             </Field>
             {type === 'TRANSFER' && (
               <React.Fragment>
                 <Field label="Đến khu" required error={err.toZoneId}>
-                  <ZoneSelect value={f.toZoneId} onChange={v => set({ toZoneId: v })} db={db} lk={lk} loads={loads} />
+                  <ZoneSelect value={f.toZoneId} onChange={v => set({ toZoneId: v })} db={db} lk={lk} loads={loads} customerId={f.toCustomerId || f.customerId} />
                 </Field>
                 <Field label="Chủ hàng mới (nếu sang tên)" hint="Để trống nếu giữ nguyên chủ hàng">
                   <Select value={f.toCustomerId} onChange={v => set({ toCustomerId: v })} options={customerOptions(db).filter(o => o.value !== f.customerId)} placeholder="— Giữ nguyên —" />

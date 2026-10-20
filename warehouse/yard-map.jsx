@@ -19,9 +19,10 @@ function zoneTone(z, load) {
   return 'z-ok';
 }
 
-function WarehouseMap({ warehouses, zones, loads, stock, lk, selectedId, onSelect, selectedWhId, onSelectWh, editable = false, onCommit, compact = false, zoom = 1 }) {
+function WarehouseMap({ warehouses, zones, loads, stock, lk, selectedId, onSelect, selectedWhId, onSelectWh, editable = false, onCommit, onCreate, compact = false, zoom = 1 }) {
   const svgRef = useRef(null);
   const [drag, setDrag] = useState(null);
+  const [draw, setDraw] = useState(null); // kéo vùng chọn để tạo khu mới
 
   // vị trí gốc (ox) của từng kho, xếp ngang như bản vẽ
   const layout = [];
@@ -59,7 +60,35 @@ function WarehouseMap({ warehouses, zones, loads, stock, lk, selectedId, onSelec
     setDrag({ id: z.id, mode, start: toMeters(e, z.warehouseId), orig: z, draft: z });
   };
 
+  // góc vùng chọn bám theo vạch lưới 1 m, giới hạn trong thân kho
+  const snapIn = (e, wh) => {
+    const m = toMeters(e, wh.id);
+    return { x: clamp(Math.round(m.x), 0, wh.length), y: clamp(Math.round(m.y), 0, wh.width) };
+  };
+  const drawRect = d => {
+    const x = Math.min(d.sx, d.cx), y = Math.min(d.sy, d.cy);
+    const r = { warehouseId: d.whId, x, y, w: r1(Math.max(d.sx, d.cx) - x), h: r1(Math.max(d.sy, d.cy) - y) };
+    const overlap = zones.some(o => o.warehouseId === d.whId && rectsOverlap(o, r));
+    return { ...r, overlap, ok: r.w >= 2 && r.h >= 2 && !overlap };
+  };
+
+  const onBodyDown = (e, wh) => {
+    e.stopPropagation();
+    onSelectWh && onSelectWh(wh.id);
+    onSelect && onSelect(null);
+    if (!editable || !onCreate) return;
+    e.preventDefault();
+    svgRef.current.setPointerCapture(e.pointerId);
+    const p = snapIn(e, wh);
+    setDraw({ whId: wh.id, sx: p.x, sy: p.y, cx: p.x, cy: p.y });
+  };
+
   const onMove = e => {
+    if (draw) {
+      const p = snapIn(e, lk.wh[draw.whId]);
+      if (p.x !== draw.cx || p.y !== draw.cy) setDraw({ ...draw, cx: p.x, cy: p.y });
+      return;
+    }
     if (!drag) return;
     const o = drag.orig;
     const wh = lk.wh[o.warehouseId];
@@ -75,6 +104,14 @@ function WarehouseMap({ warehouses, zones, loads, stock, lk, selectedId, onSelec
   };
 
   const onUp = () => {
+    if (draw) {
+      const r = drawRect(draw);
+      setDraw(null);
+      if (r.ok) onCreate({ warehouseId: r.warehouseId, x: r.x, y: r.y, w: r.w, h: r.h });
+      else if (r.overlap) toast('Vùng chọn chồng lên khu đã có, hãy chọn vùng trống.', 'danger');
+      else if (r.w > 0 || r.h > 0) toast('Vùng chọn quá nhỏ (tối thiểu 2 × 2 m).', 'danger');
+      return;
+    }
     if (!drag) return;
     const d = drag.draft, o = drag.orig;
     if (d.x !== o.x || d.y !== o.y || d.w !== o.w || d.h !== o.h) onCommit && onCommit(d);
@@ -135,10 +172,7 @@ function WarehouseMap({ warehouses, zones, loads, stock, lk, selectedId, onSelec
             ))}
 
             {/* thân kho */}
-            <rect
-              x="0" y={Y_BODY} width={L} height={D} className="wh-body"
-              onPointerDown={e => { e.stopPropagation(); onSelectWh && onSelectWh(wh.id); onSelect && onSelect(null); }}
-            />
+            <rect x="0" y={Y_BODY} width={L} height={D} className={`wh-body ${editable && onCreate ? 'can-draw' : ''}`} onPointerDown={e => onBodyDown(e, wh)} />
             {!compact && <rect x="0" y={Y_BODY} width={L} height={D} fill="url(#grid-1m)" pointerEvents="none" />}
             {bays.slice(1).map(i => <line key={i} x1={i * bw} y1={Y_BODY} x2={i * bw} y2={bottom} className="wh-bayline" />)}
             <path d={`M0 ${bottom} V${Y_BODY} H${L} V${bottom}`} className="wh-wall" />
@@ -172,16 +206,23 @@ function WarehouseMap({ warehouses, zones, loads, stock, lk, selectedId, onSelec
               const sel = z.id === selectedId;
               const occ = [...(occupants[z.id] || [])].map(cid => lk.cust[cid]?.code || '?');
               const roomy = h >= 110 && w >= 110;
+              const owner = z.customerId ? lk.cust[z.customerId] : null;
+              const color = owner ? custColor(lk, owner.id) : null;
+              // dòng phụ: khu của khách → tên khách; khu dùng chung → các khách đang có hàng
+              const lines = [
+                owner ? owner.name : occ.length ? `Dùng chung: ${occ.slice(0, 2).join(', ')}${occ.length > 2 ? ` +${occ.length - 2}` : ''}` : 'Dùng chung',
+                z.name || (z.cargoId ? lk.cargo[z.cargoId]?.name : ''),
+              ].filter(Boolean);
               return (
-                <g key={z.id} className={`zone ${zoneTone(z, load)} ${sel ? 'is-sel' : ''}`} onPointerDown={e => onDown(e, z0, 'move')}>
+                <g key={z.id} className={`zone ${zoneTone(z, load)} ${owner ? 'is-owned' : ''} ${sel ? 'is-sel' : ''}`} onPointerDown={e => onDown(e, z0, 'move')}>
                   <svg x={x} y={y} width={w} height={h} overflow="hidden">
-                    <rect x="1.5" y="1.5" width={w - 3} height={h - 3} rx="4" className="zone-rect" />
+                    <rect x="1.5" y="1.5" width={w - 3} height={h - 3} rx="4" className="zone-rect" stroke={color || undefined} />
                     {pct > 0 && <rect x="1.5" y={1.5 + (h - 3) * (1 - pct)} width={w - 3} height={(h - 3) * pct} rx="3" className="zone-level" />}
-                    <text x="10" y="24" className="zone-code">{z.code}</text>
-                    {roomy && z.name && <text x="10" y="42" className="zone-name">{z.name}</text>}
-                    {roomy && occ.length > 0 && (
-                      <text x="10" y={z.name ? 60 : 44} className="zone-name">{occ.slice(0, 2).join(', ')}{occ.length > 2 ? ` +${occ.length - 2}` : ''}</text>
-                    )}
+                    {owner && <rect x="1.5" y="1.5" width={w - 3} height="32" rx="4" fill={color} className="zone-band" />}
+                    <text x="10" y="24" className={`zone-code ${owner ? 'on-band' : ''}`}>
+                      {z.code}{owner && <tspan className="zone-owner"> · {owner.code}</tspan>}
+                    </text>
+                    {roomy && lines.map((t, i) => <text key={i} x="10" y={(owner ? 52 : 44) + i * 17} className="zone-name">{t}</text>)}
                     {roomy ? (
                       <React.Fragment>
                         <text x="10" y={h - 28} className="zone-load">{fmtQty(load, 0)} t</text>
@@ -197,6 +238,20 @@ function WarehouseMap({ warehouses, zones, loads, stock, lk, selectedId, onSelec
                 </g>
               );
             })}
+
+            {/* vùng đang kéo chọn */}
+            {draw && draw.whId === wh.id && (() => {
+              const r = drawRect(draw);
+              if (r.w <= 0 && r.h <= 0) return null;
+              return (
+                <g pointerEvents="none">
+                  <rect x={r.x * S} y={Y_BODY + r.y * S} width={r.w * S} height={r.h * S} className={`zone-draft ${r.ok ? '' : 'bad'}`} />
+                  <text x={r.x * S + 8} y={Y_BODY + r.y * S + (r.y < 2 ? 20 : -8)} className="zone-draft-label">
+                    {fmtM(r.w)} × {fmtM(r.h)} m = {fmtM(r.w * r.h)} m²{r.overlap ? ' · chồng khu khác' : ''}
+                  </text>
+                </g>
+              );
+            })()}
           </g>
         );
       })}
@@ -237,6 +292,9 @@ function LayoutScreen({ db, store, stock, loads, lk, params, nav }) {
     if (id) setWhSel(lk.zone[id]?.warehouseId || whSel);
   };
 
+  const [creating, setCreating] = useState(null); // vùng vừa kéo chọn, chờ gán khách hàng
+
+  // nút "Thêm khu": tìm chỗ trống 10×10 m rồi mở hộp thoại như khi kéo chọn
   const addZone = () => {
     const wh = activeWh;
     if (!wh) { toast('Hãy tạo kho trước.', 'danger'); return; }
@@ -244,20 +302,15 @@ function LayoutScreen({ db, store, stock, loads, lk, params, nav }) {
     const mine = db.zones.filter(z => z.warehouseId === wh.id);
     for (let y = 1; y + h <= wh.width; y++) {
       for (let x = 1; x + w <= wh.length; x++) {
-        const cand = { x, y, w, h };
-        if (!mine.some(o => rectsOverlap(o, cand))) {
-          const prefix = wh.code.slice(-1);
-          const z = store.upsert('zones', {
-            warehouseId: wh.id, code: `${prefix}-${pad(mine.length + 1)}`, name: '', note: '',
-            capacity: r1(w * h * (wh.loadRate || 0)), ...cand,
-          });
-          setSel(z.id);
-          return;
-        }
+        const cand = { warehouseId: wh.id, x, y, w, h };
+        if (!mine.some(o => rectsOverlap(o, cand))) { setCreating(cand); return; }
       }
     }
     toast(`Kho ${wh.code} không còn chỗ trống 10×10 m.`, 'danger');
   };
+
+  const owners = [...new Set(db.zones.map(z => z.customerId).filter(Boolean))].filter(id => lk.cust[id])
+    .sort((a, b) => lk.cust[a].code.localeCompare(lk.cust[b].code));
 
   const addWarehouse = () => {
     const n = db.warehouses.length + 1;
@@ -276,7 +329,8 @@ function LayoutScreen({ db, store, stock, loads, lk, params, nav }) {
         actions={
           <React.Fragment>
             {edit && <Button icon="plus" onClick={addWarehouse}>Thêm kho</Button>}
-            {edit && <Button icon="plus" onClick={addZone} disabled={!activeWh}>Thêm khu xếp hàng{activeWh ? ` (${activeWh.code})` : ''}</Button>}
+            {edit && <Button icon="plus" onClick={addZone} disabled={!activeWh}>Thêm khu 10×10 m{activeWh ? ` (${activeWh.code})` : ''}</Button>}
+            {!edit && <Button icon="plus" variant="primary" onClick={() => setEdit(true)}>Tạo khu cho khách hàng</Button>}
             <Button icon={edit ? 'check' : 'edit'} variant={edit ? 'primary' : 'default'} onClick={() => setEdit(!edit)}>
               {edit ? 'Xong chỉnh sửa' : 'Chỉnh sửa sơ đồ'}
             </Button>
@@ -289,6 +343,13 @@ function LayoutScreen({ db, store, stock, loads, lk, params, nav }) {
           <button type="button" key={w.id} className={tab === w.id ? 'active' : ''} onClick={() => { setTab(w.id); setWhSel(w.id); }}>{w.code}</button>
         ))}
       </div>
+      {edit && (
+        <div className="hint-bar">
+          <Icon name="map" />
+          <span><strong>Kéo chuột trên vùng trống của kho</strong> để chọn vùng và tạo khu xếp hàng cho khách hàng (bám lưới 1 m).
+            Kéo khu có sẵn để di chuyển, kéo góc phải-dưới để đổi kích thước.</span>
+        </div>
+      )}
       <div className="layout-grid">
         <Card className="map-card" pad={false}>
           <div className="map-wrap">
@@ -297,7 +358,7 @@ function LayoutScreen({ db, store, stock, loads, lk, params, nav }) {
                 warehouses={visible} zones={db.zones} loads={loads} stock={stock} lk={lk}
                 selectedId={sel} onSelect={selectZone}
                 selectedWhId={activeWh?.id} onSelectWh={setWhSel}
-                editable={edit} onCommit={z => store.upsert('zones', z)} zoom={zoom}
+                editable={edit} onCommit={z => store.upsert('zones', z)} onCreate={setCreating} zoom={zoom}
               />
             ) : <Empty icon="map" title="Chưa có kho nào">Bật "Chỉnh sửa sơ đồ" rồi bấm "Thêm kho".</Empty>}
           </div>
@@ -308,14 +369,21 @@ function LayoutScreen({ db, store, stock, loads, lk, params, nav }) {
               <span>{Math.round(zoom * 100)}%</span>
               <Button size="sm" onClick={() => setZoom(z => Math.min(3, z + 0.5))} disabled={zoom >= 3}>+</Button>
             </div>
-            {edit && <span className="muted small">Kéo khu để di chuyển (bước 1 m) · kéo góc phải-dưới để đổi kích thước</span>}
           </div>
+          {owners.length > 0 && (
+            <div className="cust-legend">
+              <span className="muted small">Khu theo khách hàng:</span>
+              {owners.map(id => (
+                <span key={id}><i style={{ background: custColor(lk, id) }} />{lk.cust[id].code} · {lk.cust[id].name}</span>
+              ))}
+            </div>
+          )}
         </Card>
         <div className="side-panel">
           {zone && edit && <ZoneEditor key={zone.id} zone={zone} db={db} store={store} lk={lk} onDeleted={() => setSel(null)} />}
           {zone && !edit && <ZoneInspector zone={zone} stock={stock} loads={loads} lk={lk} nav={nav} />}
           {!zone && activeWh && edit && <WarehouseEditor key={activeWh.id} wh={activeWh} db={db} store={store} onDeleted={() => { setTab('all'); setWhSel(null); }} />}
-          {!zone && activeWh && !edit && <WarehouseInspector wh={activeWh} db={db} loads={loads} onPickZone={selectZone} />}
+          {!zone && activeWh && !edit && <WarehouseInspector wh={activeWh} db={db} loads={loads} lk={lk} onPickZone={selectZone} />}
           {!zone && !activeWh && (
             <Card title="Chi tiết">
               <Empty icon="map" title="Chọn một kho hoặc khu xếp hàng" />
@@ -323,11 +391,72 @@ function LayoutScreen({ db, store, stock, loads, lk, params, nav }) {
           )}
         </div>
       </div>
+      {creating && (
+        <CreateZoneModal
+          rect={creating} db={db} store={store} lk={lk}
+          onClose={() => setCreating(null)}
+          onCreated={id => { setCreating(null); setSel(id); }}
+        />
+      )}
     </div>
   );
 }
 
-function WarehouseInspector({ wh, db, loads, onPickZone }) {
+function nextZoneCode(db, wh) {
+  const prefix = wh.code.slice(-1);
+  const nums = db.zones.filter(z => z.warehouseId === wh.id).map(z => +((z.code.match(/(\d+)$/) || [0, 0])[1]));
+  return `${prefix}-${pad(Math.max(0, ...nums) + 1)}`;
+}
+
+function CreateZoneModal({ rect, db, store, lk, onClose, onCreated }) {
+  const wh = lk.wh[rect.warehouseId];
+  const area = rect.w * rect.h;
+  const [f, setF] = useState(() => ({ code: nextZoneCode(db, wh), customerId: '', cargoId: '', name: '', capacity: r1(area * (wh.loadRate || 0)) }));
+  const [err, setErr] = useState({});
+  const set = patch => setF(x => ({ ...x, ...patch }));
+
+  const save = () => {
+    const code = f.code.trim().toUpperCase();
+    const e = {};
+    if (!code) e.code = 'Bắt buộc';
+    else if (db.zones.some(z => z.warehouseId === wh.id && z.code.toUpperCase() === code)) e.code = 'Mã đã có trong kho này';
+    setErr(e);
+    if (Object.keys(e).length) return;
+    const z = store.upsert('zones', { ...rect, ...f, code, name: f.name.trim(), capacity: Math.max(0, +f.capacity || 0), note: '' });
+    toast(`Đã tạo khu ${wh.code} · ${code}${f.customerId ? ' cho ' + lk.cust[f.customerId].name : ''}`);
+    onCreated(z.id);
+  };
+
+  return (
+    <Modal title="Tạo khu xếp hàng" onClose={onClose} width={560} footer={
+      <React.Fragment><Button onClick={onClose}>Hủy</Button><Button variant="primary" icon="check" onClick={save}>Tạo khu</Button></React.Fragment>
+    }>
+      <div className="zone-preview">
+        <strong>Kho {wh.code} · {zoneBays(rect, wh)}</strong>
+        <span>{fmtM(rect.w)} × {fmtM(rect.h)} m = {fmtM(area)} m² · vị trí ({fmtM(rect.x)}, {fmtM(rect.y)}) m</span>
+      </div>
+      <div className="form-grid">
+        <Field label="Khách hàng sử dụng khu" span={2} hint="Để trống nếu là khu dùng chung cho nhiều khách hàng">
+          <Select value={f.customerId} onChange={v => set({ customerId: v })} options={customerOptions(db)} placeholder="— Khu dùng chung —" autoFocus />
+        </Field>
+        <Field label="Mã khu" required error={err.code}>
+          <input value={f.code} onChange={e => set({ code: e.target.value })} />
+        </Field>
+        <Field label="Hàng hóa dự kiến">
+          <Select value={f.cargoId} onChange={v => set({ cargoId: v })} options={cargoOptions(db)} placeholder="— Chưa xác định —" />
+        </Field>
+        <Field label="Sức chứa (tấn)" hint={`Định mức ${fmtM(wh.loadRate)} t/m² × ${fmtM(area)} m²`}>
+          <input type="number" min="0" step="10" value={f.capacity} onChange={e => set({ capacity: e.target.value })} />
+        </Field>
+        <Field label="Tên / mô tả">
+          <input value={f.name} onChange={e => set({ name: e.target.value })} placeholder="VD: Hàng tàu ABC, HĐ 12/2026" />
+        </Field>
+      </div>
+    </Modal>
+  );
+}
+
+function WarehouseInspector({ wh, db, loads, lk, onPickZone }) {
   const zs = db.zones.filter(z => z.warehouseId === wh.id).sort((a, b) => a.code.localeCompare(b.code));
   const cap = zs.reduce((s, z) => s + (+z.capacity || 0), 0);
   const load = zs.reduce((s, z) => s + (loads.get(z.id) || 0), 0);
@@ -348,7 +477,10 @@ function WarehouseInspector({ wh, db, loads, onPickZone }) {
       <div className="zone-list">
         {zs.map(z => (
           <button type="button" key={z.id} className="zone-list-row" onClick={() => onPickZone(z.id)}>
-            <span><strong>{z.code}</strong> <span className="muted small">{zoneBays(z, wh)}</span></span>
+            <span>
+              <i className="dot" style={{ background: z.customerId ? custColor(lk, z.customerId) : 'transparent' }} />
+              <strong>{z.code}</strong> <span className="muted small">{z.customerId ? lk.cust[z.customerId]?.code : 'Dùng chung'} · {zoneBays(z, wh)}</span>
+            </span>
             <span>{fmtQty(loads.get(z.id) || 0, 0)} / {fmtQty(z.capacity, 0)} t</span>
           </button>
         ))}
@@ -370,7 +502,11 @@ function ZoneInspector({ zone, stock, loads, lk, nav }) {
         <Badge tone="info">{zoneBays(zone, wh)}</Badge>
         <span className="muted">{fmtM(zone.w)} × {fmtM(zone.h)} m = {fmtM(zone.w * zone.h)} m²</span>
       </div>
-      {zone.name && <p className="muted">{zone.name}</p>}
+      <div className="zone-owner-box" style={zone.customerId ? { borderLeftColor: custColor(lk, zone.customerId) } : null}>
+        <span className="muted small">{zone.customerId ? 'Khu dành cho khách hàng' : 'Khu dùng chung'}</span>
+        {zone.customerId && <strong>{lk.cust[zone.customerId]?.name}</strong>}
+        {(zone.cargoId || zone.name) && <span className="small">{[zone.cargoId && lk.cargo[zone.cargoId]?.name, zone.name].filter(Boolean).join(' · ')}</span>}
+      </div>
       <div className="zone-load-box">
         <div><strong>{fmtQty(load, 1)}</strong> / {fmtQty(zone.capacity, 0)} tấn</div>
         <FillBar value={load} max={zone.capacity} />
@@ -389,7 +525,7 @@ function ZoneInspector({ zone, stock, loads, lk, nav }) {
         </div>
       ))}
       <div className="btn-col">
-        <Button icon="in" variant="primary" onClick={() => nav('in', { zoneId: zone.id })}>Nhập vào khu này</Button>
+        <Button icon="in" variant="primary" onClick={() => nav('in', { zoneId: zone.id, ...(zone.customerId ? { customerId: zone.customerId } : {}) })}>Nhập vào khu này</Button>
         <Button icon="out" onClick={() => nav('out', { zoneId: zone.id })} disabled={!rows.length}>Xuất từ khu này</Button>
         <Button icon="transfer" onClick={() => nav('transfer', { zoneId: zone.id })} disabled={!rows.length}>Chuyển từ khu này</Button>
         <Button icon="stock" variant="ghost" onClick={() => nav('stock', { zoneId: zone.id })}>Xem bảng tồn</Button>
@@ -429,8 +565,14 @@ function ZoneEditor({ zone, db, store, lk, onDeleted }) {
         <Field label="Vị trí gian">
           <input value={zoneBays(zone, wh)} readOnly />
         </Field>
-        <Field label="Tên / mô tả" span={2}>
-          <input value={zone.name || ''} onChange={e => set({ name: e.target.value })} placeholder="VD: Đống than cám tàu ABC" />
+        <Field label="Khách hàng sử dụng khu" span={2} hint="Để trống = khu dùng chung">
+          <Select value={zone.customerId || ''} onChange={v => set({ customerId: v })} options={customerOptions(db)} placeholder="— Khu dùng chung —" />
+        </Field>
+        <Field label="Hàng hóa dự kiến">
+          <Select value={zone.cargoId || ''} onChange={v => set({ cargoId: v })} options={cargoOptions(db)} placeholder="— Chưa xác định —" />
+        </Field>
+        <Field label="Tên / mô tả">
+          <input value={zone.name || ''} onChange={e => set({ name: e.target.value })} placeholder="VD: Hàng tàu ABC" />
         </Field>
         <Field label="X (m)"><input type="number" step="0.5" value={zone.x} onChange={e => setGeom('x', e.target.value)} /></Field>
         <Field label="Y (m)"><input type="number" step="0.5" value={zone.y} onChange={e => setGeom('y', e.target.value)} /></Field>

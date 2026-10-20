@@ -36,6 +36,13 @@ const fmtM = n => (+n || 0).toLocaleString('vi-VN', { maximumFractionDigits: 2 }
 // "VNL-02A · A-01"
 const zoneLabel = (z, lk) => (z ? `${lk.wh[z.warehouseId]?.code || '?'} · ${z.code}` : '—');
 
+// Màu nhận diện khách hàng trên sơ đồ (theo thứ tự khách hàng)
+const CUST_COLORS = ['#1F6FB2', '#C2410C', '#15803D', '#7C3AED', '#BE185D', '#0E7490', '#A16207', '#4D7C0F', '#4338CA', '#9F1239'];
+const custColor = (lk, customerId) => {
+  const i = Object.keys(lk.cust).indexOf(customerId);
+  return i < 0 ? '#1F4E8C' : CUST_COLORS[i % CUST_COLORS.length];
+};
+
 // Các gian mà khu xếp hàng chiếm, vd "Gian 2–3"
 function zoneBays(z, wh) {
   if (!z || !wh || !wh.bays) return '';
@@ -194,12 +201,16 @@ function seedDb() {
     },
   ];
   // Khu xếp hàng — chừa lối đi 6 m dọc cạnh cửa và 4 m giữa 2 dãy
-  const Z = (wid, code, x, y, w, h) => ({ id: `z_${wid}_${code.toLowerCase()}`, warehouseId: 'w_' + wid, code, name: '', x, y, w, h, capacity: w * h * 2.5, note: '' });
+  // cust: khu dành riêng cho khách hàng; để trống = khu dùng chung
+  const Z = (wid, code, x, y, w, h, cust = '') => ({
+    id: `z_${wid}_${code.toLowerCase()}`, warehouseId: 'w_' + wid, code, name: '', customerId: cust ? 'c_' + cust : '', cargoId: '',
+    x, y, w, h, capacity: w * h * 2.5, note: '',
+  });
   const zones = [
-    Z('02a', 'A-01', 1, 2, 19, 26), Z('02a', 'A-02', 22, 2, 19, 26), Z('02a', 'A-03', 43, 2, 19, 26), Z('02a', 'A-04', 64, 2, 18, 26),
-    Z('02a', 'A-05', 1, 32, 30, 24), Z('02a', 'A-06', 33, 32, 24, 24), Z('02a', 'A-07', 59, 32, 23, 24),
-    Z('02b', 'B-01', 1, 2, 22, 26), Z('02b', 'B-02', 25, 2, 22, 26), Z('02b', 'B-03', 49, 2, 22, 26),
-    Z('02b', 'B-04', 1, 32, 34, 24), Z('02b', 'B-05', 37, 32, 34, 24),
+    Z('02a', 'A-01', 1, 2, 19, 26, 'kh001'), Z('02a', 'A-02', 22, 2, 19, 26), Z('02a', 'A-03', 43, 2, 19, 26, 'kh001'), Z('02a', 'A-04', 64, 2, 18, 26),
+    Z('02a', 'A-05', 1, 32, 30, 24, 'kh003'), Z('02a', 'A-06', 33, 32, 24, 24, 'kh004'), Z('02a', 'A-07', 59, 32, 23, 24, 'kh005'),
+    Z('02b', 'B-01', 1, 2, 22, 26, 'kh002'), Z('02b', 'B-02', 25, 2, 22, 26), Z('02b', 'B-03', 49, 2, 22, 26, 'kh004'),
+    Z('02b', 'B-04', 1, 32, 34, 24, 'kh002'), Z('02b', 'B-05', 37, 32, 34, 24, 'kh006'),
   ];
 
   const C = (code, name, taxCode, contact, phone, address) => ({ id: 'c_' + code.toLowerCase(), code, name, taxCode, contact, phone, email: '', address, note: 'Dữ liệu mẫu' });
