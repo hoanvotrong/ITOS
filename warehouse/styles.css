@@ -231,6 +231,7 @@ button.hbar:hover .hbar-label { text-decoration: underline; }
 .wh-bayhead { fill: var(--wh-head); stroke: #fff; stroke-width: 1.5; }
 .wh-baylabel { font-size: 10.5px; font-weight: 800; fill: var(--wh-blue); }
 .wh-baywidth { font-size: 8.5px; font-weight: 700; fill: var(--t1); }
+.wh-baywidth-cell { fill: #fff; stroke: #9DB3CC; stroke-width: 1; }
 .wh-body { fill: #FBFDFF; }
 .wh-grid { stroke: var(--wh-grid); stroke-width: .6; }
 .wh-bayline { stroke: var(--wh-blue); stroke-width: 1; stroke-dasharray: 4 3; opacity: .7; }

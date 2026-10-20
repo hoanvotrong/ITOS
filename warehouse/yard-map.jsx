@@ -4,9 +4,8 @@
    ========================================================== */
 
 const S = 10;          // 1 mét = 10 đơn vị viewBox
-const GAP = 60;        // khoảng cách giữa 2 kho
-const Y_BODY = 84;     // mép trên thân kho
-const RIGHT_M = 36;    // lề phải để ghi chiều rộng kho
+const SIDE_M = 44;     // lề trái/phải để ghi chiều rộng kho (2 kho đặt liền tường, như bản vẽ)
+const Y_BODY = 82;     // mép trên thân kho
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const r1 = v => Math.round(v * 10) / 10;
 const rectsOverlap = (a, b) => a.x < b.x + b.w - 1e-6 && b.x < a.x + a.w - 1e-6 && a.y < b.y + b.h - 1e-6 && b.y < a.y + a.h - 1e-6;
@@ -27,8 +26,8 @@ function WarehouseMap({ warehouses, zones, loads, stock, lk, selectedId, onSelec
   // vị trí gốc (ox) của từng kho, xếp ngang như bản vẽ
   const layout = [];
   let ox = 0;
-  for (const w of warehouses) { layout.push({ wh: w, ox }); ox += w.length * S + RIGHT_M + GAP; }
-  const W = Math.max(ox - GAP, 100);
+  for (const w of warehouses) { layout.push({ wh: w, ox }); ox += w.length * S; }
+  const W = Math.max(ox, 100);
   const maxWidth = Math.max(10, ...warehouses.map(w => w.width));
   const H = Y_BODY + maxWidth * S + 48;
   const oxOf = Object.fromEntries(layout.map(l => [l.wh.id, l.ox]));
@@ -122,7 +121,7 @@ function WarehouseMap({ warehouses, zones, loads, stock, lk, selectedId, onSelec
     <svg
       ref={svgRef}
       className={`yard ${editable ? 'is-editing' : ''} ${compact ? 'is-compact' : ''}`}
-      viewBox={`-10 0 ${W + 20} ${H}`}
+      viewBox={`${-SIDE_M} 0 ${W + 2 * SIDE_M} ${H}`}
       style={{ width: `${zoom * 100}%` }}
       onPointerMove={onMove}
       onPointerUp={onUp}
@@ -135,9 +134,9 @@ function WarehouseMap({ warehouses, zones, loads, stock, lk, selectedId, onSelec
           <path d={`M ${S} 0 L 0 0 0 ${S}`} fill="none" className="wh-grid" />
         </pattern>
       </defs>
-      <rect x="-10" y="0" width={W + 20} height={H} className="yard-bg" onPointerDown={() => { onSelect && onSelect(null); }} />
+      <rect x={-SIDE_M} y="0" width={W + 2 * SIDE_M} height={H} className="yard-bg" onPointerDown={() => { onSelect && onSelect(null); }} />
 
-      {layout.map(({ wh, ox }) => {
+      {layout.map(({ wh, ox }, wi) => {
         const L = wh.length * S, D = wh.width * S;
         const bw = L / Math.max(1, wh.bays);
         const bays = Array.from({ length: Math.max(1, wh.bays) }, (_, i) => i);
@@ -153,21 +152,22 @@ function WarehouseMap({ warehouses, zones, loads, stock, lk, selectedId, onSelec
         return (
           <g key={wh.id} transform={`translate(${ox},0)`} className={`wh ${whSel ? 'is-sel' : ''}`}>
             {/* tiêu đề */}
-            <text x="0" y="22" className="wh-title" onPointerDown={e => { e.stopPropagation(); onSelectWh && onSelectWh(wh.id); onSelect && onSelect(null); }}>KHO {wh.code}</text>
+            <text x="8" y="22" className="wh-title" onPointerDown={e => { e.stopPropagation(); onSelectWh && onSelectWh(wh.id); onSelect && onSelect(null); }}>KHO {wh.code}</text>
             {!compact && (
-              <text x={L} y="20" textAnchor="end" className="wh-dim">
+              <text x={L - 16} y="20" textAnchor="end" className="wh-dim">
                 {fmtM(wh.length)} m x {fmtM(wh.width)} m = {fmtM(wh.length * wh.width)} m², {wh.bays} gian
               </text>
             )}
-            <text x={L / 2} y="40" textAnchor="middle" className="wh-measure">{fmtM(wh.length)} m</text>
-            <path d={`M0 48 V44 H${L} V48`} className="wh-measure-line" />
+            <text x={L / 2} y="38" textAnchor="middle" className="wh-measure">{wh.length} m</text>
+            <path d={`M2 50 V44 H${L - 2} V50`} className="wh-measure-line" />
 
-            {/* đầu gian */}
+            {/* đầu gian: hàng tên gian + hàng bề rộng gian */}
             {bays.map(i => (
               <g key={i}>
-                <rect x={i * bw} y="52" width={bw} height="28" className="wh-bayhead" />
-                <text x={i * bw + bw / 2} y="64" textAnchor="middle" className="wh-baylabel">Gian {i + 1}</text>
-                {!compact && <text x={i * bw + bw / 2} y="76" textAnchor="middle" className="wh-baywidth">{fmtM(wh.length / wh.bays)} m</text>}
+                <rect x={i * bw} y="52" width={bw} height="14" className="wh-bayhead" />
+                <rect x={i * bw} y="66" width={bw} height="14" className="wh-baywidth-cell" />
+                <text x={i * bw + bw / 2} y="62.5" textAnchor="middle" className="wh-baylabel">Gian {i + 1}</text>
+                <text x={i * bw + bw / 2} y="76" textAnchor="middle" className="wh-baywidth">{(wh.length / wh.bays).toFixed(2)} m</text>
               </g>
             ))}
 
@@ -185,8 +185,18 @@ function WarehouseMap({ warehouses, zones, loads, stock, lk, selectedId, onSelec
                 <text x={(d.x + d.w / 2) * S} y={bottom + 16} textAnchor="middle" className="wh-doorlabel">{d.label}</text>
               </g>
             ))}
-            {!compact && (
-              <text transform={`translate(${L + 18},${Y_BODY + D / 2}) rotate(90)`} textAnchor="middle" className="wh-measure">{fmtM(wh.width)} m</text>
+            {/* chiều rộng kho: bên trái kho đầu, bên phải kho cuối */}
+            {wi === 0 && (
+              <g>
+                <path d={`M-8 ${Y_BODY + 2} H-16 V${bottom - 2} H-8`} className="wh-measure-line" />
+                <text transform={`translate(-24,${Y_BODY + D / 2}) rotate(-90)`} textAnchor="middle" className="wh-measure">{wh.width} m</text>
+              </g>
+            )}
+            {wi === layout.length - 1 && (
+              <g>
+                <path d={`M${L + 8} ${Y_BODY + 2} H${L + 16} V${bottom - 2} H${L + 8}`} className="wh-measure-line" />
+                <text transform={`translate(${L + 24},${Y_BODY + D / 2}) rotate(90)`} textAnchor="middle" className="wh-measure">{wh.width} m</text>
+              </g>
             )}
 
             {/* chân gian */}
@@ -294,32 +304,8 @@ function LayoutScreen({ db, store, stock, loads, lk, params, nav }) {
 
   const [creating, setCreating] = useState(null); // vùng vừa kéo chọn, chờ gán khách hàng
 
-  // nút "Thêm khu": tìm chỗ trống 10×10 m rồi mở hộp thoại như khi kéo chọn
-  const addZone = () => {
-    const wh = activeWh;
-    if (!wh) { toast('Hãy tạo kho trước.', 'danger'); return; }
-    const w = 10, h = 10;
-    const mine = db.zones.filter(z => z.warehouseId === wh.id);
-    for (let y = 1; y + h <= wh.width; y++) {
-      for (let x = 1; x + w <= wh.length; x++) {
-        const cand = { warehouseId: wh.id, x, y, w, h };
-        if (!mine.some(o => rectsOverlap(o, cand))) { setCreating(cand); return; }
-      }
-    }
-    toast(`Kho ${wh.code} không còn chỗ trống 10×10 m.`, 'danger');
-  };
-
   const owners = [...new Set(db.zones.map(z => z.customerId).filter(Boolean))].filter(id => lk.cust[id])
     .sort((a, b) => lk.cust[a].code.localeCompare(lk.cust[b].code));
-
-  const addWarehouse = () => {
-    const n = db.warehouses.length + 1;
-    const wh = store.upsert('warehouses', {
-      code: `KHO-${pad(n)}`, name: `Kho mới ${n}`, length: 60, width: 40, bays: 6, loadRate: 2.5, note: '',
-      doors: [{ id: uid(), label: 'C/A D1', x: 20, w: 10 }],
-    });
-    setTab(wh.id); setWhSel(wh.id); setSel(null); setEdit(true);
-  };
 
   return (
     <div className="page">
@@ -328,8 +314,6 @@ function LayoutScreen({ db, store, stock, loads, lk, params, nav }) {
         subtitle={`${db.warehouses.length} kho · ${db.zones.length} khu xếp hàng · đang chứa ${fmtQty(totalLoad, 0)} / ${fmtQty(totalCap, 0)} tấn (${totalCap ? Math.round((totalLoad / totalCap) * 100) : 0}%)`}
         actions={
           <React.Fragment>
-            {edit && <Button icon="plus" onClick={addWarehouse}>Thêm kho</Button>}
-            {edit && <Button icon="plus" onClick={addZone} disabled={!activeWh}>Thêm khu 10×10 m{activeWh ? ` (${activeWh.code})` : ''}</Button>}
             {!edit && <Button icon="plus" variant="primary" onClick={() => setEdit(true)}>Tạo khu cho khách hàng</Button>}
             <Button icon={edit ? 'check' : 'edit'} variant={edit ? 'primary' : 'default'} onClick={() => setEdit(!edit)}>
               {edit ? 'Xong chỉnh sửa' : 'Chỉnh sửa sơ đồ'}
@@ -360,7 +344,7 @@ function LayoutScreen({ db, store, stock, loads, lk, params, nav }) {
                 selectedWhId={activeWh?.id} onSelectWh={setWhSel}
                 editable={edit} onCommit={z => store.upsert('zones', z)} onCreate={setCreating} zoom={zoom}
               />
-            ) : <Empty icon="map" title="Chưa có kho nào">Bật "Chỉnh sửa sơ đồ" rồi bấm "Thêm kho".</Empty>}
+            ) : <Empty icon="map" title="Chưa có kho" />}
           </div>
           <div className="map-foot">
             <YardLegend />
@@ -382,8 +366,7 @@ function LayoutScreen({ db, store, stock, loads, lk, params, nav }) {
         <div className="side-panel">
           {zone && edit && <ZoneEditor key={zone.id} zone={zone} db={db} store={store} lk={lk} onDeleted={() => setSel(null)} />}
           {zone && !edit && <ZoneInspector zone={zone} stock={stock} loads={loads} lk={lk} nav={nav} />}
-          {!zone && activeWh && edit && <WarehouseEditor key={activeWh.id} wh={activeWh} db={db} store={store} onDeleted={() => { setTab('all'); setWhSel(null); }} />}
-          {!zone && activeWh && !edit && <WarehouseInspector wh={activeWh} db={db} loads={loads} lk={lk} onPickZone={selectZone} />}
+          {!zone && activeWh && <WarehouseInspector wh={activeWh} db={db} loads={loads} lk={lk} onPickZone={selectZone} />}
           {!zone && !activeWh && (
             <Card title="Chi tiết">
               <Empty icon="map" title="Chọn một kho hoặc khu xếp hàng" />
@@ -589,49 +572,6 @@ function ZoneEditor({ zone, db, store, lk, onDeleted }) {
         </Field>
       </div>
       <Button icon="trash" variant="danger-ghost" onClick={del}>Xóa khu</Button>
-    </Card>
-  );
-}
-
-function WarehouseEditor({ wh, db, store, onDeleted }) {
-  const set = patch => store.upsert('warehouses', { ...wh, ...patch });
-  const num = (v, min = 0) => Math.max(min, +v || 0);
-  const zs = db.zones.filter(z => z.warehouseId === wh.id);
-  const outside = zs.filter(z => z.x + z.w > wh.length + 1e-6 || z.y + z.h > wh.width + 1e-6);
-  const setDoor = (id, patch) => set({ doors: wh.doors.map(d => (d.id === id ? { ...d, ...patch } : d)) });
-
-  const del = () => {
-    if (zs.length) { toast('Kho còn khu xếp hàng, hãy xóa các khu trước.', 'danger'); return; }
-    if (!confirm(`Xóa kho ${wh.code}?`)) return;
-    store.remove('warehouses', wh.id);
-    onDeleted();
-  };
-
-  return (
-    <Card title={`Sửa kho ${wh.code}`}>
-      <div className="form-grid">
-        <Field label="Mã kho" required><input value={wh.code} onChange={e => set({ code: e.target.value.toUpperCase() })} /></Field>
-        <Field label="Tên kho"><input value={wh.name} onChange={e => set({ name: e.target.value })} /></Field>
-        <Field label="Chiều dài (m)"><input type="number" step="0.01" min="5" value={wh.length} onChange={e => set({ length: num(e.target.value, 5) })} /></Field>
-        <Field label="Chiều rộng (m)"><input type="number" step="0.01" min="5" value={wh.width} onChange={e => set({ width: num(e.target.value, 5) })} /></Field>
-        <Field label="Số gian"><input type="number" min="1" max="30" value={wh.bays} onChange={e => set({ bays: Math.round(num(e.target.value, 1)) })} /></Field>
-        <Field label="Định mức (tấn/m²)"><input type="number" step="0.1" min="0" value={wh.loadRate} onChange={e => set({ loadRate: num(e.target.value) })} /></Field>
-      </div>
-      <p className="muted small">{fmtM(wh.length * wh.width)} m² · mỗi gian {fmtM(wh.length / wh.bays)} m</p>
-      {outside.length > 0 && <p className="field-error">Có {outside.length} khu nằm ngoài kích thước kho: {outside.map(z => z.code).join(', ')}</p>}
-
-      <h4 className="sub-head">Cửa ra vào (cạnh dưới)</h4>
-      {wh.doors.map(d => (
-        <div key={d.id} className="door-row">
-          <input value={d.label} onChange={e => setDoor(d.id, { label: e.target.value })} aria-label="Tên cửa" />
-          <label>Từ <input type="number" step="0.5" value={d.x} onChange={e => setDoor(d.id, { x: clamp(num(e.target.value), 0, wh.length) })} /> m</label>
-          <label>Rộng <input type="number" step="0.5" value={d.w} onChange={e => setDoor(d.id, { w: clamp(num(e.target.value, 1), 1, wh.length) })} /> m</label>
-          <button type="button" className="icon-btn" onClick={() => set({ doors: wh.doors.filter(x => x.id !== d.id) })} aria-label="Xóa cửa"><Icon name="trash" size={14} /></button>
-        </div>
-      ))}
-      <Button size="sm" icon="plus" onClick={() => set({ doors: [...wh.doors, { id: uid(), label: `C/A D${wh.doors.length + 1}`, x: 0, w: 8 }] })}>Thêm cửa</Button>
-      <div className="divider" />
-      <Button icon="trash" variant="danger-ghost" onClick={del}>Xóa kho</Button>
     </Card>
   );
 }

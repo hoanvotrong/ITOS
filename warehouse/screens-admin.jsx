@@ -408,7 +408,7 @@ function DataScreen({ db, store }) {
     reader.onload = () => {
       try {
         const next = JSON.parse(reader.result);
-        if (!Array.isArray(next.warehouses) || !Array.isArray(next.zones) || !Array.isArray(next.txns)) throw new Error('Sai cấu trúc');
+        if (!Array.isArray(next.zones) || !Array.isArray(next.txns)) throw new Error('Sai cấu trúc');
         const v = validateLedger(next.txns);
         if (!v.ok) throw new Error(`Sổ giao dịch bị âm tồn tại phiếu ${v.txn.no}`);
         if (!confirm(`Khôi phục ${next.txns.length} giao dịch, ${next.customers.length} khách hàng? Dữ liệu hiện tại sẽ bị thay thế.`)) return;
@@ -420,11 +420,17 @@ function DataScreen({ db, store }) {
     };
     reader.readAsText(file);
   };
-  const reset = () => { if (confirm('Thay toàn bộ dữ liệu bằng dữ liệu mẫu?')) { store.replaceAll(seedDb()); toast('Đã nạp dữ liệu mẫu'); } };
+  const reset = () => { if (confirm('Đưa ứng dụng về trạng thái ban đầu? Toàn bộ khu xếp hàng, giao dịch, khách hàng sẽ bị thay bằng dữ liệu ban đầu.')) { store.replaceAll(seedDb()); toast('Đã khôi phục trạng thái ban đầu'); } };
   const wipe = () => {
     if (!confirm('Xóa toàn bộ giao dịch, khách hàng, hàng hóa? Sơ đồ kho được giữ lại.')) return;
-    store.replaceAll({ ...emptyDb(), warehouses: db.warehouses, zones: db.zones });
+    store.replaceAll({ ...emptyDb(), zones: db.zones });
     toast('Đã xóa dữ liệu nghiệp vụ');
+  };
+  // Giao dịch gắn với khu xếp hàng nên phải xóa cùng sơ đồ; giữ khách hàng và danh mục hàng
+  const wipeLayout = () => {
+    if (!confirm(`Xóa toàn bộ ${db.zones.length} khu xếp hàng và ${db.txns.length} giao dịch (tồn kho về 0)? Khách hàng và danh mục hàng hóa được giữ lại.`)) return;
+    store.replaceAll({ ...emptyDb(), customers: db.customers, cargos: db.cargos });
+    toast('Đã xóa các khu xếp hàng. Vào "Sơ đồ kho" và kéo chọn vùng để tạo khu mới.');
   };
 
   return (
@@ -446,10 +452,11 @@ function DataScreen({ db, store }) {
           </div>
         </Card>
         <Card title="Làm mới dữ liệu">
-          <p className="muted">Dùng khi demo hoặc bắt đầu nhập liệu thật.</p>
+          <p className="muted">Dùng khi demo hoặc bắt đầu nhập liệu thật. "Xóa các khu xếp hàng" đưa 2 kho về mặt bằng trống (xóa cả giao dịch) để kéo chọn lại từ đầu.</p>
           <div className="btn-row">
-            <Button icon="refresh" onClick={reset}>Nạp dữ liệu mẫu</Button>
+            <Button icon="refresh" onClick={reset}>Khôi phục ban đầu</Button>
             <Button icon="trash" variant="danger-ghost" onClick={wipe}>Xóa dữ liệu nghiệp vụ</Button>
+            <Button icon="map" variant="danger-ghost" onClick={wipeLayout}>Xóa các khu xếp hàng</Button>
           </div>
         </Card>
       </div>
