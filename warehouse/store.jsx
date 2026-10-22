@@ -142,7 +142,12 @@ function nextDocNo(db, type, date) {
   return { no: `${TXN_TYPES[type].prefix}${date.slice(2, 4)}${date.slice(5, 7)}-${pad(n, 4)}`, n };
 }
 
-function useWarehouseStore() {
+// Kho dữ liệu dùng chung (Supabase) khi có cấu hình trong config.js, ngược lại lưu trên trình duyệt
+const REMOTE = !!(window.KHO_CONFIG && window.KHO_CONFIG.supabaseUrl && window.KHO_CONFIG.supabaseAnonKey);
+
+// Cả hai chế độ có cùng giao diện: upsert/remove/draftTxn đồng bộ với giao diện;
+// commitTxn/deleteTxn/replaceAll trả Promise (chế độ dùng chung cần chờ máy chủ xác nhận).
+function useLocalStore() {
   const [db, setDb] = useState(() => loadDb() || seedDb());
   useEffect(() => { saveDb(db); }, [db]);
 
@@ -162,19 +167,26 @@ function useWarehouseStore() {
     const { no } = nextDocNo(db, fields.type, fields.date);
     return { ...fields, id: uid(), no, createdAt: Date.now() };
   };
-  const commitTxn = t => setDb(prev => ({
-    ...prev,
-    txns: [...prev.txns, t],
-    seq: { ...prev.seq, [t.type]: (prev.seq[t.type] || 0) + 1 },
-  }));
+  const commitTxn = t => {
+    setDb(prev => ({
+      ...prev,
+      txns: [...prev.txns, t],
+      seq: { ...prev.seq, [t.type]: (prev.seq[t.type] || 0) + 1 },
+    }));
+    return Promise.resolve(t);
+  };
 
   return {
+    mode: 'local',
+    status: 'ready',
+    user: null,
     db,
     upsert,
     remove,
     draftTxn,
     commitTxn,
-    replaceAll: next => setDb(withFixedLayout(next)),
+    deleteTxn: id => { remove('txns', id); return Promise.resolve(); },
+    replaceAll: next => { setDb(withFixedLayout(next)); return Promise.resolve(); },
   };
 }
 

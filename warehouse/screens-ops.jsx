@@ -211,8 +211,9 @@ function deleteTxn(t, db, store, lk) {
     return;
   }
   if (!confirm(`Xóa phiếu ${t.no}? Tồn kho sẽ được tính lại.`)) return;
-  store.remove('txns', t.id);
-  toast(`Đã xóa phiếu ${t.no}`);
+  store.deleteTxn(t.id)
+    .then(() => toast(`Đã xóa phiếu ${t.no}`))
+    .catch(e => toast(e.message, 'danger'));
 }
 
 /* ---------------- Nhập / Xuất / Chuyển ---------------- */
@@ -225,6 +226,7 @@ function TxnScreen({ type, db, store, stock, loads, lk, params, nav }) {
   const [f, setF] = useState(blank);
   const [err, setErr] = useState({});
   const [printing, setPrinting] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [q, setQ] = useState('');
   const [fc, setFc] = useState('');
   const [from, setFrom] = useState(addDays(todayISO(), -30));
@@ -239,7 +241,8 @@ function TxnScreen({ type, db, store, stock, loads, lk, params, nav }) {
     .filter(r => r.qty > EPS && (!f.customerId || r.customerId === f.customerId) && (!f.zoneId || f.customerId || r.zoneId === f.zoneId))
     .sort((a, b) => (lk.cust[a.customerId]?.code || '').localeCompare(lk.cust[b.customerId]?.code || '') || b.qty - a.qty);
 
-  const submit = () => {
+  const submit = async () => {
+    if (saving) return;
     const e = {};
     const qty = round3(+f.qty);
     if (!f.date) e.date = 'Bắt buộc';
@@ -276,10 +279,18 @@ function TxnScreen({ type, db, store, stock, loads, lk, params, nav }) {
       if (z.capacity > 0 && after > z.capacity + EPS &&
         !confirm(`Khu ${zoneLabel(z, lk)} sẽ vượt sức chứa: ${fmtQty(after)} / ${fmtQty(z.capacity)} tấn. Vẫn ghi phiếu?`)) return;
     }
-    store.commitTxn(t);
-    toast(`Đã ghi ${meta.label.toLowerCase()} · ${t.no}`);
-    setPrinting(t);
-    setF({ ...blank(), date: f.date, customerId: f.customerId });
+    setSaving(true);
+    try {
+      // chế độ dùng chung: máy chủ cấp số phiếu thật và kiểm tra tồn lần cuối
+      const saved = await store.commitTxn(t);
+      toast(`Đã ghi ${meta.label.toLowerCase()} · ${saved.no}`);
+      setPrinting(saved);
+      setF({ ...blank(), date: f.date, customerId: f.customerId });
+    } catch (ex) {
+      setErr({ qty: ex.message });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const list = sortTxns(db.txns.filter(t => t.type === type && t.date >= from && t.date <= to && (!fc || t.customerId === fc || t.toCustomerId === fc)))
@@ -315,7 +326,7 @@ function TxnScreen({ type, db, store, stock, loads, lk, params, nav }) {
             <Field label="Ngày chứng từ" required error={err.date}>
               <input type="date" value={f.date} max={todayISO()} onChange={e => set({ date: e.target.value })} />
             </Field>
-            <Field label="Số phiếu (tự động)">
+            <Field label={store.mode === 'remote' ? 'Số phiếu (dự kiến, cấp khi ghi)' : 'Số phiếu (tự động)'}>
               <input value={nextDocNo(db, type, f.date || todayISO()).no} readOnly className="mono" />
             </Field>
             <Field label="Khách hàng (chủ hàng)" required error={err.customerId} span={2}>
@@ -363,7 +374,7 @@ function TxnScreen({ type, db, store, stock, loads, lk, params, nav }) {
           </div>
           <div className="form-actions">
             <Button variant="ghost" onClick={() => { setF(blank()); setErr({}); }}>Làm lại</Button>
-            <Button icon={icon} variant="primary" onClick={submit}>Ghi {meta.short.toLowerCase()}</Button>
+            <Button icon={icon} variant="primary" onClick={submit} disabled={saving}>{saving ? 'Đang ghi…' : `Ghi ${meta.short.toLowerCase()}`}</Button>
           </div>
         </Card>
 
@@ -589,9 +600,9 @@ function CountModal({ lot, db, store, lk, onClose }) {
     const t = store.draftTxn({ type: 'ADJUST', date: todayISO(), customerId: lot.customerId, cargoId: lot.cargoId, zoneId: lot.zoneId, toZoneId: '', toCustomerId: '', qty: diff, vehicle: '', docRef: '', note: note || 'Điều chỉnh theo kiểm kê' });
     const v = validateLedger([...db.txns, t]);
     if (!v.ok) { toast('Điều chỉnh làm tồn âm tại một thời điểm, kiểm tra lại.', 'danger'); return; }
-    store.commitTxn(t);
-    toast(`Đã ghi biên bản kiểm kê ${t.no} (${diff > 0 ? '+' : ''}${fmtQty(diff)} t)`);
-    onClose();
+    store.commitTxn(t)
+      .then(saved => { toast(`Đã ghi biên bản kiểm kê ${saved.no} (${diff > 0 ? '+' : ''}${fmtQty(diff)} t)`); onClose(); })
+      .catch(e => toast(e.message, 'danger'));
   };
   return (
     <Modal title="Kiểm kê lô hàng" onClose={onClose} width={480} footer={

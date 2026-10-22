@@ -47,6 +47,9 @@ function App() {
   const stock = useMemo(() => computeStock(db.txns), [db.txns]);
   const loads = useMemo(() => zoneLoads(stock), [stock]);
 
+  if (store.status === 'login') return <React.Fragment><LoginScreen store={store} /><ToastHost /></React.Fragment>;
+  if (store.status !== 'ready') return <React.Fragment><GateMessage store={store} /><ToastHost /></React.Fragment>;
+
   const props = { db, store, stock, loads, lk, params: route.params, nav };
   const key = route.screen + JSON.stringify(route.params);
   let screen;
@@ -84,7 +87,15 @@ function App() {
               </button>
             ))}
         </nav>
-        <div className="rail-foot">Dữ liệu lưu trên trình duyệt · {fmtDate(todayISO())}</div>
+        {store.mode === 'remote' ? (
+          <div className="rail-foot rail-user">
+            <span><i className="live-dot" />Dữ liệu dùng chung · {store.user?.role === 'admin' ? 'Quản trị' : 'Nhân viên'}</span>
+            <strong title={store.user?.email}>{store.user?.email}</strong>
+            <button type="button" className="link" onClick={store.signOut}>Đăng xuất</button>
+          </div>
+        ) : (
+          <div className="rail-foot">Dữ liệu lưu trên trình duyệt · {fmtDate(todayISO())}</div>
+        )}
       </aside>
       <div className="scrim" onClick={() => setNavOpen(false)} />
       <main className="main">

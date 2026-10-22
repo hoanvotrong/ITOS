@@ -397,8 +397,17 @@ function CargoForm({ initial, db, store, onClose }) {
 /* ---------------- Dữ liệu ---------------- */
 function DataScreen({ db, store }) {
   const fileRef = useRef(null);
+  const [busy, setBusy] = useState(false);
+  const remote = store.mode === 'remote';
+  // chế độ dùng chung: chỉ quản trị viên được thay toàn bộ dữ liệu
+  const canReplace = !remote || store.user?.role === 'admin';
+
   const backup = () => {
     downloadBlob(new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' }), `kho-bai-backup-${todayISO()}.json`);
+  };
+  const replace = async (next, done) => {
+    setBusy(true);
+    try { await store.replaceAll(next); toast(done); } catch (e) { toast(e.message, 'danger'); } finally { setBusy(false); }
   };
   const restore = e => {
     const file = e.target.files[0];
@@ -406,36 +415,40 @@ function DataScreen({ db, store }) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
+      let next;
       try {
-        const next = JSON.parse(reader.result);
+        next = JSON.parse(reader.result);
         if (!Array.isArray(next.zones) || !Array.isArray(next.txns)) throw new Error('Sai cấu trúc');
         const v = validateLedger(next.txns);
         if (!v.ok) throw new Error(`Sổ giao dịch bị âm tồn tại phiếu ${v.txn.no}`);
-        if (!confirm(`Khôi phục ${next.txns.length} giao dịch, ${next.customers.length} khách hàng? Dữ liệu hiện tại sẽ bị thay thế.`)) return;
-        store.replaceAll(next);
-        toast('Đã khôi phục dữ liệu');
       } catch (err) {
         toast(`Không đọc được file: ${err.message}`, 'danger');
+        return;
       }
+      const msg = `Khôi phục ${next.zones.length} khu, ${next.txns.length} giao dịch, ${(next.customers || []).length} khách hàng?` +
+        (remote ? ' Dữ liệu dùng chung của TẤT CẢ người dùng sẽ bị thay thế.' : ' Dữ liệu hiện tại sẽ bị thay thế.');
+      if (confirm(msg)) replace(next, 'Đã khôi phục dữ liệu');
     };
     reader.readAsText(file);
   };
-  const reset = () => { if (confirm('Đưa ứng dụng về trạng thái ban đầu? Toàn bộ khu xếp hàng, giao dịch, khách hàng sẽ bị thay bằng dữ liệu ban đầu.')) { store.replaceAll(seedDb()); toast('Đã khôi phục trạng thái ban đầu'); } };
-  const wipe = () => {
-    if (!confirm('Xóa toàn bộ giao dịch, khách hàng, hàng hóa? Sơ đồ kho được giữ lại.')) return;
-    store.replaceAll({ ...emptyDb(), zones: db.zones });
-    toast('Đã xóa dữ liệu nghiệp vụ');
+  const reset = () => {
+    if (confirm('Đưa về trạng thái ban đầu? Toàn bộ khu xếp hàng, giao dịch, khách hàng sẽ bị thay bằng dữ liệu ban đầu.')) replace(seedDb(), 'Đã khôi phục trạng thái ban đầu');
   };
-  // Giao dịch gắn với khu xếp hàng nên phải xóa cùng sơ đồ; giữ khách hàng và danh mục hàng
+  const wipe = () => {
+    if (!confirm('Xóa toàn bộ giao dịch, khách hàng, hàng hóa? Các khu xếp hàng được giữ lại (bỏ gán khách hàng).')) return;
+    replace({ ...emptyDb(), zones: db.zones.map(z => ({ ...z, customerId: '', cargoId: '' })) }, 'Đã xóa dữ liệu nghiệp vụ');
+  };
+  // Giao dịch gắn với khu xếp hàng nên phải xóa cùng; giữ khách hàng và danh mục hàng
   const wipeLayout = () => {
     if (!confirm(`Xóa toàn bộ ${db.zones.length} khu xếp hàng và ${db.txns.length} giao dịch (tồn kho về 0)? Khách hàng và danh mục hàng hóa được giữ lại.`)) return;
-    store.replaceAll({ ...emptyDb(), customers: db.customers, cargos: db.cargos });
-    toast('Đã xóa các khu xếp hàng. Vào "Sơ đồ kho" và kéo chọn vùng để tạo khu mới.');
+    replace({ ...emptyDb(), customers: db.customers, cargos: db.cargos }, 'Đã xóa các khu xếp hàng. Vào "Sơ đồ kho" và kéo chọn vùng để tạo khu mới.');
   };
 
   return (
     <div className="page">
-      <PageHeader title="Sao lưu dữ liệu" subtitle="Bản thử nghiệm lưu dữ liệu trong trình duyệt này (localStorage). Hãy sao lưu định kỳ." />
+      <PageHeader title="Sao lưu dữ liệu" subtitle={remote
+        ? 'Dữ liệu dùng chung lưu trên máy chủ, mọi người dùng thấy cùng một số liệu.'
+        : 'Bản thử nghiệm lưu dữ liệu trong trình duyệt này (localStorage). Hãy sao lưu định kỳ.'} />
       <div className="kpis">
         <Kpi label="Kho" value={db.warehouses.length} sub={`${db.zones.length} khu xếp hàng`} />
         <Kpi label="Khách hàng" value={db.customers.length} />
@@ -444,21 +457,27 @@ function DataScreen({ db, store }) {
       </div>
       <div className="data-grid">
         <Card title="Sao lưu & khôi phục">
-          <p className="muted">Tải về toàn bộ dữ liệu dạng JSON để lưu trữ hoặc chuyển sang máy khác.</p>
+          <p className="muted">Tải về toàn bộ dữ liệu dạng JSON để lưu trữ{canReplace ? ', hoặc khôi phục từ một file sao lưu / file đã gộp' : ''}.</p>
           <div className="btn-row">
             <Button icon="download" variant="primary" onClick={backup}>Tải bản sao lưu</Button>
-            <Button icon="upload" onClick={() => fileRef.current.click()}>Khôi phục từ file</Button>
+            {canReplace && <Button icon="upload" onClick={() => fileRef.current.click()} disabled={busy}>Khôi phục từ file</Button>}
             <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={restore} />
           </div>
         </Card>
-        <Card title="Làm mới dữ liệu">
-          <p className="muted">Dùng khi demo hoặc bắt đầu nhập liệu thật. "Xóa các khu xếp hàng" đưa 2 kho về mặt bằng trống (xóa cả giao dịch) để kéo chọn lại từ đầu.</p>
-          <div className="btn-row">
-            <Button icon="refresh" onClick={reset}>Khôi phục ban đầu</Button>
-            <Button icon="trash" variant="danger-ghost" onClick={wipe}>Xóa dữ liệu nghiệp vụ</Button>
-            <Button icon="map" variant="danger-ghost" onClick={wipeLayout}>Xóa các khu xếp hàng</Button>
-          </div>
-        </Card>
+        {canReplace ? (
+          <Card title="Làm mới dữ liệu">
+            <p className="muted">Dùng khi bắt đầu nhập liệu thật. "Xóa các khu xếp hàng" đưa 2 kho về mặt bằng trống (xóa cả giao dịch) để kéo chọn lại từ đầu.</p>
+            <div className="btn-row">
+              <Button icon="refresh" onClick={reset} disabled={busy}>Khôi phục ban đầu</Button>
+              <Button icon="trash" variant="danger-ghost" onClick={wipe} disabled={busy}>Xóa dữ liệu nghiệp vụ</Button>
+              <Button icon="map" variant="danger-ghost" onClick={wipeLayout} disabled={busy}>Xóa các khu xếp hàng</Button>
+            </div>
+          </Card>
+        ) : (
+          <Card title="Làm mới dữ liệu">
+            <p className="muted">Chỉ quản trị viên được khôi phục hoặc xóa toàn bộ dữ liệu dùng chung.</p>
+          </Card>
+        )}
       </div>
     </div>
   );
