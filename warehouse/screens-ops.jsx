@@ -165,7 +165,7 @@ function TxnTable({ txns, lk, compact, onPrint, onDelete }) {
         <thead>
           <tr>
             <th>Số phiếu</th><th>Ngày</th>{compact && <th>Loại</th>}<th>Khách hàng</th><th>Hàng hóa</th><th>Khu</th>
-            <th className="num">Số lượng (t)</th>{!compact && <th>Phương tiện</th>}{!compact && <th>Chứng từ</th>}{!compact && <th />}
+            <th className="num">Số lượng (t)</th>{!compact && <th>Phương tiện</th>}{!compact && <th>Chứng từ</th>}{!compact && <th>Ghi chú</th>}{!compact && <th />}
           </tr>
         </thead>
         <tbody>
@@ -190,6 +190,7 @@ function TxnTable({ txns, lk, compact, onPrint, onDelete }) {
               </td>
               {!compact && <td>{t.vehicle}</td>}
               {!compact && <td>{t.docRef}</td>}
+              {!compact && <td className="note-cell">{t.note}</td>}
               {!compact && (
                 <td className="actions">
                   {onPrint && <button type="button" className="icon-btn" title="In phiếu" onClick={() => onPrint(t)}><Icon name="print" size={15} /></button>}

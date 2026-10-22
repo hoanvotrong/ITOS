@@ -165,6 +165,7 @@ input[type=checkbox] { width: auto; height: auto; }
 .table.selectable tbody tr { cursor: pointer; }
 .table tr.is-on { background: var(--info-bg) !important; }
 .strong { font-weight: 700; }
+.note-cell { min-width: 160px; max-width: 280px; color: var(--t2); white-space: normal; overflow-wrap: anywhere; }
 .neg { color: var(--bad); }
 .nowrap { white-space: nowrap; }
 .muted { color: var(--t3); }
