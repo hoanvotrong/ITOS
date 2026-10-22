@@ -214,7 +214,26 @@ function LoginScreen({ store }) {
         {err && <p className="field-error">{err}</p>}
         <button type="submit" className="btn btn-primary" disabled={busy}>{busy ? 'Đang đăng nhập…' : 'Đăng nhập'}</button>
         <p className="muted small">Chưa có tài khoản? Liên hệ quản trị viên kho để được cấp.</p>
+        <LegacyBackup />
       </form>
+    </div>
+  );
+}
+
+// Dữ liệu thử nghiệm của bản cũ (lưu riêng trên trình duyệt) vẫn còn trên máy người test:
+// cho tải về để gửi quản trị viên gộp, kể cả khi chưa có tài khoản.
+function LegacyBackup() {
+  const old = loadDb();
+  if (!old || (!old.zones.length && !old.txns.length)) return null;
+  const download = () => downloadBlob(
+    new Blob([JSON.stringify(old, null, 2)], { type: 'application/json' }),
+    `kho-bai-backup-${todayISO()}.json`,
+  );
+  return (
+    <div className="legacy-box">
+      <span>Máy này còn dữ liệu thử nghiệm cũ: {old.zones.length} khu, {old.txns.length} phiếu.</span>
+      <button type="button" className="btn btn-sm" onClick={download}>Tải file sao lưu</button>
+      <span className="muted small">Gửi file này cho quản trị viên để gộp vào dữ liệu dùng chung.</span>
     </div>
   );
 }

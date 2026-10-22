@@ -72,6 +72,8 @@ h1, h2, h3, h4 { margin: 0; }
 .gate-card h1 { font-size: 20px; font-weight: 800; }
 .gate-card p { margin: 0; }
 .gate-card .btn { height: 40px; }
+.legacy-box { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: var(--r-md); background: var(--warn-bg); color: var(--warn); font-size: 13px; }
+.legacy-box .btn { height: 32px; align-self: flex-start; }
 .topbar { display: none; }
 .scrim { display: none; }
 
