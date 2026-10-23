@@ -303,6 +303,15 @@ button.hbar:hover .hbar-label { text-decoration: underline; }
 .zone-cust { padding: 8px 0; border-top: 1px solid var(--line); }
 .zone-cust-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
 .zone-cust-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--t2); padding: 2px 0; }
+.zone-docs { display: flex; flex-direction: column; gap: 0; margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+.zone-docs-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; font-size: 13px; }
+.zone-doc { display: flex; flex-direction: column; gap: 3px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.zone-doc:last-of-type { border-bottom: 0; }
+.zone-doc-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.zone-doc-qty { margin-left: auto; font-variant-numeric: tabular-nums; }
+.zone-doc-ref { font-weight: 600; overflow-wrap: anywhere; }
+.zone-doc-ref .muted { font-weight: 400; }
+.zone-docs .link { align-self: flex-start; margin-top: 6px; }
 .zone-list { display: flex; flex-direction: column; max-height: 360px; overflow-y: auto; }
 .zone-list-row { display: flex; justify-content: space-between; gap: 8px; border: 0; border-top: 1px solid var(--line); background: none; padding: 8px 2px; cursor: pointer; font-size: 13px; text-align: left; }
 .zone-list-row:hover { background: #FAFAF7; }

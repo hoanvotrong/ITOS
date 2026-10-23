@@ -365,7 +365,7 @@ function LayoutScreen({ db, store, stock, loads, lk, params, nav }) {
         </Card>
         <div className="side-panel">
           {zone && edit && <ZoneEditor key={zone.id} zone={zone} db={db} store={store} lk={lk} onDeleted={() => setSel(null)} />}
-          {zone && !edit && <ZoneInspector zone={zone} stock={stock} loads={loads} lk={lk} nav={nav} />}
+          {zone && !edit && <ZoneInspector key={zone.id} zone={zone} stock={stock} loads={loads} lk={lk} nav={nav} txns={db.txns} />}
           {!zone && activeWh && <WarehouseInspector wh={activeWh} db={db} loads={loads} lk={lk} onPickZone={selectZone} />}
           {!zone && !activeWh && (
             <Card title="Chi tiết">
@@ -472,7 +472,44 @@ function WarehouseInspector({ wh, db, loads, lk, onPickZone }) {
   );
 }
 
-function ZoneInspector({ zone, stock, loads, lk, nav }) {
+// Chứng từ của các phiếu đã nhập/xuất/chuyển qua khu, mới nhất trước
+function ZoneDocs({ zone, txns, lk }) {
+  const [all, setAll] = useState(false);
+  const list = sortTxns(txns.filter(t => t.zoneId === zone.id || t.toZoneId === zone.id)).reverse()
+    .map(t => ({ t, delta: round3(txnEffects(t).filter(e => e[2] === zone.id).reduce((s, e) => s + e[3], 0)) }));
+  if (!list.length) return null;
+  const shown = all ? list : list.slice(0, 6);
+  return (
+    <div className="zone-docs">
+      <div className="zone-docs-head">
+        <strong>Chứng từ</strong>
+        <span className="muted small">{list.length} phiếu</span>
+      </div>
+      {shown.map(({ t, delta }) => (
+        <div key={t.id} className="zone-doc">
+          <div className="zone-doc-top">
+            <TxnBadge type={t.type} />
+            <span className="mono">{t.no}</span>
+            <span className="muted small">{fmtDate(t.date)}</span>
+            <strong className={`zone-doc-qty ${delta < 0 ? 'neg' : ''}`}>{delta > 0 ? '+' : ''}{fmtQty(delta)} t</strong>
+          </div>
+          <div className="zone-doc-ref">
+            {t.docRef ? <span>{t.docRef}</span> : <span className="muted">Không có số chứng từ</span>}
+            {t.vehicle && <span className="muted"> · {t.vehicle}</span>}
+          </div>
+          {t.note && <div className="muted small">{t.note}</div>}
+        </div>
+      ))}
+      {list.length > 6 && (
+        <button type="button" className="link small" onClick={() => setAll(!all)}>
+          {all ? 'Thu gọn' : `Xem tất cả (${list.length})`}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ZoneInspector({ zone, stock, loads, lk, nav, txns }) {
   const wh = lk.wh[zone.warehouseId];
   const rows = stockRows(stock).filter(r => r.zoneId === zone.id && r.qty > EPS);
   const byCust = {};
@@ -507,6 +544,7 @@ function ZoneInspector({ zone, stock, loads, lk, nav }) {
           ))}
         </div>
       ))}
+      <ZoneDocs zone={zone} txns={txns} lk={lk} />
       <div className="btn-col">
         <Button icon="in" variant="primary" onClick={() => nav('in', { zoneId: zone.id, ...(zone.customerId ? { customerId: zone.customerId } : {}) })}>Nhập vào khu này</Button>
         <Button icon="out" onClick={() => nav('out', { zoneId: zone.id })} disabled={!rows.length}>Xuất từ khu này</Button>
