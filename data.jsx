@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-10-26 11:53 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-10-26 14:00 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  26,
     "todayCol":  87,
-    "todayHour":  11.88
+    "todayHour":  14
 };
 
 const OCC_BERTHS = [
@@ -2728,15 +2728,15 @@ const OCC_JOBS = [
                           {
                               "type":  "tug",
                               "id":  "VNL VISION",
-                              "from":  "2026-10-25 07:30",
-                              "to":  "2026-10-25 08:30",
+                              "from":  "2026-10-25 07:20",
+                              "to":  "2026-10-25 08:20",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
                               "type":  "tug",
                               "id":  "VNL RUBY",
-                              "from":  "2026-10-25 07:30",
-                              "to":  "2026-10-25 08:30",
+                              "from":  "2026-10-25 07:20",
+                              "to":  "2026-10-25 08:20",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
@@ -3114,7 +3114,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "ORIENTAL GOLD - RỜI",
-                             "status":  "planned",
+                             "status":  "in_progress",
                              "isMain":  false
                          }
                      ],
@@ -14805,6 +14805,58 @@ const OCC_JOBS = [
 
 const OCC_DVHH = [
     {
+        "id":  "DV-29892",
+        "title":  "Lai dắt SHUN DA FANG ZHOU",
+        "from":  "2026-10-27 20:30",
+        "to":  "2026-10-27 21:00",
+        "tugs":  [
+                     "VNL 05",
+                     "VNL EXPLORER"
+                 ],
+        "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
+        "status":  "planned",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29891",
+        "title":  "Lai dắt SHUN DA FANG ZHOU",
+        "from":  "2026-10-23 00:00",
+        "to":  "2026-10-23 01:15",
+        "tugs":  [
+                     "VNL 03",
+                     "VNL RUBY"
+                 ],
+        "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29890",
+        "title":  "Lai dắt STR BRAVE",
+        "from":  "2026-10-22 16:40",
+        "to":  "2026-10-22 17:40",
+        "tugs":  [
+                     "VNL 03",
+                     "VNL RUBY"
+                 ],
+        "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
+        "id":  "DV-29889",
+        "title":  "Lai dắt SPIRIT OF TOKYO",
+        "from":  "2026-10-22 17:00",
+        "to":  "2026-10-22 18:00",
+        "tugs":  [
+                     "VNL RELIANCE",
+                     "VNL FUTURE"
+                 ],
+        "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI MACS",
+        "status":  "completed",
+        "revenue":  "0 ₫"
+    },
+    {
         "id":  "DV-29888",
         "title":  "Lai dắt SSI DISCOVERY",
         "from":  "2026-10-23 20:40",
@@ -14896,7 +14948,7 @@ const OCC_DVHH = [
         "id":  "DV-29881",
         "title":  "Lai dắt PV DRILLING X",
         "from":  "2026-10-23 08:00",
-        "to":  "2026-10-23 14:00",
+        "to":  "2026-10-23 18:30",
         "tugs":  [
                      "Tàu lai ngoài 02",
                      "VNL FUTURE",
@@ -14910,7 +14962,7 @@ const OCC_DVHH = [
     {
         "id":  "DV-29880",
         "title":  "Lai dắt PV DRILLING X",
-        "from":  "2026-10-23 06:00",
+        "from":  "2026-10-23 04:20",
         "to":  "2026-10-23 08:00",
         "tugs":  [
                      "Tàu lai ngoài",
@@ -21711,6 +21763,102 @@ const OCC_TUG_TASK_TYPES = {
 
 const OCC_TUG_TASKS = [
     {
+        "id":  "TT-29892-1",
+        "tugId":  "VNL 05",
+        "from":  "2026-10-27 20:30",
+        "to":  "2026-10-27 21:00",
+        "type":  "tow_in",
+        "vessel":  "SHUN DA FANG ZHOU",
+        "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29892"
+    },
+    {
+        "id":  "TT-29892-2",
+        "tugId":  "VNL EXPLORER",
+        "from":  "2026-10-27 20:30",
+        "to":  "2026-10-27 21:00",
+        "type":  "tow_in",
+        "vessel":  "SHUN DA FANG ZHOU",
+        "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
+        "status":  "planned",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29892"
+    },
+    {
+        "id":  "TT-29891-1",
+        "tugId":  "VNL 03",
+        "from":  "2026-10-23 00:00",
+        "to":  "2026-10-23 01:15",
+        "type":  "tow_in",
+        "vessel":  "SHUN DA FANG ZHOU",
+        "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29891"
+    },
+    {
+        "id":  "TT-29891-2",
+        "tugId":  "VNL RUBY",
+        "from":  "2026-10-23 00:00",
+        "to":  "2026-10-23 01:15",
+        "type":  "tow_in",
+        "vessel":  "SHUN DA FANG ZHOU",
+        "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29891"
+    },
+    {
+        "id":  "TT-29890-1",
+        "tugId":  "VNL 03",
+        "from":  "2026-10-22 16:40",
+        "to":  "2026-10-22 17:40",
+        "type":  "tow_in",
+        "vessel":  "STR BRAVE",
+        "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29890"
+    },
+    {
+        "id":  "TT-29890-2",
+        "tugId":  "VNL RUBY",
+        "from":  "2026-10-22 16:40",
+        "to":  "2026-10-22 17:40",
+        "type":  "tow_in",
+        "vessel":  "STR BRAVE",
+        "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29890"
+    },
+    {
+        "id":  "TT-29889-1",
+        "tugId":  "VNL RELIANCE",
+        "from":  "2026-10-22 17:00",
+        "to":  "2026-10-22 18:00",
+        "type":  "tow_in",
+        "vessel":  "SPIRIT OF TOKYO",
+        "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI MACS",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29889"
+    },
+    {
+        "id":  "TT-29889-2",
+        "tugId":  "VNL FUTURE",
+        "from":  "2026-10-22 17:00",
+        "to":  "2026-10-22 18:00",
+        "type":  "tow_in",
+        "vessel":  "SPIRIT OF TOKYO",
+        "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI MACS",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "dvhhId":  "DV-29889"
+    },
+    {
         "id":  "TT-29888-1",
         "tugId":  "VNL EXPLORER",
         "from":  "2026-10-23 20:40",
@@ -21846,7 +21994,7 @@ const OCC_TUG_TASKS = [
         "id":  "TT-29881-1",
         "tugId":  "Tàu lai ngoài 02",
         "from":  "2026-10-23 08:00",
-        "to":  "2026-10-23 14:00",
+        "to":  "2026-10-23 18:30",
         "type":  "tow_in",
         "vessel":  "PV DRILLING X",
         "customer":  "CÔNG TY CẢNG DỊCH VỤ DẦU KHÍ (PTSC SB)",
@@ -21858,7 +22006,7 @@ const OCC_TUG_TASKS = [
         "id":  "TT-29881-2",
         "tugId":  "VNL FUTURE",
         "from":  "2026-10-23 08:00",
-        "to":  "2026-10-23 14:00",
+        "to":  "2026-10-23 18:30",
         "type":  "tow_in",
         "vessel":  "PV DRILLING X",
         "customer":  "CÔNG TY CẢNG DỊCH VỤ DẦU KHÍ (PTSC SB)",
@@ -21870,7 +22018,7 @@ const OCC_TUG_TASKS = [
         "id":  "TT-29881-3",
         "tugId":  "TAN CANG 86",
         "from":  "2026-10-23 08:00",
-        "to":  "2026-10-23 14:00",
+        "to":  "2026-10-23 18:30",
         "type":  "tow_in",
         "vessel":  "PV DRILLING X",
         "customer":  "CÔNG TY CẢNG DỊCH VỤ DẦU KHÍ (PTSC SB)",
@@ -21882,7 +22030,7 @@ const OCC_TUG_TASKS = [
         "id":  "TT-29881-4",
         "tugId":  "Tàu lai ngoài",
         "from":  "2026-10-23 08:00",
-        "to":  "2026-10-23 14:00",
+        "to":  "2026-10-23 18:30",
         "type":  "tow_in",
         "vessel":  "PV DRILLING X",
         "customer":  "CÔNG TY CẢNG DỊCH VỤ DẦU KHÍ (PTSC SB)",
@@ -21893,7 +22041,7 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29880-1",
         "tugId":  "Tàu lai ngoài",
-        "from":  "2026-10-23 06:00",
+        "from":  "2026-10-23 04:20",
         "to":  "2026-10-23 08:00",
         "type":  "tow_in",
         "vessel":  "PV DRILLING X",
@@ -21905,7 +22053,7 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29880-2",
         "tugId":  "Tàu lai ngoài 02",
-        "from":  "2026-10-23 06:00",
+        "from":  "2026-10-23 04:20",
         "to":  "2026-10-23 08:00",
         "type":  "tow_in",
         "vessel":  "PV DRILLING X",
@@ -21917,7 +22065,7 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29880-3",
         "tugId":  "VNL FUTURE",
-        "from":  "2026-10-23 06:00",
+        "from":  "2026-10-23 04:20",
         "to":  "2026-10-23 08:00",
         "type":  "tow_in",
         "vessel":  "PV DRILLING X",
@@ -21929,7 +22077,7 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29880-4",
         "tugId":  "TAN CANG 86",
-        "from":  "2026-10-23 06:00",
+        "from":  "2026-10-23 04:20",
         "to":  "2026-10-23 08:00",
         "type":  "tow_in",
         "vessel":  "PV DRILLING X",
@@ -21965,8 +22113,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29878-1",
         "tugId":  "VNL VISION",
-        "from":  "2026-10-25 07:30",
-        "to":  "2026-10-25 08:30",
+        "from":  "2026-10-25 07:20",
+        "to":  "2026-10-25 08:20",
         "type":  "tow_in",
         "vessel":  "ORIENTAL GOLD/ FC",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI TIÊN PHONG (TIMACO)",
@@ -21977,8 +22125,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29878-2",
         "tugId":  "VNL RUBY",
-        "from":  "2026-10-25 07:30",
-        "to":  "2026-10-25 08:30",
+        "from":  "2026-10-25 07:20",
+        "to":  "2026-10-25 08:20",
         "type":  "tow_in",
         "vessel":  "ORIENTAL GOLD/ FC",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI TIÊN PHONG (TIMACO)",
