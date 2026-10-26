@@ -130,8 +130,29 @@ const htSheetShoreKey = (sheetId) => {
   return p.length >= 2 && p[0] === "HT" ? p[1] : null;
 };
 
-/* Xe nâng và đầu kéo vẫn KHÔNG vẽ lên sơ đồ: trạng thái thì có thật nhưng vị trí
-   thì không có nguồn. Trạng thái xem ở bảng "Thiết bị". */
+/* Tuyến chạy của đầu kéo nội bộ, bám theo các đường trên bản vẽ (C1, C2, đường nội bộ).
+   ĐÂY LÀ HOẠT HÌNH MINH HOẠ: hệ thống không biết xe nào đang ở đâu. Thứ duy nhất
+   lấy từ dữ liệu thật là SỐ LƯỢNG xe — bằng số đầu kéo đang ONLINE. Đường đi và
+   tốc độ là dựng để nhìn, không phải vị trí thật. Có nút tắt trên thanh công cụ. */
+const HT_ROUTES = [
+  [[990,560],[899,560],[899,300],[878,262],[652,566],[704,582],[704,768],[990,768],[992,560]],
+  [[990,768],[620,770],[380,766],[347,766],[347,874],[990,874],[992,768]],
+  [[704,768],[560,768],[330,745],[312,724],[600,628],[650,580],[704,582]],
+].map(pts => {
+  const lens = [0];
+  for (let i = 1; i < pts.length; i++) lens.push(lens[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  return { pts, lens, total: lens[lens.length - 1] };
+});
+const htPosOn = (r, s) => {
+  s = ((s % r.total) + r.total) % r.total;
+  let i = 1; while (r.lens[i] < s) i++;
+  const f = (s - r.lens[i - 1]) / (r.lens[i] - r.lens[i - 1]);
+  const a = r.pts[i - 1], b = r.pts[i];
+  return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f];
+};
+
+/* Xe nâng vẫn KHÔNG vẽ lên sơ đồ: không có nguồn vị trí lẫn tuyến chạy.
+   Trạng thái xem ở bảng "Thiết bị". */
 
 /* ===== 2. Thiết bị — DỮ LIỆU THẬT từ OCC_EQUIPMENT ===== */
 const htFmtSince = (s) => (s && /^\d{4}\/\d{2}\/\d{2}$/.test(s) ? `${s.slice(8, 10)}/${s.slice(5, 7)}/${s.slice(0, 4)}` : "");
@@ -159,7 +180,61 @@ function HTSrc({ plan }) {
     : <span className="badge success" title="Lấy từ danh mục thiết bị kỹ thuật, cập nhật mỗi 8 tiếng"><span className="pip"></span>Dữ liệu thật</span>;
 }
 
-function HTPortMap({ tilt, onPick, picked, quayVessels, shoreByKey, buoyZones }) {
+/* Lớp xe chạy — tách thành component riêng để chỉ nó chạy rAF, phần còn lại của
+   sơ đồ không render lại theo từng khung hình. Vị trí xe cập nhật thẳng vào
+   thuộc tính transform của DOM, không đi qua state React. */
+function HTTraffic({ count }) {
+  const refs = React.useRef([]);
+  const n = Math.max(0, Math.min(count, 24));
+
+  React.useEffect(() => {
+    if (!n) return;
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const cars = Array.from({ length: n }, (_, i) => ({
+      r: HT_ROUTES[i % HT_ROUTES.length],
+      s: (i * 137) % 900,
+      v: 16 + ((i * 7) % 10),      // px/giây, mỗi xe một tốc độ cho đỡ đều tăm tắp
+    }));
+    let raf = 0, last = performance.now();
+    const frame = (now) => {
+      const dt = Math.min(0.1, (now - last) / 1000); last = now;
+      cars.forEach((c, i) => {
+        c.s += c.v * dt;
+        const el = refs.current[i];
+        if (!el) return;
+        const [x, y] = htPosOn(c.r, c.s);
+        const [x2, y2] = htPosOn(c.r, c.s + 6);
+        const ang = Math.atan2(y2 - y, x2 - x) * 180 / Math.PI;
+        el.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${ang.toFixed(0)})`);
+      });
+      raf = requestAnimationFrame(frame);
+    };
+    // Tôn trọng cài đặt giảm chuyển động: vẽ xe đứng yên đúng vị trí xuất phát
+    if (reduce) {
+      cars.forEach((c, i) => {
+        const el = refs.current[i]; if (!el) return;
+        const [x, y] = htPosOn(c.r, c.s);
+        el.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+      });
+      return;
+    }
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+  }, [n]);
+
+  return (
+    <g className="ht-traffic">
+      {Array.from({ length: n }, (_, i) => (
+        <g key={i} ref={el => (refs.current[i] = el)}>
+          <rect x={-3.4} y={-2} width={6.8} height={4} rx={1} fill="var(--ht-hull)" />
+          <rect x={1.2} y={-1.4} width={2} height={2.8} rx={0.4} fill="var(--ht-accent)" opacity={0.9} />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+function HTPortMap({ tilt, onPick, picked, quayVessels, shoreByKey, buoyZones, traffic, truckCount }) {
   // Block tô một màu: hệ thống chưa biết block nào đang chứa bao nhiêu container.
   const blockFace = (b) => ({
     fill: "var(--ht-d0)",
@@ -316,6 +391,8 @@ function HTPortMap({ tilt, onPick, picked, quayVessels, shoreByKey, buoyZones })
         })}
       </g>
 
+      {traffic && <HTTraffic count={truckCount} />}
+
       {/* Cẩu bờ — trạng thái thật từ danh mục kỹ thuật, thứ tự dọc cầu do vận hành cung cấp */}
       <g>
         {HT_SHORE_CRANES.map((code, i) => {
@@ -443,6 +520,7 @@ function HTPortView({ onClose }) {
     return ids.map(id => ({ id, job: byBerth[id] || null }));
   }, []);
   const [tilt, setTilt] = React.useState(true);
+  const [traffic, setTraffic] = React.useState(true);
   const [pick, setPick] = React.useState(null);
   const stageRef = React.useRef(null);
 
@@ -541,11 +619,18 @@ function HTPortView({ onClose }) {
       <div className="ht-grid">
         <div className="card ht-mapcard" ref={stageRef}>
           <div className="ht-maptools">
-            <span className="ht-hint">Mặt bằng theo bản vẽ MB bãi ICD 25/09/2026 — chạm vào block để xem sức chứa</span>
+            <button type="button" className="ht-chip" aria-pressed={traffic} onClick={() => setTraffic(t => !t)}>
+              <i></i>Xe chạy
+            </button>
+            <span className="ht-hint">
+              Mặt bằng theo bản vẽ MB bãi ICD 25/09/2026 — chạm vào block để xem sức chứa.
+              {traffic && <> Xe trên sơ đồ là <b>hoạt hình minh hoạ</b>: số xe bằng số đầu kéo đang sẵn sàng, đường chạy không phải vị trí thật.</>}
+            </span>
           </div>
           <div className="ht-stage">
             <HTPortMap tilt={tilt} onPick={setPick} picked={pick && pick.kind === "blk" ? pick.id : null}
-                        quayVessels={quayVessels} shoreByKey={shoreByKey} buoyZones={buoyZones} />
+                        quayVessels={quayVessels} shoreByKey={shoreByKey} buoyZones={buoyZones}
+                        traffic={traffic} truckCount={on(equip.trucks)} />
           </div>
           <HTPickCard pick={pick} quayVessels={quayVessels} shoreByKey={shoreByKey} buoyZones={buoyZones} onClose={() => setPick(null)} />
         </div>
