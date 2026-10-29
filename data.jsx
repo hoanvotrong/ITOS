@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-10-28 14:00 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-10-29 09:30 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -23,9 +23,9 @@ const OCC_WINDOW = {
     "endDay":  122,
     "month":  10,
     "year":  2026,
-    "todayDate":  28,
-    "todayCol":  89,
-    "todayHour":  14
+    "todayDate":  29,
+    "todayCol":  90,
+    "todayHour":  9.5
 };
 
 const OCC_BERTHS = [
@@ -3377,6 +3377,34 @@ const OCC_JOBS = [
                           {
                               "type":  "tug",
                               "id":  "VNL 03",
+                              "from":  "2026-10-28 22:45",
+                              "to":  "2026-10-28 23:35",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL RUBY",
+                              "from":  "2026-10-28 22:45",
+                              "to":  "2026-10-28 23:35",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 03",
+                              "from":  "2026-10-28 22:00",
+                              "to":  "2026-10-28 22:35",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL RUBY",
+                              "from":  "2026-10-28 22:00",
+                              "to":  "2026-10-28 22:35",
+                              "role":  "Hỗ trợ cập/rời phao"
+                          },
+                          {
+                              "type":  "tug",
+                              "id":  "VNL 03",
                               "from":  "2026-10-26 10:00",
                               "to":  "2026-10-26 10:50",
                               "role":  "Hỗ trợ cập/rời phao"
@@ -3500,6 +3528,18 @@ const OCC_JOBS = [
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 215-07 - cập",
                              "status":  "completed",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "VIET THUAN 215-07 - rời",
+                             "status":  "in_progress",
+                             "isMain":  false
+                         },
+                         {
+                             "kind":  "dvhh",
+                             "label":  "BULK ORIANNA - RỜI",
+                             "status":  "in_progress",
                              "isMain":  false
                          }
                      ],
@@ -15715,7 +15755,7 @@ const OCC_DVHH = [
                      "VNL VISION"
                  ],
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "completed",
         "revenue":  "0 ₫"
     },
     {
@@ -23215,6 +23255,54 @@ const OCC_TUG_TASK_TYPES = {
 
 const OCC_TUG_TASKS = [
     {
+        "id":  "TT-29964-1",
+        "tugId":  "VNL 03",
+        "from":  "2026-10-28 22:45",
+        "to":  "2026-10-28 23:35",
+        "type":  "tow_in",
+        "vessel":  "BULK ORIANNA/ SC",
+        "customer":  "CÔNG TY TNHH TREE MARINE",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-334"
+    },
+    {
+        "id":  "TT-29964-2",
+        "tugId":  "VNL RUBY",
+        "from":  "2026-10-28 22:45",
+        "to":  "2026-10-28 23:35",
+        "type":  "tow_in",
+        "vessel":  "BULK ORIANNA/ SC",
+        "customer":  "CÔNG TY TNHH TREE MARINE",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-334"
+    },
+    {
+        "id":  "TT-29963-1",
+        "tugId":  "VNL 03",
+        "from":  "2026-10-28 22:00",
+        "to":  "2026-10-28 22:35",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 215-07",
+        "customer":  "CÔNG TY TNHH TREE MARINE",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-334"
+    },
+    {
+        "id":  "TT-29963-2",
+        "tugId":  "VNL RUBY",
+        "from":  "2026-10-28 22:00",
+        "to":  "2026-10-28 22:35",
+        "type":  "tow_in",
+        "vessel":  "VIET THUAN 215-07",
+        "customer":  "CÔNG TY TNHH TREE MARINE",
+        "status":  "done",
+        "revenue":  "0 ₫",
+        "linkJobId":  "2610-334"
+    },
+    {
         "id":  "TT-29962-1",
         "tugId":  "VNL 07",
         "from":  "2026-11-04 01:00",
@@ -23318,7 +23406,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "NESTOS",
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29957"
     },
@@ -23330,7 +23418,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "NESTOS",
         "customer":  "ZIM VIETNAM LLC",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "dvhhId":  "DV-29957"
     },
