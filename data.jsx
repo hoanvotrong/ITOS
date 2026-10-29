@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-10-29 09:30 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-10-29 14:00 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  29,
     "todayCol":  90,
-    "todayHour":  9.5
+    "todayHour":  14
 };
 
 const OCC_BERTHS = [
@@ -3533,13 +3533,13 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 215-07 - rời",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  false
                          },
                          {
                              "kind":  "dvhh",
                              "label":  "BULK ORIANNA - RỜI",
-                             "status":  "in_progress",
+                             "status":  "completed",
                              "isMain":  false
                          }
                      ],
@@ -15723,8 +15723,8 @@ const OCC_DVHH = [
     {
         "id":  "DV-29961",
         "title":  "Lai dắt NAM SON 568",
-        "from":  "2026-10-28 11:00",
-        "to":  "2026-10-28 11:30",
+        "from":  "2026-10-28 10:30",
+        "to":  "2026-10-28 11:10",
         "tugs":  [
                      "VNL 07"
                  ],
@@ -15735,8 +15735,8 @@ const OCC_DVHH = [
     {
         "id":  "DV-29960",
         "title":  "Lai dắt MERWEDEGRACHT",
-        "from":  "2026-10-28 09:30",
-        "to":  "2026-10-28 10:30",
+        "from":  "2026-10-28 09:20",
+        "to":  "2026-10-28 10:05",
         "tugs":  [
                      "VNL 05",
                      "VNL 07"
@@ -16300,7 +16300,7 @@ const OCC_DVHH = [
         "id":  "DV-29892",
         "title":  "Lai dắt SHUN DA FANG ZHOU",
         "from":  "2026-10-28 02:30",
-        "to":  "2026-10-28 03:00",
+        "to":  "2026-10-28 03:10",
         "tugs":  [
                      "VNL 05",
                      "VNL EXPLORER"
@@ -23329,8 +23329,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29961-1",
         "tugId":  "VNL 07",
-        "from":  "2026-10-28 11:00",
-        "to":  "2026-10-28 11:30",
+        "from":  "2026-10-28 10:30",
+        "to":  "2026-10-28 11:10",
         "type":  "tow_in",
         "vessel":  "NAM SON 568",
         "customer":  "CÔNG TY CP CẢNG DỊCH VỤ DẦU KHÍ TỔNG HỢP PHÚ MỸ (PTSC PM)",
@@ -23341,8 +23341,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29960-1",
         "tugId":  "VNL 05",
-        "from":  "2026-10-28 09:30",
-        "to":  "2026-10-28 10:30",
+        "from":  "2026-10-28 09:20",
+        "to":  "2026-10-28 10:05",
         "type":  "tow_in",
         "vessel":  "MERWEDEGRACHT",
         "customer":  "CÔNG TY CỔ PHẦN THORESEN – VI NA MA TUG (TVT)",
@@ -23353,8 +23353,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-29960-2",
         "tugId":  "VNL 07",
-        "from":  "2026-10-28 09:30",
-        "to":  "2026-10-28 10:30",
+        "from":  "2026-10-28 09:20",
+        "to":  "2026-10-28 10:05",
         "type":  "tow_in",
         "vessel":  "MERWEDEGRACHT",
         "customer":  "CÔNG TY CỔ PHẦN THORESEN – VI NA MA TUG (TVT)",
@@ -24806,7 +24806,7 @@ const OCC_TUG_TASKS = [
         "id":  "TT-29892-1",
         "tugId":  "VNL 05",
         "from":  "2026-10-28 02:30",
-        "to":  "2026-10-28 03:00",
+        "to":  "2026-10-28 03:10",
         "type":  "tow_in",
         "vessel":  "SHUN DA FANG ZHOU",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
@@ -24818,7 +24818,7 @@ const OCC_TUG_TASKS = [
         "id":  "TT-29892-2",
         "tugId":  "VNL EXPLORER",
         "from":  "2026-10-28 02:30",
-        "to":  "2026-10-28 03:00",
+        "to":  "2026-10-28 03:10",
         "type":  "tow_in",
         "vessel":  "SHUN DA FANG ZHOU",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ \u0026 MÔI GIỚI VẬN TẢI BIỂN QUỐC TẾ  (AGE-LINES CO.,LTD)",
