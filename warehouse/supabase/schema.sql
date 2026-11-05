@@ -68,6 +68,8 @@ create table if not exists zones (
   note         text not null default '',
   unique (warehouse_id, code)
 );
+-- Khu hết hàng sau một phiếu xuất/chuyển đi được "đóng": ẩn khỏi sơ đồ nhưng giữ lại để tra lịch sử phiếu
+alter table zones add column if not exists archived_at timestamptz;
 
 -- ---------- sổ giao dịch ----------
 create table if not exists txns (
@@ -132,6 +134,22 @@ language sql stable security definer set search_path = public as $$
          coalesce((select code from zones where id = p_zone), '?')
 $$;
 
+-- Đồng bộ trạng thái đóng/mở của khu theo tồn hiện tại:
+-- còn hàng → mở lại; hết hàng và p_allow_close → đóng (chỉ khi hàng vừa được lấy ra khỏi khu)
+create or replace function sync_zone_state(p_zone text, p_allow_close boolean) returns void
+language plpgsql security definer set search_path = public as $$
+declare v_load numeric;
+begin
+  if p_zone is null then return; end if;
+  select coalesce(sum(delta), 0) into v_load from txn_effects where zone_id = p_zone;
+  if v_load > 0.0005 then
+    update zones set archived_at = null where id = p_zone and archived_at is not null;
+  elsif p_allow_close then
+    update zones set archived_at = now() where id = p_zone and archived_at is null;
+  end if;
+end;
+$$;
+
 -- Khóa sổ: mọi thao tác ghi sổ chạy tuần tự (khối lượng ghi nhỏ nên đủ dùng)
 create or replace function lock_ledger() returns void
 language sql as $$ select pg_advisory_xact_lock(4242) $$;
@@ -189,6 +207,10 @@ begin
       lot_label(v_bad.customer_id, v_bad.cargo_id, v_bad.zone_id), trim_scale(round(-v_bad.balance, 3)), to_char(v_bad.date, 'DD/MM/YYYY');
   end if;
 
+  -- khu nguồn hết hàng sau phiếu xuất/chuyển/kiểm kê → đóng; khu đích có hàng → mở lại nếu đang đóng
+  perform sync_zone_state(v.zone_id, v_type <> 'IN');
+  if v.to_zone_id is not null and v.to_zone_id <> v.zone_id then perform sync_zone_state(v.to_zone_id, false); end if;
+
   return v;
 end;
 $$;
@@ -215,6 +237,10 @@ begin
     raise exception 'Không thể xóa phiếu %: % sẽ âm % tấn vào ngày %.',
       v.no, lot_label(v_bad.customer_id, v_bad.cargo_id, v_bad.zone_id), trim_scale(round(-v_bad.balance, 3)), to_char(v_bad.date, 'DD/MM/YYYY');
   end if;
+
+  -- xóa một phiếu xuất làm khu có hàng trở lại → mở lại khu (không tự đóng khi xóa phiếu)
+  perform sync_zone_state(v.zone_id, false);
+  perform sync_zone_state(v.to_zone_id, false);
 end;
 $$;
 
@@ -244,11 +270,12 @@ begin
   select x.id, upper(trim(x.code)), x.name, coalesce(x."group", ''), coalesce(x.unit, 'tấn'), coalesce(x.note, '')
     from jsonb_to_recordset(coalesce(p -> 'cargos', '[]')) as x(id text, code text, name text, "group" text, unit text, note text);
 
-  insert into zones (id, warehouse_id, code, name, customer_id, cargo_id, x, y, w, h, capacity, note)
+  insert into zones (id, warehouse_id, code, name, customer_id, cargo_id, x, y, w, h, capacity, note, archived_at)
   select x.id, x."warehouseId", x.code, coalesce(x.name, ''), nullif(x."customerId", ''), nullif(x."cargoId", ''),
-         x.x, x.y, x.w, x.h, coalesce(x.capacity, 0), coalesce(x.note, '')
+         x.x, x.y, x.w, x.h, coalesce(x.capacity, 0), coalesce(x.note, ''), nullif(x."archivedAt", '')::timestamptz
     from jsonb_to_recordset(coalesce(p -> 'zones', '[]')) as x(id text, "warehouseId" text, code text, name text,
-         "customerId" text, "cargoId" text, x numeric, y numeric, w numeric, h numeric, capacity numeric, note text);
+         "customerId" text, "cargoId" text, x numeric, y numeric, w numeric, h numeric, capacity numeric, note text,
+         "archivedAt" text);
 
   insert into txns (id, no, type, date, customer_id, cargo_id, zone_id, to_zone_id, to_customer_id,
                     qty, vehicle, doc_ref, note, created_at, created_by)
@@ -302,7 +329,7 @@ create policy "members read" on counters for select to authenticated using (is_m
 revoke all on function post_txn(jsonb), delete_txn(text), import_snapshot(jsonb) from public, anon;
 grant execute on function post_txn(jsonb), delete_txn(text), import_snapshot(jsonb) to authenticated;
 -- hàm nội bộ: chỉ được gọi bên trong các hàm ghi sổ
-revoke all on function ledger_check(text[]), lot_label(text, text, text), lock_ledger() from public, anon, authenticated;
+revoke all on function ledger_check(text[]), lot_label(text, text, text), lock_ledger(), sync_zone_state(text, boolean) from public, anon, authenticated;
 
 -- ---------- cập nhật thời gian thực ----------
 do $$

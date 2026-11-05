@@ -142,6 +142,34 @@ function nextDocNo(db, type, date) {
   return { no: `${TXN_TYPES[type].prefix}${date.slice(2, 4)}${date.slice(5, 7)}-${pad(n, 4)}`, n };
 }
 
+/* ---------- khu hết hàng tự đóng ---------- */
+// Khu "đóng" (archivedAt) bị ẩn khỏi sơ đồ và danh sách chọn, nhưng vẫn giữ để tra lịch sử phiếu.
+const activeZones = zones => zones.filter(z => !z.archivedAt);
+
+function notifyZoneClosed(z, db) {
+  const wh = (db.warehouses || []).find(w => w.id === z.warehouseId);
+  setTimeout(() => toast(`Khu ${wh ? wh.code + ' · ' : ''}${z.code} đã hết hàng nên được gỡ khỏi sơ đồ. Lịch sử phiếu vẫn được giữ.`), 0);
+}
+
+// Cùng quy tắc với hàm sync_zone_state trên máy chủ: còn hàng → mở lại;
+// hết hàng → chỉ đóng những khu vừa bị lấy hàng ra (closeIds).
+function syncZoneStates(db, zoneIds, closeIds) {
+  const loads = zoneLoads(computeStock(db.txns));
+  let changed = false;
+  const zones = db.zones.map(z => {
+    if (!zoneIds.includes(z.id)) return z;
+    const load = loads.get(z.id) || 0;
+    if (load > EPS && z.archivedAt) { changed = true; return { ...z, archivedAt: '' }; }
+    if (load <= EPS && !z.archivedAt && closeIds.includes(z.id)) {
+      changed = true;
+      notifyZoneClosed(z, db);
+      return { ...z, archivedAt: new Date().toISOString() };
+    }
+    return z;
+  });
+  return changed ? { ...db, zones } : db;
+}
+
 // Kho dữ liệu dùng chung (Supabase) khi có cấu hình trong config.js, ngược lại lưu trên trình duyệt
 const REMOTE = !!(window.KHO_CONFIG && window.KHO_CONFIG.supabaseUrl && window.KHO_CONFIG.supabaseAnonKey);
 
@@ -168,12 +196,23 @@ function useLocalStore() {
     return { ...fields, id: uid(), no, createdAt: Date.now() };
   };
   const commitTxn = t => {
-    setDb(prev => ({
+    const ids = [t.zoneId, t.toZoneId].filter(Boolean);
+    setDb(prev => syncZoneStates({
       ...prev,
       txns: [...prev.txns, t],
       seq: { ...prev.seq, [t.type]: (prev.seq[t.type] || 0) + 1 },
-    }));
+    }, ids, t.type === 'IN' ? [] : [t.zoneId]));
     return Promise.resolve(t);
+  };
+
+  // xóa phiếu: chỉ mở lại khu nếu có hàng trở lại, không tự đóng khu
+  const deleteTxn = id => {
+    setDb(prev => {
+      const t = prev.txns.find(x => x.id === id);
+      const next = { ...prev, txns: prev.txns.filter(x => x.id !== id) };
+      return t ? syncZoneStates(next, [t.zoneId, t.toZoneId].filter(Boolean), []) : next;
+    });
+    return Promise.resolve();
   };
 
   return {
@@ -185,7 +224,7 @@ function useLocalStore() {
     remove,
     draftTxn,
     commitTxn,
-    deleteTxn: id => { remove('txns', id); return Promise.resolve(); },
+    deleteTxn,
     replaceAll: next => { setDb(withFixedLayout(next)); return Promise.resolve(); },
   };
 }

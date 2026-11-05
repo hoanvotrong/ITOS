@@ -385,16 +385,16 @@ function LayoutScreen({ db, store, stock, loads, lk, params, nav }) {
   );
 }
 
-function nextZoneCode(db, wh) {
+function nextZoneCode(lk, wh) {
   const prefix = wh.code.slice(-1);
-  const nums = db.zones.filter(z => z.warehouseId === wh.id).map(z => +((z.code.match(/(\d+)$/) || [0, 0])[1]));
+  const nums = Object.values(lk.zone).filter(z => z.warehouseId === wh.id).map(z => +((z.code.match(/(\d+)$/) || [0, 0])[1]));
   return `${prefix}-${pad(Math.max(0, ...nums) + 1)}`;
 }
 
 function CreateZoneModal({ rect, db, store, lk, onClose, onCreated }) {
   const wh = lk.wh[rect.warehouseId];
   const area = rect.w * rect.h;
-  const [f, setF] = useState(() => ({ code: nextZoneCode(db, wh), customerId: '', cargoId: '', name: '', capacity: r1(area * (wh.loadRate || 0)) }));
+  const [f, setF] = useState(() => ({ code: nextZoneCode(lk, wh), customerId: '', cargoId: '', name: '', capacity: r1(area * (wh.loadRate || 0)) }));
   const [err, setErr] = useState({});
   const set = patch => setF(x => ({ ...x, ...patch }));
 
@@ -402,7 +402,7 @@ function CreateZoneModal({ rect, db, store, lk, onClose, onCreated }) {
     const code = f.code.trim().toUpperCase();
     const e = {};
     if (!code) e.code = 'Bắt buộc';
-    else if (db.zones.some(z => z.warehouseId === wh.id && z.code.toUpperCase() === code)) e.code = 'Mã đã có trong kho này';
+    else if (Object.values(lk.zone).some(z => z.warehouseId === wh.id && z.code.toUpperCase() === code)) e.code = 'Mã đã có trong kho này (kể cả khu đã đóng)';
     setErr(e);
     if (Object.keys(e).length) return;
     const z = store.upsert('zones', { ...rect, ...f, code, name: f.name.trim(), capacity: Math.max(0, +f.capacity || 0), note: '' });
@@ -558,7 +558,7 @@ function ZoneInspector({ zone, stock, loads, lk, nav, txns }) {
 function ZoneEditor({ zone, db, store, lk, onDeleted }) {
   const wh = lk.wh[zone.warehouseId];
   const set = patch => store.upsert('zones', { ...zone, ...patch });
-  const dupCode = db.zones.some(z => z.id !== zone.id && z.warehouseId === zone.warehouseId && z.code.trim().toLowerCase() === zone.code.trim().toLowerCase());
+  const dupCode = Object.values(lk.zone).some(z => z.id !== zone.id && z.warehouseId === zone.warehouseId && z.code.trim().toLowerCase() === zone.code.trim().toLowerCase());
   const used = db.txns.some(t => t.zoneId === zone.id || t.toZoneId === zone.id);
   const suggested = r1(zone.w * zone.h * (wh?.loadRate || 0));
 

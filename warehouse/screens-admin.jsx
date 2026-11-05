@@ -436,7 +436,7 @@ function DataScreen({ db, store }) {
   };
   const wipe = () => {
     if (!confirm('Xóa toàn bộ giao dịch, khách hàng, hàng hóa? Các khu xếp hàng được giữ lại (bỏ gán khách hàng).')) return;
-    replace({ ...emptyDb(), zones: db.zones.map(z => ({ ...z, customerId: '', cargoId: '' })) }, 'Đã xóa dữ liệu nghiệp vụ');
+    replace({ ...emptyDb(), zones: activeZones(db.zones).map(z => ({ ...z, customerId: '', cargoId: '' })) }, 'Đã xóa dữ liệu nghiệp vụ');
   };
   // Giao dịch gắn với khu xếp hàng nên phải xóa cùng; giữ khách hàng và danh mục hàng
   const wipeLayout = () => {

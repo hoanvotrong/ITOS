@@ -23,8 +23,9 @@ const MAP = {
     table: 'zones',
     from: r => ({
       id: r.id, warehouseId: r.warehouse_id, code: r.code, name: r.name, customerId: r.customer_id || '', cargoId: r.cargo_id || '',
-      x: +r.x, y: +r.y, w: +r.w, h: +r.h, capacity: +r.capacity, note: r.note,
+      x: +r.x, y: +r.y, w: +r.w, h: +r.h, capacity: +r.capacity, note: r.note, archivedAt: r.archived_at || '',
     }),
+    // archived_at do máy chủ quản lý (hàm ghi sổ), không gửi từ trình duyệt
     to: z => ({
       id: z.id, warehouse_id: z.warehouseId, code: z.code, name: z.name || '', customer_id: z.customerId || null, cargo_id: z.cargoId || null,
       x: z.x, y: z.y, w: z.w, h: z.h, capacity: +z.capacity || 0, note: z.note || '',
@@ -108,7 +109,9 @@ function useRemoteStore() {
           setDb(prev => {
             if (payload.eventType === 'DELETE') return { ...prev, [coll]: prev[coll].filter(x => x.id !== payload.old.id) };
             const it = MAP[coll].from(payload.new);
-            const exists = prev[coll].some(x => x.id === it.id);
+            const old = prev[coll].find(x => x.id === it.id);
+            if (coll === 'zones' && it.archivedAt && old && !old.archivedAt) notifyZoneClosed(it, prev);
+            const exists = !!old;
             return { ...prev, [coll]: exists ? prev[coll].map(x => (x.id === it.id ? it : x)) : [...prev[coll], it] };
           });
         });

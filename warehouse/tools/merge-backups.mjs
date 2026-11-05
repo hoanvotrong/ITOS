@@ -128,6 +128,7 @@ for (const t of good) {
 const overlap = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 for (let i = 0; i < zones.length; i++) {
   for (let j = i + 1; j < zones.length; j++) {
+    if (zones[i].archivedAt || zones[j].archivedAt) continue; // khu đã đóng không còn trên sơ đồ
     if (zones[i].warehouseId === zones[j].warehouseId && overlap(zones[i], zones[j])) {
       say(`! Khu ${zones[i].code} và ${zones[j].code} (${zones[i].warehouseId === 'w_02a' ? 'VNL-02A' : 'VNL-02B'}) chồng lên nhau — sửa trên sơ đồ sau khi nạp`);
     }

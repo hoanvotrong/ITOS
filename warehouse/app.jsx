@@ -46,11 +46,13 @@ function App() {
   const lk = useMemo(() => ({ cust: byId(db.customers), cargo: byId(db.cargos), zone: byId(db.zones), wh: byId(db.warehouses) }), [db.customers, db.cargos, db.zones, db.warehouses]);
   const stock = useMemo(() => computeStock(db.txns), [db.txns]);
   const loads = useMemo(() => zoneLoads(stock), [stock]);
+  // Màn hình làm việc chỉ thấy khu đang mở; lk (nhãn khu trong phiếu, báo cáo) và màn Sao lưu dùng đủ mọi khu
+  const view = useMemo(() => ({ ...db, zones: activeZones(db.zones) }), [db]);
 
   if (store.status === 'login') return <React.Fragment><LoginScreen store={store} /><ToastHost /></React.Fragment>;
   if (store.status !== 'ready') return <React.Fragment><GateMessage store={store} /><ToastHost /></React.Fragment>;
 
-  const props = { db, store, stock, loads, lk, params: route.params, nav };
+  const props = { db: view, store, stock, loads, lk, params: route.params, nav };
   const key = route.screen + JSON.stringify(route.params);
   let screen;
   switch (route.screen) {
@@ -62,7 +64,7 @@ function App() {
     case 'customers': screen = <CustomersScreen {...props} />; break;
     case 'report': screen = <ReportScreen {...props} />; break;
     case 'cargos': screen = <CargosScreen {...props} />; break;
-    case 'data': screen = <DataScreen {...props} />; break;
+    case 'data': screen = <DataScreen {...props} db={db} />; break;
     default: screen = <DashboardScreen {...props} />;
   }
 
