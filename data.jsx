@@ -11,7 +11,7 @@ const personById = id => PEOPLE.find(p => p.id === id);
 
 /* ============================================================
  * OCC — Operations Command Center (BOD view)
- * Xuất tự động từ database ETVNL lúc 2026-11-06 08:27 bởi scripts/export-occ-data.ps1
+ * Xuất tự động từ database ETVNL lúc 2026-11-06 14:00 bởi scripts/export-occ-data.ps1
  * Chạy lại script này để làm mới. XEM GHI CHÚ TODO rải rác bên dưới —
  * vài field (revenue, contract, pic, progress %, phân loại tug task)
  * còn là giá trị tạm/ước lượng, cần bổ sung nguồn dữ liệu thật.
@@ -25,7 +25,7 @@ const OCC_WINDOW = {
     "year":  2026,
     "todayDate":  6,
     "todayCol":  67,
-    "todayHour":  8.45
+    "todayHour":  14
 };
 
 const OCC_BERTHS = [
@@ -1143,6 +1143,14 @@ const OCC_EQUIPMENT = [
         "offlineSince":  ""
     },
     {
+        "id":  "SPREADER-08",
+        "name":  "Ngáng container 8",
+        "detail":  "Ngáng container 40\u0027",
+        "status":  "ONLINE",
+        "category":  "12. Ngáng container",
+        "offlineSince":  ""
+    },
+    {
         "id":  "Grab-Kardesler-01",
         "name":  "Gàu ngoạm K1",
         "detail":  "Gàu ngoạm K1",
@@ -1926,10 +1934,10 @@ const OCC_JOBS = [
         "pic":  "",
         "status":  "planned",
         "progress":  0,
-        "start":  "2026-11-05 01:00",
-        "end":  "2026-11-11 12:00",
-        "eta":  "2026-11-05 01:00",
-        "etd":  "2026-11-11 12:00",
+        "start":  "2026-11-06 14:00",
+        "end":  "2026-11-12 12:00",
+        "eta":  "2026-11-06 14:00",
+        "etd":  "2026-11-12 12:00",
         "revenue":  "0 ₫",
         "resources":  [
                           {
@@ -2071,7 +2079,7 @@ const OCC_JOBS = [
         "contract":  "",
         "pic":  "",
         "status":  "in_progress",
-        "progress":  54,
+        "progress":  71,
         "start":  "2026-11-01 01:00",
         "end":  "2026-11-06 12:00",
         "eta":  "2026-11-01 01:00",
@@ -2095,29 +2103,29 @@ const OCC_JOBS = [
                           {
                               "type":  "tug",
                               "id":  "VNL 03",
-                              "from":  "2026-11-05 17:00",
-                              "to":  "2026-11-05 17:30",
+                              "from":  "2026-11-05 17:30",
+                              "to":  "2026-11-05 18:20",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
                               "type":  "tug",
                               "id":  "VNL 07",
-                              "from":  "2026-11-05 17:00",
-                              "to":  "2026-11-05 17:30",
+                              "from":  "2026-11-05 17:30",
+                              "to":  "2026-11-05 18:20",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
                               "type":  "tug",
                               "id":  "VNL 03",
-                              "from":  "2026-11-05 16:30",
-                              "to":  "2026-11-05 17:00",
+                              "from":  "2026-11-05 16:40",
+                              "to":  "2026-11-05 17:20",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
                               "type":  "tug",
                               "id":  "VNL 07",
-                              "from":  "2026-11-05 16:30",
-                              "to":  "2026-11-05 17:00",
+                              "from":  "2026-11-05 16:40",
+                              "to":  "2026-11-05 17:20",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
@@ -2245,6 +2253,20 @@ const OCC_JOBS = [
                               "from":  "2026-11-04 06:00",
                               "to":  "2026-11-05 06:00",
                               "role":  "Làm hàng 10.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 09",
+                              "from":  "2026-11-05 06:00",
+                              "to":  "2026-11-06 06:00",
+                              "role":  "Làm hàng 3.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "ITC 01",
+                              "from":  "2026-11-05 06:00",
+                              "to":  "2026-11-06 06:00",
+                              "role":  "Làm hàng 6.000 MT"
                           }
                       ],
         "services":  [
@@ -2293,13 +2315,13 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VIET THUAN 169 - rời",
-                             "status":  "planned",
+                             "status":  "completed",
                              "isMain":  false
                          },
                          {
                              "kind":  "dvhh",
                              "label":  "VNL09 - cập (BP05 -\u003e HS18)",
-                             "status":  "planned",
+                             "status":  "completed",
                              "isMain":  false
                          },
                          {
@@ -2345,6 +2367,18 @@ const OCC_JOBS = [
                              "to":  "2026-11-05 06:00",
                              "qty":  "10.000 MT",
                              "device":  "ITC 01"
+                         },
+                         {
+                             "from":  "2026-11-05 06:00",
+                             "to":  "2026-11-06 06:00",
+                             "qty":  "3.000 MT",
+                             "device":  "VNL 09"
+                         },
+                         {
+                             "from":  "2026-11-05 06:00",
+                             "to":  "2026-11-06 06:00",
+                             "qty":  "6.000 MT",
+                             "device":  "ITC 01"
                          }
                      ],
         "equipment":  [
@@ -2352,8 +2386,8 @@ const OCC_JOBS = [
                           "ITC 01"
                       ],
         "qtyTotal":  "51.000 MT",
-        "qtyFinish":  "27.400 MT",
-        "qtyRemain":  "23.600 MT",
+        "qtyFinish":  "36.400 MT",
+        "qtyRemain":  "14.600 MT",
         "notes":  "",
         "risks":  [
 
@@ -2746,7 +2780,7 @@ const OCC_JOBS = [
         "contract":  "",
         "pic":  "",
         "status":  "in_progress",
-        "progress":  19,
+        "progress":  28,
         "start":  "2026-11-02 00:00",
         "end":  "2026-11-11 12:00",
         "eta":  "2026-11-02 00:00",
@@ -2815,6 +2849,20 @@ const OCC_JOBS = [
                               "from":  "2026-11-04 06:00",
                               "to":  "2026-11-05 06:00",
                               "role":  "Làm hàng 1.700 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi FC 06",
+                              "from":  "2026-11-05 06:00",
+                              "to":  "2026-11-06 06:00",
+                              "role":  "Làm hàng 4.200 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-11-05 06:00",
+                              "to":  "2026-11-06 06:00",
+                              "role":  "Làm hàng 800 MT"
                           }
                       ],
         "services":  [
@@ -2861,14 +2909,27 @@ const OCC_JOBS = [
                              "to":  "2026-11-05 06:00",
                              "qty":  "1.700 MT",
                              "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-11-05 06:00",
+                             "to":  "2026-11-06 06:00",
+                             "qty":  "4.200 MT",
+                             "device":  "FC 06"
+                         },
+                         {
+                             "from":  "2026-11-05 06:00",
+                             "to":  "2026-11-06 06:00",
+                             "qty":  "800 MT",
+                             "device":  "VNL 08"
                          }
                      ],
         "equipment":  [
-                          "FC 06"
+                          "FC 06",
+                          "VNL 08"
                       ],
         "qtyTotal":  "57.000 MT",
-        "qtyFinish":  "11.000 MT",
-        "qtyRemain":  "46.000 MT",
+        "qtyFinish":  "16.000 MT",
+        "qtyRemain":  "41.000 MT",
         "notes":  "",
         "risks":  [
 
@@ -2889,7 +2950,7 @@ const OCC_JOBS = [
                    },
         "cargo":  {
                       "name":  "Than đá",
-                      "qty":  "74.000 MT",
+                      "qty":  "72.000 MT",
                       "op":  ""
                   },
         "berthId":  "HS-18",
@@ -2898,9 +2959,9 @@ const OCC_JOBS = [
         "pic":  "",
         "status":  "planned",
         "progress":  0,
-        "start":  "2026-11-07 01:00",
+        "start":  "2026-11-07 14:00",
         "end":  "2026-11-14 12:00",
-        "eta":  "2026-11-07 01:00",
+        "eta":  "2026-11-07 14:00",
         "etd":  "2026-11-14 12:00",
         "revenue":  "0 ₫",
         "resources":  [
@@ -2970,11 +3031,11 @@ const OCC_JOBS = [
         "contract":  "",
         "pic":  "",
         "status":  "in_progress",
-        "progress":  62,
+        "progress":  71,
         "start":  "2026-11-01 23:30",
-        "end":  "2026-11-07 12:00",
+        "end":  "2026-11-08 12:00",
         "eta":  "2026-11-01 23:30",
-        "etd":  "2026-11-07 12:00",
+        "etd":  "2026-11-08 12:00",
         "revenue":  "0 ₫",
         "resources":  [
                           {
@@ -3158,6 +3219,20 @@ const OCC_JOBS = [
                               "from":  "2026-11-04 06:00",
                               "to":  "2026-11-05 06:00",
                               "role":  "Làm hàng 4.500 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "TÍN THÀNH PT 04",
+                              "from":  "2026-11-05 06:00",
+                              "to":  "2026-11-06 06:00",
+                              "role":  "Làm hàng 3.000 MT"
+                          },
+                          {
+                              "type":  "crane",
+                              "id":  "Cẩu nổi VNL 08",
+                              "from":  "2026-11-05 06:00",
+                              "to":  "2026-11-06 06:00",
+                              "role":  "Làm hàng 3.000 MT"
                           }
                       ],
         "services":  [
@@ -3264,6 +3339,18 @@ const OCC_JOBS = [
                              "to":  "2026-11-05 06:00",
                              "qty":  "4.500 MT",
                              "device":  "VNL 08"
+                         },
+                         {
+                             "from":  "2026-11-05 06:00",
+                             "to":  "2026-11-06 06:00",
+                             "qty":  "3.000 MT",
+                             "device":  "TÍN THÀNH PT 04"
+                         },
+                         {
+                             "from":  "2026-11-05 06:00",
+                             "to":  "2026-11-06 06:00",
+                             "qty":  "3.000 MT",
+                             "device":  "VNL 08"
                          }
                      ],
         "equipment":  [
@@ -3271,8 +3358,8 @@ const OCC_JOBS = [
                           "VNL 08"
                       ],
         "qtyTotal":  "72.000 MT",
-        "qtyFinish":  "45.000 MT",
-        "qtyRemain":  "27.000 MT",
+        "qtyFinish":  "51.000 MT",
+        "qtyRemain":  "21.000 MT",
         "notes":  "",
         "risks":  [
 
@@ -4094,11 +4181,11 @@ const OCC_JOBS = [
         "contract":  "",
         "pic":  "",
         "status":  "in_progress",
-        "progress":  93,
+        "progress":  100,
         "start":  "2026-10-29 03:30",
-        "end":  "2026-11-05 22:00",
+        "end":  "2026-11-06 11:00",
         "eta":  "2026-10-29 03:30",
-        "etd":  "2026-11-05 22:00",
+        "etd":  "2026-11-06 11:00",
         "revenue":  "0 ₫",
         "resources":  [
                           {
@@ -4118,15 +4205,15 @@ const OCC_JOBS = [
                           {
                               "type":  "tug",
                               "id":  "VNL 03",
-                              "from":  "2026-11-05 15:00",
-                              "to":  "2026-11-05 16:00",
+                              "from":  "2026-11-05 15:10",
+                              "to":  "2026-11-05 16:30",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
                               "type":  "tug",
                               "id":  "VNL 07",
-                              "from":  "2026-11-05 15:00",
-                              "to":  "2026-11-05 16:00",
+                              "from":  "2026-11-05 15:10",
+                              "to":  "2026-11-05 16:30",
                               "role":  "Hỗ trợ cập/rời phao"
                           },
                           {
@@ -4180,7 +4267,7 @@ const OCC_JOBS = [
                          {
                              "kind":  "dvhh",
                              "label":  "VNL09 - rời (BP03 -\u003e BP05)",
-                             "status":  "planned",
+                             "status":  "completed",
                              "isMain":  false
                          },
                          {
@@ -4232,14 +4319,20 @@ const OCC_JOBS = [
                              "to":  "2026-11-05 06:00",
                              "qty":  "8.200 MT",
                              "device":  ""
+                         },
+                         {
+                             "from":  "2026-11-05 06:00",
+                             "to":  "2026-11-06 06:00",
+                             "qty":  "4.100 MT",
+                             "device":  ""
                          }
                      ],
         "equipment":  [
 
                       ],
         "qtyTotal":  "55.000 MT",
-        "qtyFinish":  "50.900 MT",
-        "qtyRemain":  "4.100 MT",
+        "qtyFinish":  "55.000 MT",
+        "qtyRemain":  "0 MT",
         "notes":  "",
         "risks":  [
 
@@ -13370,8 +13463,8 @@ const OCC_DVHH = [
     {
         "id":  "DV-30040",
         "title":  "Lai dắt SURYA PERKASA 502 \u0026 LL 3022",
-        "from":  "2026-11-05 05:00",
-        "to":  "2026-11-05 12:00",
+        "from":  "2026-11-05 02:45",
+        "to":  "2026-11-05 11:35",
         "tugs":  [
                      "VNL 03",
                      "VNL 05"
@@ -18923,8 +19016,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-30046-1",
         "tugId":  "VNL 03",
-        "from":  "2026-11-05 17:00",
-        "to":  "2026-11-05 17:30",
+        "from":  "2026-11-05 17:30",
+        "to":  "2026-11-05 18:20",
         "type":  "tow_in",
         "vessel":  "VNL09",
         "customer":  "VINA LOGISTICS CORPORATION",
@@ -18935,8 +19028,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-30046-2",
         "tugId":  "VNL 07",
-        "from":  "2026-11-05 17:00",
-        "to":  "2026-11-05 17:30",
+        "from":  "2026-11-05 17:30",
+        "to":  "2026-11-05 18:20",
         "type":  "tow_in",
         "vessel":  "VNL09",
         "customer":  "VINA LOGISTICS CORPORATION",
@@ -18947,8 +19040,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-30045-1",
         "tugId":  "VNL 03",
-        "from":  "2026-11-05 16:30",
-        "to":  "2026-11-05 17:00",
+        "from":  "2026-11-05 16:40",
+        "to":  "2026-11-05 17:20",
         "type":  "tow_in",
         "vessel":  "VIET THUAN 169",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
@@ -18959,8 +19052,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-30045-2",
         "tugId":  "VNL 07",
-        "from":  "2026-11-05 16:30",
-        "to":  "2026-11-05 17:00",
+        "from":  "2026-11-05 16:40",
+        "to":  "2026-11-05 17:20",
         "type":  "tow_in",
         "vessel":  "VIET THUAN 169",
         "customer":  "CÔNG TY TNHH THƯƠNG MẠI VẬN TẢI VIỆT TÍN",
@@ -18976,7 +19069,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "JPS BARCELONA/ SC",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN VŨNG TÀU (VTOSA)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2610-341"
     },
@@ -18988,15 +19081,15 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "JPS BARCELONA/ SC",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN VŨNG TÀU (VTOSA)",
-        "status":  "planned",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2610-341"
     },
     {
         "id":  "TT-30043-1",
         "tugId":  "VNL 03",
-        "from":  "2026-11-05 15:00",
-        "to":  "2026-11-05 16:00",
+        "from":  "2026-11-05 15:10",
+        "to":  "2026-11-05 16:30",
         "type":  "tow_in",
         "vessel":  "VNL09",
         "customer":  "VINA LOGISTICS CORPORATION",
@@ -19007,8 +19100,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-30043-2",
         "tugId":  "VNL 07",
-        "from":  "2026-11-05 15:00",
-        "to":  "2026-11-05 16:00",
+        "from":  "2026-11-05 15:10",
+        "to":  "2026-11-05 16:30",
         "type":  "tow_in",
         "vessel":  "VNL09",
         "customer":  "VINA LOGISTICS CORPORATION",
@@ -19067,8 +19160,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-30040-1",
         "tugId":  "VNL 03",
-        "from":  "2026-11-05 05:00",
-        "to":  "2026-11-05 12:00",
+        "from":  "2026-11-05 02:45",
+        "to":  "2026-11-05 11:35",
         "type":  "tow_in",
         "vessel":  "SURYA PERKASA 502 \u0026 LL 3022",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI AN BÌNH",
@@ -19079,8 +19172,8 @@ const OCC_TUG_TASKS = [
     {
         "id":  "TT-30040-2",
         "tugId":  "VNL 05",
-        "from":  "2026-11-05 05:00",
-        "to":  "2026-11-05 12:00",
+        "from":  "2026-11-05 02:45",
+        "to":  "2026-11-05 11:35",
         "type":  "tow_in",
         "vessel":  "SURYA PERKASA 502 \u0026 LL 3022",
         "customer":  "CÔNG TY CỔ PHẦN HÀNG HẢI AN BÌNH",
@@ -19576,7 +19669,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "ULTRA VIRTUE/ SC",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN VŨNG TÀU (VTOSA)",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2611-045"
     },
@@ -19588,7 +19681,7 @@ const OCC_TUG_TASKS = [
         "type":  "tow_in",
         "vessel":  "ULTRA VIRTUE/ SC",
         "customer":  "CÔNG TY TNHH ĐẠI LÝ TÀU BIỂN VŨNG TÀU (VTOSA)",
-        "status":  "in_progress",
+        "status":  "done",
         "revenue":  "0 ₫",
         "linkJobId":  "2611-045"
     },
