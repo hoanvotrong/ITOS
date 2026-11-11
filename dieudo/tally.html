@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/ttos.css?v=20261111a">
+<link rel="stylesheet" href="css/pilot.css?v=20261111a">
+<!-- React 18 UMD + Babel standalone, không npm / bundler (giống OCC, Kho) -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<!-- Dùng chung cấu hình Supabase với Kho (chỉ khoá anon) -->
+<script src="../warehouse/config.js"></script>
+<script>window.DD_VER = "20261111a";</script>
+<script src="js/time.js?v=20261111a"></script>
+<script src="js/sync.js?v=20261111a"></script>
+<meta name="theme-color" content="#0E7490">
+<title>App Tally · Điều độ</title>
+<script>
+window.DD_PAGE = {
+  title: "App Tally",
+  roles: ["TALLY"],
+  loginHint: "Đăng nhập bằng tài khoản ca × dịch vụ (VD: Tally Ca 1 · ICD). Chưa có tài khoản: liên hệ KHTH.",
+  wrongRole: (r) => "Trang này chỉ cho tài khoản tally ca. KHTH dùng dieudo/index.html.",
+  scripts: ["js/icons.jsx", "js/shared.jsx", "js/dd.jsx", "js/tally.jsx", "js/ops.jsx", "js/gate.jsx", "js/svc.jsx", "js/vt.jsx", "js/yard.jsx", "js/river.jsx", "js/app-tally.jsx"],
+  mount: () => ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(DdTallyApp)),
+};
+</script>
+<script src="js/boot.js?v=20261111a"></script>
+</head>
+<body><div id="root"></div></body></html>
