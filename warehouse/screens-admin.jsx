@@ -252,7 +252,7 @@ function ReportScreen({ db, lk, params }) {
             <Kpi label="Nhập trong kỳ" value={fmtQty(totals.in)} unit="t" tone="success" />
             <Kpi label="Xuất trong kỳ" value={fmtQty(totals.out)} unit="t" tone="danger" />
             <Kpi label="Tồn cuối kỳ" value={fmtQty(totals.close)} unit="t" />
-            <Kpi label="Tấn·ngày lưu kho" value={fmtQty(totals.tonDays, 0)} sub={price ? `Phí: ${Math.round(totals.tonDays * price).toLocaleString('vi-VN')} đ` : 'Nhập đơn giá để tính phí'} />
+            <Kpi label="Tấn·ngày lưu kho" value={fmtQty(totals.tonDays)} sub={price ? `Phí: ${Math.round(totals.tonDays * price).toLocaleString('vi-VN')} đ` : 'Nhập đơn giá để tính phí'} />
           </div>
 
           <Card title="Tổng hợp" pad={false}>

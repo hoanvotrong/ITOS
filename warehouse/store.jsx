@@ -28,8 +28,10 @@ const addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00'); d.setDate(d
 const monthStart = iso => iso.slice(0, 8) + '01';
 const fmtDate = iso => (iso ? iso.split('-').reverse().join('/') : '');
 const round3 = n => Math.round(n * 1000) / 1000;
-const fmtQty = (n, digits = 2) =>
-  (Math.abs(n) < EPS ? 0 : n).toLocaleString('vi-VN', { maximumFractionDigits: digits, minimumFractionDigits: 0 });
+// Số lượng (tấn) nhập theo bước 0,01 và luôn hiển thị đủ 2 chữ số thập phân, vd 1.234,50
+const round2 = n => Math.round(n * 100) / 100;
+const fmtQty = n =>
+  (Math.abs(n) < EPS ? 0 : n).toLocaleString('vi-VN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const byId = arr => Object.fromEntries(arr.map(x => [x.id, x]));
 const fmtM = n => (+n || 0).toLocaleString('vi-VN', { maximumFractionDigits: 2 });
 
@@ -141,6 +143,45 @@ function nextDocNo(db, type, date) {
   const n = (db.seq[type] || 0) + 1;
   return { no: `${TXN_TYPES[type].prefix}${date.slice(2, 4)}${date.slice(5, 7)}-${pad(n, 4)}`, n };
 }
+
+/* ---------- hao hụt theo tuổi lô ---------- */
+// Tính từ ngày hàng vào lô đầu tiên (kể từ lần gần nhất lô về 0), theo bậc:
+// ngày 1–30: 0,3% · 31–60: 0,5% · 61–90: 0,8% · trên 90 ngày: không cam kết (không tính số thực tế).
+const LOSS_TIERS = [
+  { maxDays: 30, rate: 0.003 },
+  { maxDays: 60, rate: 0.005 },
+  { maxDays: 90, rate: 0.008 },
+];
+const daysBetween = (a, b) => Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+
+// Map 'khách|hàng|khu' → ngày hàng vào đầu tiên của các lô đang còn hàng (tính đến asOf)
+function lotStartDates(txns, asOf) {
+  const bal = new Map(), start = new Map();
+  for (const t of sortTxns(txns)) {
+    if (asOf && t.date > asOf) continue;
+    for (const [c, g, z, d] of txnEffects(t)) {
+      const k = skey(c, g, z);
+      const prev = bal.get(k) || 0;
+      const v = round3(prev + d);
+      if (prev <= EPS && d > 0) start.set(k, t.date);
+      if (v <= EPS) start.delete(k);
+      bal.set(k, v);
+    }
+  }
+  return start;
+}
+
+// Số thực tế của một lô: tồn sổ sách × (1 − tỷ lệ hao hụt theo bậc). rate = null khi quá 90 ngày.
+function lotLoss(qty, startDate, asOf) {
+  if (!startDate || qty <= EPS) return null;
+  const days = daysBetween(startDate, asOf) + 1;
+  const tier = LOSS_TIERS.find(t => days <= t.maxDays);
+  if (!tier) return { start: startDate, days, rate: null, loss: null, actual: null };
+  const loss = round3(qty * tier.rate);
+  return { start: startDate, days, rate: tier.rate, loss, actual: round3(qty - loss) };
+}
+
+const fmtRate = r => (r * 100).toLocaleString('vi-VN', { maximumFractionDigits: 2 }) + '%';
 
 /* ---------- khu hết hàng tự đóng ---------- */
 // Khu "đóng" (archivedAt) bị ẩn khỏi sơ đồ và danh sách chọn, nhưng vẫn giữ để tra lịch sử phiếu.

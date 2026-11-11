@@ -137,6 +137,26 @@ function Kpi({ label, value, unit, sub, tone }) {
   );
 }
 
+// Số sổ sách của lô, bên dưới là ô số thực tế sau hao hụt (hoặc "không cam kết" khi quá 90 ngày)
+function LotQty({ qty, info }) {
+  return (
+    <span className="lot-qty">
+      <strong>{fmtQty(qty)} t</strong>
+      {info && (info.rate != null ? (
+        <span className="lot-real" title={`Nhập từ ${fmtDate(info.start)} · hao hụt ${fmtQty(info.loss)} t`}>
+          Thực tế {fmtQty(info.actual)} t
+          <small>−{fmtRate(info.rate)} · {info.days} ngày</small>
+        </span>
+      ) : (
+        <span className="lot-real is-none" title={`Nhập từ ${fmtDate(info.start)}`}>
+          Không cam kết
+          <small>{info.days} ngày</small>
+        </span>
+      ))}
+    </span>
+  );
+}
+
 function FillBar({ value, max }) {
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   const tone = pct >= 90 ? 'danger' : pct >= 70 ? 'warning' : 'success';

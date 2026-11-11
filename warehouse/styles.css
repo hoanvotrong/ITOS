@@ -302,7 +302,13 @@ button.hbar:hover .hbar-label { text-decoration: underline; }
 .fill-danger { background: var(--bad); }
 .zone-cust { padding: 8px 0; border-top: 1px solid var(--line); }
 .zone-cust-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
-.zone-cust-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--t2); padding: 2px 0; }
+.zone-cust-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--t2); padding: 2px 0; }
+.zone-cust-row .lot-qty strong { color: var(--t1); }
+/* số sổ sách + ô số thực tế sau hao hụt */
+.lot-qty { display: inline-flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.lot-real { display: inline-flex; flex-direction: column; align-items: flex-end; padding: 2px 7px; border: 1px dashed var(--line-strong); border-radius: var(--r-sm); background: #FAFAF7; font-size: 12px; font-weight: 600; color: var(--t2); white-space: nowrap; }
+.lot-real small { font-size: 10.5px; font-weight: 500; color: var(--t3); }
+.lot-real.is-none { color: var(--warn); border-color: #E9C98A; background: var(--warn-bg); }
 .zone-docs { display: flex; flex-direction: column; gap: 0; margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
 .zone-docs-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; font-size: 13px; }
 .zone-doc { display: flex; flex-direction: column; gap: 3px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }

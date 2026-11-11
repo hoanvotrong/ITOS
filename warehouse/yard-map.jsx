@@ -235,11 +235,11 @@ function WarehouseMap({ warehouses, zones, loads, stock, lk, selectedId, onSelec
                     {roomy && lines.map((t, i) => <text key={i} x="10" y={(owner ? 52 : 44) + i * 17} className="zone-name">{t}</text>)}
                     {roomy ? (
                       <React.Fragment>
-                        <text x="10" y={h - 28} className="zone-load">{fmtQty(load, 0)} t</text>
-                        <text x="10" y={h - 11} className="zone-cap">/ {fmtQty(z.capacity, 0)} t · {Math.round(pct * 100)}%</text>
+                        <text x="10" y={h - 28} className="zone-load">{fmtQty(load)} t</text>
+                        <text x="10" y={h - 11} className="zone-cap">/ {fmtQty(z.capacity)} t · {Math.round(pct * 100)}%</text>
                       </React.Fragment>
                     ) : (
-                      <text x="10" y={h - 10} className="zone-cap">{fmtQty(load, 0)} t</text>
+                      <text x="10" y={h - 10} className="zone-cap">{fmtQty(load)} t</text>
                     )}
                   </svg>
                   {editable && sel && (
@@ -311,7 +311,7 @@ function LayoutScreen({ db, store, stock, loads, lk, params, nav }) {
     <div className="page">
       <PageHeader
         title="Sơ đồ kho"
-        subtitle={`${db.warehouses.length} kho · ${db.zones.length} khu xếp hàng · đang chứa ${fmtQty(totalLoad, 0)} / ${fmtQty(totalCap, 0)} tấn (${totalCap ? Math.round((totalLoad / totalCap) * 100) : 0}%)`}
+        subtitle={`${db.warehouses.length} kho · ${db.zones.length} khu xếp hàng · đang chứa ${fmtQty(totalLoad)} / ${fmtQty(totalCap)} tấn (${totalCap ? Math.round((totalLoad / totalCap) * 100) : 0}%)`}
         actions={
           <React.Fragment>
             {!edit && <Button icon="plus" variant="primary" onClick={() => setEdit(true)}>Tạo khu cho khách hàng</Button>}
@@ -454,7 +454,7 @@ function WarehouseInspector({ wh, db, loads, lk, onPickZone }) {
         <dt>Định mức</dt><dd>{fmtM(wh.loadRate)} tấn/m²</dd>
       </dl>
       <div className="zone-load-box">
-        <div><strong>{fmtQty(load, 0)}</strong> / {fmtQty(cap, 0)} tấn</div>
+        <div><strong>{fmtQty(load)}</strong> / {fmtQty(cap)} tấn</div>
         <FillBar value={load} max={cap} />
       </div>
       <div className="zone-list">
@@ -464,7 +464,7 @@ function WarehouseInspector({ wh, db, loads, lk, onPickZone }) {
               <i className="dot" style={{ background: z.customerId ? custColor(lk, z.customerId) : 'transparent' }} />
               <strong>{z.code}</strong> <span className="muted small">{z.customerId ? lk.cust[z.customerId]?.code : 'Dùng chung'} · {zoneBays(z, wh)}</span>
             </span>
-            <span>{fmtQty(loads.get(z.id) || 0, 0)} / {fmtQty(z.capacity, 0)} t</span>
+            <span>{fmtQty(loads.get(z.id) || 0)} / {fmtQty(z.capacity)} t</span>
           </button>
         ))}
       </div>
@@ -515,6 +515,8 @@ function ZoneInspector({ zone, stock, loads, lk, nav, txns }) {
   const byCust = {};
   rows.forEach(r => { (byCust[r.customerId] = byCust[r.customerId] || []).push(r); });
   const load = loads.get(zone.id) || 0;
+  const today = todayISO();
+  const starts = useMemo(() => lotStartDates(txns, today), [txns, today]);
 
   return (
     <Card title={`Khu ${zoneLabel(zone, lk)}`}>
@@ -528,9 +530,9 @@ function ZoneInspector({ zone, stock, loads, lk, nav, txns }) {
         {(zone.cargoId || zone.name) && <span className="small">{[zone.cargoId && lk.cargo[zone.cargoId]?.name, zone.name].filter(Boolean).join(' · ')}</span>}
       </div>
       <div className="zone-load-box">
-        <div><strong>{fmtQty(load, 1)}</strong> / {fmtQty(zone.capacity, 0)} tấn</div>
+        <div><strong>{fmtQty(load)}</strong> / {fmtQty(zone.capacity)} tấn</div>
         <FillBar value={load} max={zone.capacity} />
-        <span className="muted">Còn trống {fmtQty(Math.max(0, zone.capacity - load), 1)} tấn</span>
+        <span className="muted">Còn trống {fmtQty(Math.max(0, zone.capacity - load))} tấn</span>
       </div>
       {rows.length === 0 && <Empty title="Khu đang trống" />}
       {Object.entries(byCust).map(([cid, rs]) => (
@@ -539,7 +541,7 @@ function ZoneInspector({ zone, stock, loads, lk, nav, txns }) {
           {rs.map(r => (
             <div key={r.cargoId} className="zone-cust-row">
               <span>{lk.cargo[r.cargoId]?.name}</span>
-              <strong>{fmtQty(r.qty)} t</strong>
+              <LotQty qty={r.qty} info={lotLoss(r.qty, starts.get(skey(r.customerId, r.cargoId, r.zoneId)), today)} />
             </div>
           ))}
         </div>
@@ -599,7 +601,7 @@ function ZoneEditor({ zone, db, store, lk, onDeleted }) {
         <Field label="Y (m)"><input type="number" step="0.5" value={zone.y} onChange={e => setGeom('y', e.target.value)} /></Field>
         <Field label="Dài (m)"><input type="number" step="0.5" value={zone.w} onChange={e => setGeom('w', e.target.value)} /></Field>
         <Field label="Rộng (m)"><input type="number" step="0.5" value={zone.h} onChange={e => setGeom('h', e.target.value)} /></Field>
-        <Field label="Sức chứa (tấn)" span={2} hint={`Theo định mức ${fmtM(wh?.loadRate)} t/m²: ${fmtQty(suggested, 1)} tấn`}>
+        <Field label="Sức chứa (tấn)" span={2} hint={`Theo định mức ${fmtM(wh?.loadRate)} t/m²: ${fmtQty(suggested)} tấn`}>
           <div className="input-row">
             <input type="number" min="0" step="10" value={zone.capacity} onChange={e => set({ capacity: Math.max(0, +e.target.value || 0) })} />
             <Button size="sm" onClick={() => set({ capacity: suggested })}>Theo định mức</Button>

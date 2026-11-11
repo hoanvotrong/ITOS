@@ -14,7 +14,7 @@ function ZoneSelect({ value, onChange, db, lk, loads, placeholder = '— Chọn 
     return (
       <option key={z.id} value={z.id}>
         {customerId && z.customerId === customerId ? `${w?.code} · ` : ''}{z.code} · {zoneBays(z, w)}
-        {showRoom ? ` · trống ${fmtQty(Math.max(0, z.capacity - (loads.get(z.id) || 0)), 0)} t` : ''}{owner}
+        {showRoom ? ` · trống ${fmtQty(Math.max(0, z.capacity - (loads.get(z.id) || 0)))} t` : ''}{owner}
       </option>
     );
   };
@@ -74,10 +74,10 @@ function DashboardScreen({ db, stock, loads, lk, nav }) {
         </React.Fragment>
       } />
       <div className="kpis">
-        <Kpi label="Tổng tồn hiện tại" value={fmtQty(total, 0)} unit="tấn" sub={`${rows.length} lô hàng`} />
-        <Kpi label="Sử dụng sức chứa" value={cap ? Math.round((total / cap) * 100) : 0} unit="%" sub={`trên ${fmtQty(cap, 0)} tấn`} tone={cap && total / cap >= 0.85 ? 'danger' : undefined} />
-        <Kpi label="Nhập hôm nay" value={fmtQty(sumBy('IN', today), 0)} unit="tấn" sub={`7 ngày: ${fmtQty(sumBy('IN', week), 0)} t`} tone="success" />
-        <Kpi label="Xuất hôm nay" value={fmtQty(sumBy('OUT', today), 0)} unit="tấn" sub={`7 ngày: ${fmtQty(sumBy('OUT', week), 0)} t`} tone="danger" />
+        <Kpi label="Tổng tồn hiện tại" value={fmtQty(total)} unit="tấn" sub={`${rows.length} lô hàng`} />
+        <Kpi label="Sử dụng sức chứa" value={cap ? Math.round((total / cap) * 100) : 0} unit="%" sub={`trên ${fmtQty(cap)} tấn`} tone={cap && total / cap >= 0.85 ? 'danger' : undefined} />
+        <Kpi label="Nhập hôm nay" value={fmtQty(sumBy('IN', today))} unit="tấn" sub={`7 ngày: ${fmtQty(sumBy('IN', week))} t`} tone="success" />
+        <Kpi label="Xuất hôm nay" value={fmtQty(sumBy('OUT', today))} unit="tấn" sub={`7 ngày: ${fmtQty(sumBy('OUT', week))} t`} tone="danger" />
         <Kpi label="Khách hàng đang lưu hàng" value={custHolding.size} sub={`/ ${db.customers.length} khách hàng`} />
       </div>
 
@@ -99,7 +99,7 @@ function DashboardScreen({ db, stock, loads, lk, nav }) {
             <button type="button" key={cid} className="hbar" onClick={() => nav('report', { customerId: cid })}>
               <span className="hbar-label">{lk.cust[cid]?.name}</span>
               <span className="hbar-track"><span style={{ width: (q / maxCust) * 100 + '%' }} /></span>
-              <span className="hbar-val">{fmtQty(q, 0)} t</span>
+              <span className="hbar-val">{fmtQty(q)} t</span>
             </button>
           ))}
         </Card>
@@ -109,7 +109,7 @@ function DashboardScreen({ db, stock, loads, lk, nav }) {
             <div key={gid} className="hbar">
               <span className="hbar-label">{lk.cargo[gid]?.name}</span>
               <span className="hbar-track alt"><span style={{ width: (q / maxCargo) * 100 + '%' }} /></span>
-              <span className="hbar-val">{fmtQty(q, 0)} t</span>
+              <span className="hbar-val">{fmtQty(q)} t</span>
             </div>
           ))}
         </Card>
@@ -136,7 +136,7 @@ function InOutChart({ series }) {
         {ticks.map(t => (
           <g key={t}>
             <line x1={P.l} x2={W - P.r} y1={y(t)} y2={y(t)} className="chart-grid" />
-            <text x={P.l - 6} y={y(t) + 4} textAnchor="end" className="chart-axis">{fmtQty(t, 0)}</text>
+            <text x={P.l - 6} y={y(t) + 4} textAnchor="end" className="chart-axis">{Math.round(t).toLocaleString('vi-VN')}</text>
           </g>
         ))}
         {series.map((s, i) => {
@@ -237,6 +237,7 @@ function TxnScreen({ type, db, store, stock, loads, lk, params, nav }) {
   useEffect(() => { setF(blank()); setErr({}); }, [type, params.zoneId, params.customerId]);
   const set = patch => setF(x => ({ ...x, ...patch }));
 
+  const starts = useMemo(() => lotStartDates(db.txns, todayISO()), [db.txns]);
   const available = f.customerId && f.cargoId && f.zoneId ? stock.get(skey(f.customerId, f.cargoId, f.zoneId)) || 0 : 0;
   const lots = type === 'IN' ? [] : stockRows(stock)
     .filter(r => r.qty > EPS && (!f.customerId || r.customerId === f.customerId) && (!f.zoneId || f.customerId || r.zoneId === f.zoneId))
@@ -245,7 +246,8 @@ function TxnScreen({ type, db, store, stock, loads, lk, params, nav }) {
   const submit = async () => {
     if (saving) return;
     const e = {};
-    const qty = round3(+f.qty);
+    // làm tròn 2 chữ số; riêng khi lấy "Tất cả" một lô cũ có lẻ 3 chữ số thì lấy đúng số tồn để lô về 0
+    const qty = type !== 'IN' && available > 0 && Math.abs(+f.qty - available) < 0.005 ? available : round2(+f.qty);
     if (!f.date) e.date = 'Bắt buộc';
     if (!f.customerId) e.customerId = 'Chọn khách hàng';
     if (!f.cargoId) e.cargoId = 'Chọn hàng hóa';
@@ -359,7 +361,7 @@ function TxnScreen({ type, db, store, stock, loads, lk, params, nav }) {
             )}
             <Field label="Số lượng (tấn)" required error={err.qty}>
               <div className="input-row">
-                <input type="number" min="0" step="0.001" value={f.qty} onChange={e => set({ qty: e.target.value })} placeholder="0" />
+                <input type="number" min="0" step="0.01" value={f.qty} onChange={e => set({ qty: e.target.value })} placeholder="0" />
                 {type !== 'IN' && available > 0 && <Button size="sm" onClick={() => set({ qty: String(available) })}>Tất cả</Button>}
               </div>
             </Field>
@@ -394,7 +396,7 @@ function TxnScreen({ type, db, store, stock, loads, lk, params, nav }) {
                           <td>{lk.cust[r.customerId]?.code} <span className="muted small">{lk.cust[r.customerId]?.name}</span></td>
                           <td>{lk.cargo[r.cargoId]?.name}</td>
                           <td className="nowrap">{zoneLabel(lk.zone[r.zoneId], lk)}</td>
-                          <td className="num strong">{fmtQty(r.qty)}</td>
+                          <td className="num"><LotQty qty={r.qty} info={lotLoss(r.qty, starts.get(skey(r.customerId, r.cargoId, r.zoneId)), todayISO())} /></td>
                         </tr>
                       );
                     })}
@@ -448,7 +450,7 @@ function PrintTxn({ txn: t, lk, onClose }) {
             {t.type === 'TRANSFER' && t.toCustomerId && t.toCustomerId !== t.customerId && (
               <tr><th>Chủ hàng mới</th><td colSpan="3">{lk.cust[t.toCustomerId]?.name}</td></tr>
             )}
-            <tr><th>Hàng hóa</th><td>{lk.cargo[t.cargoId]?.name}</td><th>Số lượng</th><td className="strong">{t.type === 'ADJUST' && t.qty > 0 ? '+' : ''}{fmtQty(t.qty, 3)} tấn</td></tr>
+            <tr><th>Hàng hóa</th><td>{lk.cargo[t.cargoId]?.name}</td><th>Số lượng</th><td className="strong">{t.type === 'ADJUST' && t.qty > 0 ? '+' : ''}{fmtQty(t.qty)} tấn</td></tr>
             <tr><th>{t.type === 'IN' ? 'Nhập vào' : t.type === 'TRANSFER' ? 'Từ khu' : 'Vị trí'}</th><td colSpan="3">{where(z)}</td></tr>
             {tz && <tr><th>Đến khu</th><td colSpan="3">{where(tz)}</td></tr>}
             <tr><th>Phương tiện</th><td>{t.vehicle || '—'}</td><th>Chứng từ</th><td>{t.docRef || '—'}</td></tr>
@@ -489,6 +491,8 @@ function StockScreen({ db, store, lk, params, nav }) {
     && (!fc || r.customerId === fc) && (!fg || r.cargoId === fg)
     && (!fz || r.zoneId === fz) && (!fw || lk.zone[r.zoneId]?.warehouseId === fw));
   const total = rows.reduce((s, r) => s + r.qty, 0);
+  const starts = useMemo(() => lotStartDates(db.txns, asOf), [db.txns, asOf]);
+  const lossOf = r => lotLoss(r.qty, starts.get(skey(r.customerId, r.cargoId, r.zoneId)), asOf);
 
   const keyOf = {
     customer: r => r.customerId, cargo: r => r.cargoId, zone: r => r.zoneId, warehouse: r => lk.zone[r.zoneId]?.warehouseId,
@@ -511,14 +515,17 @@ function StockScreen({ db, store, lk, params, nav }) {
   const exportStock = () => {
     const head = [`BÁO CÁO TỒN KHO đến ngày ${fmtDate(asOf)}`];
     const sheet = group === 'detail'
-      ? [head, [], ['Mã KH', 'Khách hàng', 'Hàng hóa', 'Kho', 'Khu', 'Gian', 'Tồn (tấn)'],
+      ? [head, [], ['Mã KH', 'Khách hàng', 'Hàng hóa', 'Kho', 'Khu', 'Gian', 'Tồn sổ sách (tấn)', 'Ngày nhập đầu', 'Số ngày', 'Tỷ lệ hao hụt', 'Hao hụt (tấn)', 'Tồn thực tế (tấn)'],
         ...detailRows.map(r => {
           const z = lk.zone[r.zoneId];
-          return [lk.cust[r.customerId]?.code, lk.cust[r.customerId]?.name, lk.cargo[r.cargoId]?.name, lk.wh[z?.warehouseId]?.code, z?.code, zoneBays(z, lk.wh[z?.warehouseId]), r.qty];
+          const ls = lossOf(r);
+          return [lk.cust[r.customerId]?.code, lk.cust[r.customerId]?.name, lk.cargo[r.cargoId]?.name, lk.wh[z?.warehouseId]?.code, z?.code, zoneBays(z, lk.wh[z?.warehouseId]), r.qty,
+            ls ? fmtDate(ls.start) : '', ls ? ls.days : '',
+            ls ? (ls.rate != null ? fmtRate(ls.rate) : 'Không cam kết') : '', ls?.loss ?? '', ls?.actual ?? ''];
         }),
         ['', '', '', '', '', 'Tổng cộng', round3(total)]]
       : [head, [], [GROUPS[group], 'Số lô', 'Tồn (tấn)'], ...grouped.map(g => [g.label, g.lots, round3(g.qty)]), ['Tổng cộng', '', round3(total)]];
-    exportXlsx(`TonKho_${asOf}`, [{ name: 'Tồn kho', rows: sheet, cols: group === 'detail' ? [10, 38, 20, 12, 10, 12, 14] : [40, 10, 14] }]);
+    exportXlsx(`TonKho_${asOf}`, [{ name: 'Tồn kho', rows: sheet, cols: group === 'detail' ? [10, 38, 20, 12, 10, 12, 16, 14, 9, 14, 14, 16] : [40, 10, 14] }]);
   };
 
   return (
@@ -545,7 +552,7 @@ function StockScreen({ db, store, lk, params, nav }) {
         {rows.length === 0 ? <Empty icon="stock" title="Không có hàng tồn theo bộ lọc" /> : group === 'detail' ? (
           <div className="table-wrap">
             <table className="table">
-              <thead><tr><th>Khách hàng</th><th>Hàng hóa</th><th>Kho</th><th>Khu</th><th>Gian</th><th className="num">Tồn (tấn)</th><th /></tr></thead>
+              <thead><tr><th>Khách hàng</th><th>Hàng hóa</th><th>Kho</th><th>Khu</th><th>Gian</th><th className="num">Tồn sổ sách / thực tế (tấn)</th><th /></tr></thead>
               <tbody>
                 {detailRows.map(r => {
                   const z = lk.zone[r.zoneId];
@@ -556,7 +563,7 @@ function StockScreen({ db, store, lk, params, nav }) {
                       <td>{lk.wh[z?.warehouseId]?.code}</td>
                       <td><button type="button" className="link" onClick={() => nav('layout', { zoneId: r.zoneId })}>{z?.code}</button></td>
                       <td className="muted">{zoneBays(z, lk.wh[z?.warehouseId])}</td>
-                      <td className="num strong">{fmtQty(r.qty)}</td>
+                      <td className="num"><LotQty qty={r.qty} info={lossOf(r)} /></td>
                       <td className="actions">
                         {asOf === today && <Button size="sm" variant="ghost" icon="clipboard" onClick={() => setCounting(r)}>Kiểm kê</Button>}
                       </td>
@@ -594,7 +601,7 @@ function StockScreen({ db, store, lk, params, nav }) {
 function CountModal({ lot, db, store, lk, onClose }) {
   const [actual, setActual] = useState(String(lot.qty));
   const [note, setNote] = useState('');
-  const diff = round3((+actual || 0) - lot.qty);
+  const diff = round3(round2(+actual || 0) - lot.qty);
   const save = () => {
     if (actual === '' || +actual < 0) { toast('Nhập số lượng thực tế ≥ 0', 'danger'); return; }
     if (Math.abs(diff) < EPS) { toast('Số liệu khớp, không cần điều chỉnh.'); onClose(); return; }
@@ -613,11 +620,11 @@ function CountModal({ lot, db, store, lk, onClose }) {
         <dt>Khách hàng</dt><dd>{lk.cust[lot.customerId]?.name}</dd>
         <dt>Hàng hóa</dt><dd>{lk.cargo[lot.cargoId]?.name}</dd>
         <dt>Khu</dt><dd>{zoneLabel(lk.zone[lot.zoneId], lk)}</dd>
-        <dt>Tồn sổ sách</dt><dd className="strong">{fmtQty(lot.qty, 3)} t</dd>
+        <dt>Tồn sổ sách</dt><dd className="strong">{fmtQty(lot.qty)} t</dd>
       </dl>
       <div className="form-grid">
-        <Field label="Tồn thực tế (tấn)" required hint={`Chênh lệch: ${diff > 0 ? '+' : ''}${fmtQty(diff, 3)} t`}>
-          <input type="number" min="0" step="0.001" value={actual} onChange={e => setActual(e.target.value)} autoFocus />
+        <Field label="Tồn thực tế (tấn)" required hint={`Chênh lệch: ${diff > 0 ? '+' : ''}${fmtQty(diff)} t`}>
+          <input type="number" min="0" step="0.01" value={actual} onChange={e => setActual(e.target.value)} autoFocus />
         </Field>
         <Field label="Lý do">
           <input value={note} onChange={e => setNote(e.target.value)} placeholder="Hao hụt, đo lại thể tích…" />
