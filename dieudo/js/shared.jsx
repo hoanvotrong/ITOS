@@ -122,6 +122,20 @@ const KdStepper = ({ steps, current, onPick }) => (
   </div>
 );
 
+/* Danh sách biển số gọn: hiện max biển đầu, phần còn lại gói trong "+N xe" (bấm để mở / thu gọn). Xe ngoài tô màu cam. */
+const DdPlateList = ({ plates, max = 3, empty = "—" }) => {
+  const [all, setAll] = React.useState(false);
+  const list = plates || [];
+  if (!list.length) return <span className="muted">{empty}</span>;
+  const shown = all ? list : list.slice(0, max);
+  return (
+    <div className="dd-plates">
+      {shown.map(p => <span key={p} className={`pl ${(DD_VEHICLES.find(v => v.plate === p) || {}).ext ? "ext" : ""}`}>{p}</span>)}
+      {list.length > max && <button onClick={e => { e.stopPropagation(); setAll(!all); }}>{all ? "thu gọn" : `+${list.length - max} xe`}</button>}
+    </div>
+  );
+};
+
 /* Nút chụp ảnh thật: mở camera sau trên điện thoại (capture="environment"), trả về File */
 const DdPhotoBtn = ({ file, onPick, label, done, className, style }) => {
   const ref = React.useRef(null);
@@ -146,4 +160,4 @@ const DdPhoto = ({ path, label = "Ảnh", inline, height = 140 }) => {
   );
 };
 
-Object.assign(window, { ddJobLog, ddQty, DdQtyInput, Avatar, Topbar, KdToast, useKdToast, KdStepper, DdPhotoBtn, DdPhoto, DdSyncBadge, ddNewId });
+Object.assign(window, { DdPlateList, ddJobLog, ddQty, DdQtyInput, Avatar, Topbar, KdToast, useKdToast, KdStepper, DdPhotoBtn, DdPhoto, DdSyncBadge, ddNewId });

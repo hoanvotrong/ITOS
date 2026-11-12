@@ -693,14 +693,15 @@ const DdJobDetailScreen = ({ go, ctx }) => {
             </div>
             {orders.length === 0 ? <div className="muted" style={{ padding: "24px", textAlign: "center", fontSize: 13 }}>Chưa có lệnh ca nào cho job này.</div> : (
               <div className="tbl-wrap"><table className="tbl">
-                <thead><tr><th style={{ width: 110 }}>Lệnh</th><th style={{ width: 130 }}>Ngày · Ca</th><th>Tổ tally</th><th>Thiết bị · Phương tiện</th><th style={{ width: 100, textAlign: "right" }}>Mục tiêu</th><th style={{ width: 130 }}>Trạng thái</th></tr></thead>
+                <thead><tr><th style={{ width: 110 }}>Lệnh</th><th style={{ width: 130 }}>Ngày · Ca</th><th style={{ width: 150 }}>Tally</th><th>Thiết bị</th><th>Phương tiện</th><th style={{ width: 100, textAlign: "right" }}>Mục tiêu</th><th style={{ width: 130 }}>Trạng thái</th></tr></thead>
                 <tbody>
                   {orders.map(o => (
                     <tr key={o.id} style={{ cursor: "pointer" }} onClick={() => setOrderModal({ id: o.id })}>
                       <td className="mono" style={{ fontSize: 12 }}>{o.id}</td>
                       <td style={{ fontSize: 12.5 }}><span className="mono">{o.date.slice(0, 5)}</span> · {DD_SHIFTS[o.shift - 1].label}</td>
-                      <td><div style={{ display: "flex" }}>{o.tally.map((t, i) => <span key={t} style={{ marginLeft: i ? -6 : 0 }}><Avatar person={ddPerson(t)} size={22} /></span>)}</div></td>
-                      <td style={{ fontSize: 12 }}>{o.equip.join(", ")}<div className="muted" style={{ fontSize: 11 }}>{(o.vehicles || []).join(", ") || "—"}</div></td>
+                      <td style={{ fontSize: 12.5 }}>{o.tally.map(t => ddPerson(t).name).join(", ")}</td>
+                      <td style={{ fontSize: 12 }}>{o.equip.join(", ") || "—"}</td>
+                      <td style={{ fontSize: 12, minWidth: 200 }}><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>{(o.vehicles || []).length + (o.extraVeh || []).length} xe{(o.extraVeh || []).length ? ` · ${o.extraVeh.length} ngoài danh sách` : ""}</div><DdPlateList plates={[...(o.vehicles || []), ...(o.extraVeh || []).map(v => v.plate)]} /></td>
                       <td className="mono" style={{ textAlign: "right", fontSize: 12 }}>{ddQty(o.target, ddUnit(j))}</td>
                       <td><DdBadge map={DD_ORDER_STATUS} s={o.status} /></td>
                     </tr>

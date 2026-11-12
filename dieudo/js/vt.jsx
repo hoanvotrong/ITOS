@@ -352,7 +352,7 @@ const DdDriverWebScreen = ({ go }) => {
               <tbody>{jobs.flatMap(j => DD_ORDERS.filter(o => o.job === j.id && ddOrderOpen(o)).map(o => { const veh = o.vehicles; return (
                 <tr key={o.id}><td><a style={{ cursor: "pointer", color: "var(--brand-ink)" }} onClick={() => go("dd-job-detail", { id: j.id })}><span className="mono">{j.id}</span></a><div className="muted" style={{ fontSize: 11.5 }}>{ddCusShort(j.customer)} · <span className="mono">{o.id}</span> · {DD_SHIFTS[o.shift - 1].label} {o.date.slice(0, 5)}</div></td>
                   <td style={{ fontSize: 12.5 }}>{ddDirLabel(j)}</td><td><b className="mono" style={{ letterSpacing: ".08em" }}>{o.drvCode}</b></td>
-                  <td className="mono" style={{ fontSize: 12 }}>{veh.map(p => <span key={p} style={{ marginRight: 8 }}>{p}{ddVeh(p).ext ? " (ngoài)" : ""}</span>)}{veh.length === 0 && <span className="muted">— chưa có lệnh ca</span>}</td>
+                  <td className="mono" style={{ fontSize: 12 }}><DdPlateList plates={veh} max={4} empty="— chưa có lệnh ca" /></td>
                   <td className="mono" style={{ textAlign: "right" }}>{j.conts.filter(c => c.drvTruck).length}</td></tr>); }))}</tbody></table></div>
           </div>
         </div>
