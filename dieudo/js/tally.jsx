@@ -49,6 +49,9 @@ const ddDownByEq = (incs, clip) => { const m = {}; incs.forEach(i => { const d =
 const ddFmtMin = (m) => { m = Math.round(m || 0); return m >= 60 ? `${Math.floor(m / 60)} giờ${m % 60 ? ` ${m % 60} phút` : ""}` : `${m} phút`; };
 const ddJobDown = (jobId) => { const incs = DD_INCIDENTS.filter(i => i.job === jobId); const byEq = ddDownByEq(incs); const byType = TL_INC_TYPES.filter(t => t.stop).map(t => ({ ...t, mins: incs.filter(i => i.type === t.id).reduce((s, i) => s + ((ddIncDown(i) || {}).mins || 0), 0) })).filter(x => x.mins); return { total: byEq.reduce((t, x) => t + x.mins, 0), byEq, byType, open: incs.filter(i => (ddIncDown(i) || {}).open).length }; };
 const ddOrderOpen = (o) => ["sent", "running"].includes(o.status);
+/* Hàng cont: cont Gate In trong ca mà chưa hạ bãi (chưa có vị trí) thì ca chưa kết thúc được */
+const ddShiftUnyarded = (o) => [...new Set(DD_RECORDS.filter(r => r.order === o.id && r.cont && r.gate === "in" && r.status !== "void").map(r => r.cont))]
+  .filter(no => { const c = (window.DD_CONT_REG || {})[no]; return c && c.inPort && !c.pos; });
 const ddEndShift = (o, by) => {
   o.status = "done"; o.endAt = ddNowAt(); o.endBy = by;
   /* sản lượng của ca gửi lên Chờ duyệt */
@@ -204,7 +207,13 @@ const TlPhone = ({ me, offline, onChange }) => {
           <button className="tl-sec danger" disabled={o.status === "done"} onClick={() => go("inc1", { order: o.id })}>⚠ Báo sự cố</button>
         </div>
         {o.status !== "done" && !st.end && <button className="tl-sec" style={{ width: "100%", marginTop: 8 }} onClick={() => go("order", { order: o.id, end: true })}>■ Kết ca</button>}
-        {st.end && <div className="tl-confirm" style={{ marginTop: 8, textAlign: "left" }}>
+        {st.end && ddShiftUnyarded(o).length > 0 && <div className="tl-confirm" style={{ marginTop: 8, textAlign: "left", borderColor: "#F59E0B" }}>
+          <b>Chưa kết ca được</b>
+          <div className="tl-muted" style={{ margin: "4px 0 8px" }}>Còn {ddShiftUnyarded(o).length} cont đã Gate In trong ca nhưng chưa hạ bãi: <b className="mono">{ddShiftUnyarded(o).map(tlContFmt).join(", ")}</b>. Hạ bãi xong mới kết ca.</div>
+          <button className="tl-main" style={{ margin: 0 }} onClick={() => { setYq(""); go("yard", { order: o.id, tab: "place" }); }}>HẠ BÃI NGAY</button>
+          <button className="tl-link" style={{ marginTop: 6 }} onClick={() => go("order", { order: o.id })}>Thôi</button>
+        </div>}
+        {st.end && !ddShiftUnyarded(o).length && <div className="tl-confirm" style={{ marginTop: 8, textAlign: "left" }}>
           <b>Kết ca {DD_SHIFTS[o.shift - 1].label}?</b>
           <div className="tl-muted" style={{ margin: "4px 0 8px" }}>{recs.length} bản ghi · {tlFmt(caTotal, unit)} {unit}. Sau khi kết ca: không ghi thêm vào lệnh này, mã tài xế của ca hết hiệu lực{DD_INCIDENTS.some(i => i.order === o.id && (ddIncDown(i) || {}).open) ? ", sự cố đang dừng tính thời gian lỗi đến lúc kết ca" : ""}.</div>
           <button className="tl-main" style={{ margin: 0 }} onClick={() => { ddEndShift(o, me.id); onChange(); toast(`Đã kết ca ${o.id}`); go("home"); }}>XÁC NHẬN KẾT CA</button>

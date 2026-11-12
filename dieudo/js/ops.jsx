@@ -400,6 +400,7 @@ const DdOrderCode = ({ o, onChange }) => {
           <button className="btn btn-sm ghost" onClick={() => { const old = o.drvCode; o.drvCode = ddDrvCode(o.id + Date.now()); (o.log = o.log || []).unshift({ at: ddNow(), by: DD_ME.id, text: `Đổi mã tài xế ${old} → ${o.drvCode} · mã cũ hết hiệu lực` }); force(x => x + 1); onChange && onChange(`Mã mới ${o.drvCode}`); }}>Đổi mã</button>
           <div style={{ flex: 1 }}></div>
           {!end ? <button className="btn btn-sm" onClick={() => setEnd(true)}>■ Kết ca</button>
+            : ddShiftUnyarded(o).length ? <span className="row" style={{ gap: 6 }}><span style={{ color: "var(--st-warning)", fontSize: 12 }}>Chưa kết ca được: {ddShiftUnyarded(o).length} cont đã Gate In chưa hạ bãi ({ddShiftUnyarded(o).map(tlContFmt).join(", ")})</span><button className="btn btn-sm ghost" onClick={() => setEnd(false)}>Đóng</button></span>
             : <span className="row" style={{ gap: 6 }}><span className="muted">Kết ca: không ghi thêm, mã hết hiệu lực?</span><button className="btn btn-sm primary" onClick={() => { ddEndShift(o, DD_ME.id); setEnd(false); force(x => x + 1); onChange && onChange(`Đã kết ca ${o.id}`); }}>Xác nhận</button><button className="btn btn-sm ghost" onClick={() => setEnd(false)}>Thôi</button></span>}
         </>}
       </div>

@@ -36,7 +36,9 @@ React 18 UMD + Babel standalone, không npm / bundler. Dùng chung project Supab
 - **Sản lượng luôn 2 chữ số thập phân** (`ddQty`, `DdQtyInput` trong `js/shared.jsx`): nhập được phần thập phân với mọi đơn vị, hiển thị dạng `1.234,50`. Riêng số cont là số nguyên.
 - **Duyệt sản lượng theo ca cho mọi dịch vụ** (prototype chỉ Bến phao): bản ghi trong ca ở trạng thái `shift` ("Trong ca"); tally bấm Kết ca → cả ca chuyển `pending` và lên màn Chờ duyệt › Sản lượng ca; văn phòng duyệt → `ok`. Job hoàn thành (tự động hoặc KHTH đánh dấu / đóng sớm) khi còn ca mở thì tự kết các ca đó.
 - **Xe ngoài danh sách lệnh ca:** tally tự nhập biển số và ghi nhận sản lượng bình thường (bản ghi gắn cờ `offList`); hệ thống tự tạo 1 sự cố "Xe không có trong danh sách" / xe / lệnh về KHTH. Ở màn Sự cố, KHTH bổ sung xe vào lệnh (biển số điền sẵn).
-- **Nhật ký job ghi từng bước:** tạo / gửi / sửa lệnh ca, tally xem lệnh, từng bản ghi, sửa / xin sửa, báo sự cố, xe ngoài danh sách, kết ca, duyệt.
+- **Hàng cont: ca chưa kết được khi còn cont chưa hạ bãi** — cont Gate In trong ca mà chưa có vị trí bãi thì tally / KHTH không kết ca được (màn kết ca liệt kê cont + nút Hạ bãi ngay); job tự hoàn thành cũng không tự kết các ca này.
+- **Tạo job: sửa loại từng cont** ở bảng kiểm tra (thêm 45HC, 20/40OT, 20/40FR, 20TK).
+- **Nhật ký job ghi từng bước:** tạo / gửi / sửa lệnh ca, tally xem lệnh, từng bản ghi, sửa / xin sửa, báo sự cố, xe ngoài danh sách, hạ bãi / đảo chuyển, kết ca, duyệt.
 
 - Biển số so khớp bỏ qua khoảng trắng, dấu chấm, gạch ngang.
 - Mã lệnh ca `LV-ddmmyy-nn`; mã sự cố / bản ghi / gate dạng `TIỀNTỐ-ddmm-HHmm-xxx` để không trùng giữa thiết bị.
