@@ -116,7 +116,8 @@ const DdIncidentPanel = ({ inc, onChange, go }) => {
   const j = DD_JOBS.find(x => x.id === inc.job) || {};
   const dn = ddIncDown(inc);
   const add = (text) => inc.log.unshift({ at: ddNow(), by: DD_ME.id, text });
-  const pool = DD_PEOPLE.filter(p => ["d1", "d2", "d4", "e1", "e2"].includes(p.id));
+  /* pilot: người xử lý = người dùng Điều độ trong dd_users (KHTH, TP, ĐPVT…), không gồm tài khoản tally ca */
+  const pool = DD_PEOPLE.filter(p => !p.acc && p.appRole !== "TALLY").sort((x, y) => (x.appRole === "TAIXE") - (y.appRole === "TAIXE") || x.name.localeCompare(y.name, "vi"));
 
   return (
     <div className="card">
@@ -142,7 +143,7 @@ const DdIncidentPanel = ({ inc, onChange, go }) => {
               <option value="">— Chọn người xử lý —</option>
               {pool.map(p => <option key={p.id} value={p.id}>{p.name} — {p.role}</option>)}
             </select>
-            <div className="muted" style={{ fontSize: 11.5, margin: "6px 0 8px" }}>Hệ thống báo người xử lý và tài khoản đã báo sự cố.</div>
+            <div className="muted" style={{ fontSize: 11.5, margin: "6px 0 8px" }}>{pool.length ? "Danh sách lấy từ người dùng Điều độ (dd_users)." : "Chưa có người dùng nào trong dd_users."}</div>
             <button className="btn primary btn-sm" style={{ width: "100%" }} disabled={!who} onClick={() => {
               inc.assignee = who; inc.status = "assigned"; add(`Phân công ${ddPerson(who).name}`);
               ddLogJob(inc.job, `Sự cố ${inc.id} (${t.label}) — phân công ${ddPerson(who).name}`); onChange(`Đã phân công ${ddPerson(who).name}`);

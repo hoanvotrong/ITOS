@@ -16,3 +16,12 @@ body { background: var(--bg-page); margin: 0; font-family: var(--font-sans); }
 .dd-full .tl-status { border-radius: 0; height: 36px; padding: 0 14px; }
 .dd-full .tl-body { border-radius: 0; height: calc(100% - 36px); }
 .dd-full .tl-offline + .tl-body { height: calc(100% - 62px); }
+
+/* Avatar dùng chung (prototype chỉ định nghĩa trong .avstack / .av-inline) */
+.av { display: inline-grid; place-items: center; border-radius: 999px; color: #fff; font-weight: 600; flex-shrink: 0; letter-spacing: .02em; }
+
+/* Danh sách biển số gọn: vài biển đầu + "+N xe" */
+.dd-plates { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.dd-plates .pl { font-family: var(--font-mono); font-size: 11.5px; padding: 1px 6px; border-radius: 4px; background: var(--bg-sunken); color: var(--t-secondary); white-space: nowrap; }
+.dd-plates .pl.ext { background: var(--st-warning-bg); color: var(--st-warning); }
+.dd-plates button { border: 0; background: none; color: var(--brand-ink-3); font-size: 11.5px; cursor: pointer; padding: 1px 2px; text-decoration: underline; }
