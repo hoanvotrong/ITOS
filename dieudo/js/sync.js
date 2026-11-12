@@ -15,7 +15,7 @@
 
   /* Nhóm dữ liệu (coll) → cách xếp khi nạp: 'asc' = cũ trước (mã dùng push), 'desc' = mới trước (unshift) */
   const COLLS = { jobs: 'desc', orders: 'asc', records: 'asc', edit_reqs: 'desc', incidents: 'desc', trans: 'desc', cont_reg: 'map', gate_log: 'desc', calls: 'asc', ship_orders: 'desc' };
-  const CAT_KINDS = ['customer', 'berth', 'vehicle', 'equip', 'line'];
+  const CAT_KINDS = ['customer', 'berth', 'vehicle', 'equip', 'line', 'contract'];
   const ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?Z$/;
   const AT_RE = /^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/;
 

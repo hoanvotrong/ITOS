@@ -47,7 +47,7 @@ create index if not exists dd_docs_coll_idx on public.dd_docs (coll);
 
 -- 2. Danh mục: khách hàng, bến, xe, thiết bị / cẩu, hãng tàu
 create table if not exists public.dd_catalog (
-  kind  text not null check (kind in ('customer', 'berth', 'vehicle', 'equip', 'line')),
+  kind  text not null check (kind in ('customer', 'berth', 'vehicle', 'equip', 'line', 'contract')),
   id    text not null,
   data  jsonb not null,
   primary key (kind, id)
@@ -82,6 +82,10 @@ create policy dd_docs_rw on public.dd_docs
 drop policy if exists dd_catalog_read on public.dd_catalog;
 create policy dd_catalog_read on public.dd_catalog
   for select to authenticated using (dd_role() is not null);
+
+-- Bảng đã tạo trước khi có hợp đồng: mở rộng ràng buộc kind
+alter table public.dd_catalog drop constraint if exists dd_catalog_kind_check;
+alter table public.dd_catalog add constraint dd_catalog_kind_check check (kind in ('customer', 'berth', 'vehicle', 'equip', 'line', 'contract'));
 
 -- KHTH / TP sửa danh mục (xe mới trong lệnh ca tự thêm vào danh mục — BR-DD-08)
 drop policy if exists dd_catalog_write on public.dd_catalog;
