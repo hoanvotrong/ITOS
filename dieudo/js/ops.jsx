@@ -251,9 +251,9 @@ const DdApprovalsScreen = ({ go, ctx }) => {
   const edits = DD_EDIT_REQS.filter(q => q.status === "pending");
   const exJobs = DD_JOBS.filter(j => j.status === "pendingEx");
   const tabs = [
-    { id: "bp", label: "Sản lượng bến phao", n: bpGroups.length, sub: "US-BP-03 · duyệt theo ca" },
+    { id: "bp", label: "Sản lượng ca", n: bpGroups.length, sub: "Gửi lên khi tally kết ca · duyệt theo ca" },
     { id: "edit", label: "Sửa bản ghi tally", n: edits.length, sub: "Bản ghi cũ hơn bản ghi gần nhất" },
-    { id: "ex", label: "Ngoại lệ · Trưởng phòng", n: exJobs.length, sub: "Bàn giao KT khi chưa có HĐ (D8) · phiếu đồng bộ E-Office › Phê duyệt" },
+    { id: "ex", label: "Ngoại lệ · Trưởng phòng", n: exJobs.length, sub: "Bàn giao KT khi chưa có HĐ (D8) · Trưởng phòng duyệt tại đây" },
   ];
   const Reason = ({ k, ph, onOk, label }) => open === k ? (
     <div className="row" style={{ gap: 6, marginTop: 8 }}>
@@ -266,7 +266,7 @@ const DdApprovalsScreen = ({ go, ctx }) => {
   return (
     <div className="page" style={{ maxWidth: 1320 }}>
       <div className="page-head">
-        <div><h1>Chờ duyệt</h1><div className="sub">Hàng chờ của văn phòng điều độ — sản lượng bến phao chỉ tính chính thức sau khi duyệt (US-BP-03 · SC-02)</div></div>
+        <div><h1>Chờ duyệt</h1><div className="sub">Hàng chờ của văn phòng điều độ — sản lượng ca gửi lên khi tally kết ca, chỉ tính chính thức sau khi duyệt (US-BP-03 · SC-02)</div></div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 18 }}>
@@ -280,7 +280,7 @@ const DdApprovalsScreen = ({ go, ctx }) => {
 
       {tab === "bp" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {bpGroups.length === 0 && <div className="card"><div className="card-body muted" style={{ textAlign: "center", padding: 30 }}>Không còn sản lượng bến phao chờ duyệt.</div></div>}
+          {bpGroups.length === 0 && <div className="card"><div className="card-body muted" style={{ textAlign: "center", padding: 30 }}>Không còn sản lượng ca chờ duyệt. Sản lượng gửi lên khi tally bấm Kết ca.</div></div>}
           {bpGroups.map(g => { const o = DD_ORDERS.find(x => x.id === g.order) || {}; const j = DD_JOBS.find(x => x.id === g.job); const u = unitOf(j.id); const total = g.recs.reduce((t, r) => t + r.qty, 0);
             const all = DD_RECORDS.filter(r => r.order === g.order && !["void", "returned"].includes(r.status)); const caSum = all.reduce((t, r) => t + r.qty, 0); const okSum = all.filter(r => r.status === "ok").reduce((t, r) => t + r.qty, 0);
             const calls = [...new Set(g.recs.map(r => r.call).filter(Boolean))]; const pct = o.target ? Math.round(caSum / o.target * 100) : 0; return (
@@ -348,12 +348,12 @@ const DdApprovalsScreen = ({ go, ctx }) => {
                       <button className="btn btn-sm" onClick={() => setOpen(q.id)}>Từ chối</button>
                       <button className="btn btn-sm primary" onClick={() => {
                         const j = DD_JOBS.find(x => x.id === q.job); j.actual = Math.round((j.actual - r.qty + q.to) * 100) / 100;
-                        r.hist = [...(r.hist || []), { at: ddNow(), by: DD_ME.id, from: r.qty, to: q.to, kind: `KHTH duyệt yêu cầu sửa ${q.id}: ${q.reason}` }]; r.prev = r.qty; r.qty = q.to; r.status = j.service === "bp" ? "pending" : "ok"; q.status = "approved";
+                        r.hist = [...(r.hist || []), { at: ddNow(), by: DD_ME.id, from: r.qty, to: q.to, kind: `KHTH duyệt yêu cầu sửa ${q.id}: ${q.reason}` }]; r.prev = r.qty; r.qty = q.to; r.status = ddRecOpenStatus(DD_ORDERS.find(x => x.id === r.order)); q.status = "approved";
                         ddLogJob(j.id, `Duyệt sửa bản ghi ${q.order}: ${tlFmt(q.from)} → ${tlFmt(q.to)} ${u}`); refresh("Đã duyệt sửa bản ghi");
                       }}>Duyệt sửa</button>
                     </div></td>
                   </tr>
-                  {open === q.id && <tr><td colSpan={6}><Reason k={q.id} ph="Lý do từ chối" label="Từ chối" onOk={(why) => { q.status = "rejected"; q.rejectReason = why; r.status = DD_JOBS.find(x => x.id === q.job).service === "bp" ? "pending" : "ok"; refresh("Đã từ chối — giữ số cũ"); }} /></td></tr>}
+                  {open === q.id && <tr><td colSpan={6}><Reason k={q.id} ph="Lý do từ chối" label="Từ chối" onOk={(why) => { q.status = "rejected"; q.rejectReason = why; r.status = ddRecOpenStatus(DD_ORDERS.find(x => x.id === r.order)); refresh("Đã từ chối — giữ số cũ"); }} /></td></tr>}
                 </React.Fragment>); })}</tbody>
             </table></div>
           )}
@@ -367,7 +367,7 @@ const DdApprovalsScreen = ({ go, ctx }) => {
           {exJobs.map(j => (
             <div key={j.id} className="card"><div className="card-body" style={{ display: "flex", gap: 16, alignItems: "center" }}>
               <div style={{ flex: 1, fontSize: 12.5 }}>
-                <div><span className="badge danger">Chưa có HĐ</span> <b className="mono">{j.id}</b> · {ddCus(j.customer).name} · {j.cargo} · <span className="mono">{ddNum(j.actual)} {ddUnit(j)}</span></div>
+                <div><span className="badge danger">Chưa có HĐ</span> <b className="mono">{j.id}</b> · {ddCus(j.customer).name} · {j.cargo} · <span className="mono">{ddQty(j.actual, ddUnit(j))} {ddUnit(j)}</span></div>
                 <div className="muted" style={{ marginTop: 4 }}>Xin bàn giao Kế toán khi chưa có HĐ · lý do: {j.exReason}{j.exTicket && <> · phiếu <span className="mono">{j.exTicket}</span> trên E-Office › Phê duyệt</>}</div>
               </div>
               <button className="btn btn-sm" onClick={() => go("dd-job-detail", { id: j.id })}>Xem job</button>
@@ -458,7 +458,7 @@ const DdCraneScreen = ({ go }) => {
   const cranes = Object.values(segs.reduce((m, x) => { const c = (m[x.eq] = m[x.eq] || { eq: x.eq, ca: 0, work: 0, down: 0, net: 0, qty: {}, byType: {} }); c.ca++; c.work += x.work; c.down += x.down; c.net += x.net; c.qty[x.unit] = (c.qty[x.unit] || 0) + x.qty; Object.entries(x.byType).forEach(([k, v]) => c.byType[k] = (c.byType[k] || 0) + v); return m; }, {})).sort((a, b) => b.work - a.work);
   const tot = cranes.reduce((t, c) => ({ work: t.work + c.work, down: t.down + c.down }), { work: 0, down: 0 });
   const hrs = (m) => (m / 60).toFixed(1).replace(".", ",");
-  const qtyStr = (q) => Object.entries(q).map(([u, v]) => `${tlFmt(v)} ${u}`).join(" · ");
+  const qtyStr = (q) => Object.entries(q).map(([u, v]) => `${tlFmt(v, u)} ${u}`).join(" · ");
   const rate = (q, net) => net > 0 ? Object.entries(q).map(([u, v]) => `${tlFmt(Math.round(v / (net / 60) * 10) / 10)} ${u}/giờ`).join(" · ") : "—";
   const tname = (k) => (TL_INC_TYPES.find(t => t.id === k) || {}).label || k;
   const jobsWith = [...new Set(DD_ORDERS.filter(o => ddCranes(o).length).map(o => o.job))];

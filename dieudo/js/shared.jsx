@@ -9,6 +9,31 @@ window.KD_QUOTES = [];
 const KD_CONTRACT_STATUS = {};
 const kdShortMoney = (v) => (v || 0).toLocaleString("vi-VN");
 
+/* Sản lượng: luôn 2 chữ số thập phân kiểu Việt Nam (1.234,50). Riêng số cont là số nguyên. */
+const ddQty = (n, unit) => {
+  const v = Math.round((Number(n) || 0) * 100) / 100;
+  return unit === "cont" ? Math.round(v).toLocaleString("vi-VN") : v.toLocaleString("vi-VN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+/* Ô nhập sản lượng: gõ dấu phẩy (hoặc chấm) thập phân, tối đa 2 chữ số sau dấu phẩy; rời ô thì hiện dạng 1.234,50.
+   int = true: chỉ nhận số nguyên (mục tiêu ca của job cont). */
+const DdQtyInput = ({ value, onChange, int, className, disabled, placeholder = "0,00" }) => {
+  const fmt = (v) => v ? (int ? ddQty(v, "cont") : ddQty(v)) : "";
+  const [txt, setTxt] = React.useState(fmt(value));
+  const [focus, setFocus] = React.useState(false);
+  React.useEffect(() => { if (!focus) setTxt(fmt(value)); }, [value, focus, int]);
+  const change = (raw) => {
+    let t = raw.replace(/\./g, ",").replace(/[^\d,]/g, "");
+    const i = t.indexOf(",");
+    if (i >= 0) t = int ? t.slice(0, i) : t.slice(0, i + 1) + t.slice(i + 1).replace(/,/g, "").slice(0, 2);
+    t = t.replace(/^0+(?=\d)/, "").slice(0, 12);
+    setTxt(t);
+    onChange(Math.round((Number(t.replace(",", ".")) || 0) * 100) / 100);
+  };
+  return <input className={className} inputMode={int ? "numeric" : "decimal"} disabled={disabled} placeholder={int ? "0" : placeholder}
+    value={focus ? txt : fmt(value)} onFocus={() => { setFocus(true); setTxt(value ? String(int ? Math.round(value) : value).replace(".", ",") : ""); }}
+    onBlur={() => setFocus(false)} onChange={e => change(e.target.value)} />;
+};
+
 /* Mã phần tử không trùng giữa các thiết bị: TIỀN TỐ-ddmm-HHmm-xxx (GMT+7) */
 const ddNewId = (prefix) => {
   const n = window.ddVnNow();
@@ -108,4 +133,4 @@ const DdPhoto = ({ path, label = "Ảnh", inline, height = 140 }) => {
   );
 };
 
-Object.assign(window, { Avatar, Topbar, KdToast, useKdToast, KdStepper, DdPhotoBtn, DdPhoto, DdSyncBadge, ddNewId });
+Object.assign(window, { ddQty, DdQtyInput, Avatar, Topbar, KdToast, useKdToast, KdStepper, DdPhotoBtn, DdPhoto, DdSyncBadge, ddNewId });

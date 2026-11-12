@@ -33,6 +33,9 @@ React 18 UMD + Babel standalone, không npm / bundler. Dùng chung project Supab
 
 ## Khác prototype
 
+- **Sản lượng luôn 2 chữ số thập phân** (`ddQty`, `DdQtyInput` trong `js/shared.jsx`): nhập được phần thập phân với mọi đơn vị, hiển thị dạng `1.234,50`. Riêng số cont là số nguyên.
+- **Duyệt sản lượng theo ca cho mọi dịch vụ** (prototype chỉ Bến phao): bản ghi trong ca ở trạng thái `shift` ("Trong ca"); tally bấm Kết ca → cả ca chuyển `pending` và lên màn Chờ duyệt › Sản lượng ca; văn phòng duyệt → `ok`.
+
 - Biển số so khớp bỏ qua khoảng trắng, dấu chấm, gạch ngang.
 - Mã lệnh ca `LV-ddmmyy-nn`; mã sự cố / bản ghi / gate dạng `TIỀNTỐ-ddmm-HHmm-xxx` để không trùng giữa thiết bị.
 - Tally vẫn thấy lệnh ngày trước chưa kết ca (ca qua nửa đêm).

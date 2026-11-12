@@ -243,7 +243,7 @@ const DdProgress = ({ job }) => {
   return (
     <div style={{ minWidth: 0 }}>
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-        <span className="mono">{ddNum(job.actual)}/{ddNum(job.plan)} {ddUnit(job)}</span>
+        <span className="mono">{ddQty(job.actual, ddUnit(job))}/{ddQty(job.plan, ddUnit(job))} {ddUnit(job)}</span>
         <span className="muted mono">{pct}%</span>
       </div>
       <div style={{ height: 5, background: "var(--bg-sunken)", borderRadius: 3, marginTop: 4, overflow: "hidden" }}>
@@ -480,7 +480,7 @@ const DdJobNewScreen = ({ go }) => {
               <div style={{ display: "grid", gridTemplateColumns: "1.4fr 0.8fr 1fr", gap: 12 }}>
                 <div className="field"><label>Tên hàng <span className="req">*</span></label><input className="input" list="dd-kho-cargos" value={f.cargo} onChange={e => set("cargo", e.target.value)} placeholder={f.service === "kho" ? "Chọn theo danh mục hàng hóa của Kho" : "VD: Clinker rời, thép cuộn, xi măng bao"} />{f.service === "kho" && <datalist id="dd-kho-cargos">{ddKhoCargos().map(c => <option key={c} value={c} />)}</datalist>}</div>
                 <div className="field"><label>Đơn vị tính <span className="req">*</span></label><select className="select" value={f.unit} onChange={e => set("unit", e.target.value)}>{(f.service === "kho" ? ["tấn"] : DD_UNITS).map(u => <option key={u}>{u}</option>)}</select>{f.service === "kho" && <div className="muted" style={{ fontSize: 11, marginTop: 3 }}>Kho quản lý theo tấn</div>}</div>
-                <div className="field"><label>Khối lượng kế hoạch ({f.unit}) <span className="req">*</span></label><input className="input mono" value={f.plan ? ddNum(f.plan) : ""} onChange={e => set("plan", Number(e.target.value.replace(/\D/g, "")) || 0)} placeholder="0" /></div>
+                <div className="field"><label>Khối lượng kế hoạch ({f.unit}) <span className="req">*</span></label><DdQtyInput className="input mono" value={f.plan} onChange={v => set("plan", v)} /></div>
                 <div className="muted" style={{ gridColumn: "1 / -1", fontSize: 12 }}>Cách ghi nhận tại hiện trường: <b>{DD_MEASURE[ddMeasureOpts(f.service, f.unit)[0]]}</b> — hệ thống tự gán theo dịch vụ và đơn vị tính; cân chưa kết nối thì tally nhập tay.</div>
               </div>
             ) : (
@@ -699,7 +699,7 @@ const DdJobDetailScreen = ({ go, ctx }) => {
                       <td style={{ fontSize: 12.5 }}><span className="mono">{o.date.slice(0, 5)}</span> · {DD_SHIFTS[o.shift - 1].label}</td>
                       <td><div style={{ display: "flex" }}>{o.tally.map((t, i) => <span key={t} style={{ marginLeft: i ? -6 : 0 }}><Avatar person={ddPerson(t)} size={22} /></span>)}</div></td>
                       <td style={{ fontSize: 12 }}>{o.equip.join(", ")}<div className="muted" style={{ fontSize: 11 }}>{(o.vehicles || []).join(", ") || "—"}</div></td>
-                      <td className="mono" style={{ textAlign: "right", fontSize: 12 }}>{ddNum(o.target)}</td>
+                      <td className="mono" style={{ textAlign: "right", fontSize: 12 }}>{ddQty(o.target, ddUnit(j))}</td>
                       <td><DdBadge map={DD_ORDER_STATUS} s={o.status} /></td>
                     </tr>
                   ))}
@@ -783,10 +783,10 @@ const DdJobDetailScreen = ({ go, ctx }) => {
             <div className="card">
               <div className="card-head"><h3>Chốt sản lượng</h3><DdBadge map={DD_JOB_STATUS} s={j.status} /></div>
               <div className="card-body" style={{ fontSize: 12.5, lineHeight: 1.6 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}><span className="muted">Sản lượng thực tế</span><b className="mono">{ddNum(j.actual)} {ddUnit(j)}</b></div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}><span className="muted">Sản lượng thực tế</span><b className="mono">{ddQty(j.actual, ddUnit(j))} {ddUnit(j)}</b></div>
                 {j.kind === "cont" && (() => { const rows = DD_DIR_ORDER.map(k => { const cs = j.conts.filter(c => ddCDir(c, j) === k && !c.closedAs && ddContDone(c, j)); return { k, n: cs.length, teu: cs.reduce((t, c) => t + (String(c.type).startsWith("4") ? 2 : 1), 0), wt: cs.reduce((t, c) => t + (c.wt || 0), 0), fcl: cs.filter(c => c.fe === "F").length }; }).filter(r => r.n); return rows.length ? (
                   <div style={{ marginBottom: 10, border: "1px solid var(--line)", borderRadius: "var(--r-sm)" }}><div className="muted" style={{ fontSize: 11.5, padding: "6px 10px", borderBottom: "1px solid var(--line)" }}>Bàn giao theo hướng</div>
-                    {rows.map(r => <div key={r.k} style={{ padding: "6px 10px", borderTop: "1px dashed var(--line)" }}><div style={{ display: "flex", justifyContent: "space-between" }}><b>{DD_DIR_SHORT[r.k]}</b><span className="mono">{r.n} cont · {r.teu} TEU</span></div><div className="muted" style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5 }}><span>{r.fcl} FCL · {r.n - r.fcl} MTY</span><span className="mono">{ddNum(Math.round(r.wt * 10) / 10)} t</span></div></div>)}</div>) : null; })()}
+                    {rows.map(r => <div key={r.k} style={{ padding: "6px 10px", borderTop: "1px dashed var(--line)" }}><div style={{ display: "flex", justifyContent: "space-between" }}><b>{DD_DIR_SHORT[r.k]}</b><span className="mono">{r.n} cont · {r.teu} TEU</span></div><div className="muted" style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5 }}><span>{r.fcl} FCL · {r.n - r.fcl} MTY</span><span className="mono">{ddQty(r.wt)} t</span></div></div>)}</div>) : null; })()}
                 {j.kind === "cont" && j.conts.some(c => c.closedAs) && <div className="muted" style={{ fontSize: 11.5, marginBottom: 8 }}>Không tính {j.conts.filter(c => c.closedAs).length} cont đóng sớm.</div>}
                 {j.status === "done" && j.contract && (
                   <button className="btn primary" style={{ width: "100%" }} onClick={() => { j.status = "closed"; log("Chốt sản lượng & bàn giao Kế toán"); refresh(); flash("Đã chốt & bàn giao Kế toán"); }}><Icon name="check" size={13}/> Chốt & bàn giao Kế toán</button>
@@ -857,7 +857,7 @@ const DdOrderModal = ({ init, onClose, onSaved }) => {
     if (existing.date !== f.date || existing.shift !== f.shift) out.push(`ngày/ca ${existing.date.slice(0, 5)} ${DD_SHIFTS[existing.shift - 1].label} → ${f.date.slice(0, 5)} ${DD_SHIFTS[f.shift - 1].label}`);
     const add = f.tally.filter(t => !existing.tally.includes(t)), rm = existing.tally.filter(t => !f.tally.includes(t));
     if (add.length || rm.length) out.push(`tally ${rm.map(t => "−" + ddPerson(t).short).concat(add.map(t => "+" + ddPerson(t).short)).join(" ")}`);
-    if (existing.target !== f.target) out.push(`mục tiêu ${ddNum(existing.target)} → ${ddNum(f.target)}`);
+    if (existing.target !== f.target) out.push(`mục tiêu ${ddQty(existing.target, ddUnit(job))} → ${ddQty(f.target, ddUnit(job))}`);
     if (JSON.stringify(existing.equip) !== JSON.stringify(f.equip)) out.push("thiết bị");
     if (JSON.stringify(existing.vehicles) !== JSON.stringify(f.vehicles)) out.push(`phương tiện ${f.vehicles.join(", ") || "—"}`);
     if (existing.note !== f.note) out.push("chỉ dẫn");
@@ -899,7 +899,7 @@ const DdOrderModal = ({ init, onClose, onSaved }) => {
             <select className="select" value={f.job} disabled={!!existing || locked} onChange={e => { setVText(""); setF(s => ({ ...s, job: e.target.value, tally: [ddTallyAcc(DD_JOBS.find(j => j.id === e.target.value), s.shift)], vehicles: [] })); }}>
               {openJobs.map(j => <option key={j.id} value={j.id}>{j.id} · {ddCusShort(j.customer)} · {j.cargo} · {ddSvc(j.service).label}{j.contract ? "" : " · CHƯA CÓ HĐ"}</option>)}
             </select>
-            {job && <div className="muted" style={{ fontSize: 11.5, marginTop: 4 }}>{ddLoc(job)} · {job.from} → {job.to} · còn lại {ddNum(Math.max(0, job.plan - job.actual))} {ddUnit(job)}</div>}
+            {job && <div className="muted" style={{ fontSize: 11.5, marginTop: 4 }}>{ddLoc(job)} · {job.from} → {job.to} · còn lại {ddQty(Math.max(0, job.plan - job.actual), ddUnit(job))} {ddUnit(job)}</div>}
           </div>
           {job && (window.DD_CALLS || []).some(c => c.job === job.id && c.status !== "departed") && (
             <div className="field"><label>Lượt cập sà lan <span className="opt">— từ River gate; tự thêm cẩu và sà lan của lượt</span></label>
@@ -954,7 +954,7 @@ const DdOrderModal = ({ init, onClose, onSaved }) => {
           </div>
           <div className="field-row">
             <div className="field"><label>Mục tiêu sản lượng ca ({ddUnit(job)}) <span className="req">*</span></label>
-              <input className="input mono" disabled={locked} value={f.target ? ddNum(f.target) : ""} onChange={e => set("target", Number(e.target.value.replace(/\D/g, "")) || 0)} placeholder="0" />
+              <DdQtyInput className="input mono" disabled={locked} value={f.target} int={ddUnit(job) === "cont"} onChange={v => set("target", v)} />
             </div>
           </div>
           <div className="field"><label>Chỉ dẫn cho tally</label><input className="input" disabled={locked} value={f.note} onChange={e => set("note", e.target.value)} placeholder="VD: Ưu tiên hầm 2; cắm điện cont lạnh ngay khi hạ bãi" /></div>
@@ -1060,7 +1060,7 @@ const DdShiftsScreen = ({ go }) => {
                           <Icon name={ddSvc(j.service).icon} size={11}/>
                         </div>
                         <div style={{ fontSize: 12, fontWeight: 600, marginTop: 2 }}>{ddCusShort(j.customer)} {!j.contract && <span style={{ color: "var(--st-danger)", fontSize: 10.5 }}>· chưa HĐ</span>}</div>
-                        <div className="muted" style={{ fontSize: 11 }}>{j.cargo} · {ddNum(o.target)} {ddUnit(j)}</div>
+                        <div className="muted" style={{ fontSize: 11 }}>{j.cargo} · {ddQty(o.target, ddUnit(j))} {ddUnit(j)}</div>
                         <div style={{ display: "flex", alignItems: "center", marginTop: 5 }}>
                           {o.tally.map((t, i) => <span key={t} style={{ marginLeft: i ? -5 : 0, opacity: o.status === "sent" && !o.ack.includes(t) ? 0.45 : 1 }}><Avatar person={ddPerson(t)} size={18} /></span>)}
                           <span style={{ marginLeft: "auto", fontSize: 10.5 }} className={`badge ${DD_ORDER_STATUS[o.status].cls}`}>{o.status === "sent" ? `Đã xem ${o.ack.length}/${o.tally.length}` : DD_ORDER_STATUS[o.status].label}</span>
