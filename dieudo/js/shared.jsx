@@ -34,6 +34,13 @@ const DdQtyInput = ({ value, onChange, int, className, disabled, placeholder = "
     onBlur={() => setFocus(false)} onChange={e => change(e.target.value)} />;
 };
 
+/* Nhật ký job: ghi từng bước (lệnh ca, tally, kết ca, duyệt, sự cố) — mới nhất ở trên */
+const ddJobLog = (jobOrId, text, by) => {
+  const j = typeof jobOrId === "string" ? DD_JOBS.find(x => x.id === jobOrId) : jobOrId;
+  if (!j) return;
+  (j.log = j.log || []).unshift({ at: window.ddVnNow().at, by: by || (DD_ME && DD_ME.id), text });
+};
+
 /* Mã phần tử không trùng giữa các thiết bị: TIỀN TỐ-ddmm-HHmm-xxx (GMT+7) */
 const ddNewId = (prefix) => {
   const n = window.ddVnNow();
@@ -133,4 +140,4 @@ const DdPhoto = ({ path, label = "Ảnh", inline, height = 140 }) => {
   );
 };
 
-Object.assign(window, { ddQty, DdQtyInput, Avatar, Topbar, KdToast, useKdToast, KdStepper, DdPhotoBtn, DdPhoto, DdSyncBadge, ddNewId });
+Object.assign(window, { ddJobLog, ddQty, DdQtyInput, Avatar, Topbar, KdToast, useKdToast, KdStepper, DdPhotoBtn, DdPhoto, DdSyncBadge, ddNewId });

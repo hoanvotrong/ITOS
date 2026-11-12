@@ -202,11 +202,13 @@ const DD_ORDERS = DD_BOOT.docs.orders;
 /* Giờ thật GMT+7 dạng dd/mm/yyyy HH:mm (lưu xuống CSDL đổi sang ISO UTC — xem sync.js) */
 const ddNow = () => window.ddVnNow().at;
 /* v2.6 — vòng đời job: bắt đầu ở ghi nhận đầu tiên của tally; job cont tự hoàn thành khi mọi cont xong (BR-DD-17, 19) */
+/* Job hoàn thành khi lệnh ca còn mở: kết luôn các ca đó để sản lượng lên Chờ duyệt */
+const ddCloseJobShifts = (j, by) => DD_ORDERS.filter(o => o.job === j.id && ddOrderOpen(o)).forEach(o => ddEndShift(o, by || j.owner));
 const ddJobTouch = (j, by) => {
   if (!j) return;
   j.log = j.log || [];
   if (j.status === "planned") { j.status = "running"; j.log.unshift({ at: ddNow(), by: by || j.owner, text: "Bắt đầu thực hiện (ghi nhận đầu tiên của tally)" }); }
-  if (j.status === "running" && j.kind === "cont" && j.conts.length && j.conts.every(c => ddContDone(c, j))) { j.status = "done"; j.log.unshift({ at: ddNow(), by: by || j.owner, text: "Tự chuyển Hoàn thành: tất cả cont đã xong · mã tài xế hết hiệu lực" }); }
+  if (j.status === "running" && j.kind === "cont" && j.conts.length && j.conts.every(c => ddContDone(c, j))) { j.status = "done"; j.log.unshift({ at: ddNow(), by: by || j.owner, text: "Tự chuyển Hoàn thành: tất cả cont đã xong · mã tài xế hết hiệu lực" }); ddCloseJobShifts(j, by); }
 };
 const ddJobHasRec = (j) => (j.actual || 0) > 0 || (j.conts || []).some(c => c.gin || c.gout);
 /* Cont đang thuộc job khác chưa xong (BR-DD-14) */
@@ -652,7 +654,7 @@ const DdJobDetailScreen = ({ go, ctx }) => {
             <div style={{ flex: 1 }}></div>
             {j.status === "planned" && <span className="muted" style={{ fontSize: 11.5 }}>Tự chuyển Đang thực hiện khi tally ghi nhận lần đầu</span>}
             {live && <button className="btn btn-sm" onClick={() => { setPanel(panel === "ext" ? null : "ext"); setExtTo(""); }}><Icon name="schedule" size={12}/> Gia hạn</button>}
-            {j.status === "running" && j.kind !== "cont" && <button className="btn btn-sm" onClick={() => { j.status = "done"; log("Đánh dấu hoàn thành · mã tài xế hết hiệu lực"); refresh(); flash("Job hoàn thành — chờ chốt sản lượng"); }}><Icon name="check" size={12}/> Đánh dấu hoàn thành</button>}
+            {j.status === "running" && j.kind !== "cont" && <button className="btn btn-sm" onClick={() => { j.status = "done"; log("Đánh dấu hoàn thành · mã tài xế hết hiệu lực"); ddCloseJobShifts(j); refresh(); flash("Job hoàn thành — chờ chốt sản lượng"); }}><Icon name="check" size={12}/> Đánh dấu hoàn thành</button>}
             {j.status === "running" && j.kind === "cont" && left.length > 0 && <button className="btn btn-sm" onClick={() => { setPanel(panel === "early" ? null : "early"); setWhy(""); }}><Icon name="check" size={12}/> Đóng sớm</button>}
             {live && <button className="btn btn-sm" style={{ color: "var(--st-danger)" }} disabled={hasRec} title={hasRec ? "Job đã có ghi nhận của tally — chỉ Trưởng phòng được huỷ" : ""} onClick={() => { setPanel(panel === "cancel" ? null : "cancel"); setWhy(""); }}><Icon name="x" size={12}/> Huỷ job</button>}
           </div>
@@ -666,7 +668,7 @@ const DdJobDetailScreen = ({ go, ctx }) => {
               {panel === "early" && <div><b>Đóng sớm job</b> · còn {left.length} cont chưa làm<div className="row" style={{ gap: 8, marginTop: 8, flexWrap: "wrap" }}>
                 <span>Lý do cho cont còn lại</span><select className="select" style={{ width: 170, height: 30 }} value={closeAs} onChange={e => setCloseAs(e.target.value)}><option>Khách huỷ</option><option>Chuyển job khác</option></select>
                 <input className="input" style={{ flex: 1, minWidth: 180, height: 30 }} value={why} onChange={e => setWhy(e.target.value)} placeholder="Ghi chú (bắt buộc)" />
-                <button className="btn primary btn-sm" disabled={!why.trim()} onClick={() => { left.forEach(c => c.closedAs = closeAs); j.status = "done"; log(`Đóng sớm · ${left.length} cont "${closeAs}": ${why.trim()} · mã tài xế hết hiệu lực`); setPanel(null); refresh(); flash("Đã đóng sớm — chờ chốt sản lượng"); }}>Đóng sớm</button></div></div>}
+                <button className="btn primary btn-sm" disabled={!why.trim()} onClick={() => { left.forEach(c => c.closedAs = closeAs); j.status = "done"; ddCloseJobShifts(j); log(`Đóng sớm · ${left.length} cont "${closeAs}": ${why.trim()} · mã tài xế hết hiệu lực`); setPanel(null); refresh(); flash("Đã đóng sớm — chờ chốt sản lượng"); }}>Đóng sớm</button></div></div>}
               {panel === "cancel" && <div><b>Huỷ job</b> · lệnh ca chưa làm sẽ huỷ, mã tài xế hết hiệu lực ngay<div className="row" style={{ gap: 8, marginTop: 8 }}>
                 <input className="input" style={{ flex: 1, height: 30 }} value={why} onChange={e => setWhy(e.target.value)} placeholder="Lý do huỷ (bắt buộc)" />
                 <button className="btn btn-sm" style={{ background: "var(--st-danger)", color: "#fff" }} disabled={!why.trim()} onClick={() => { j.status = "cancelled"; j.cancelReason = why.trim(); const os = orders.filter(o => o.status !== "done"); os.forEach(o => { o.status = "cancelled"; o.log.unshift({ at: ddNow(), by: DD_ME.id, text: `Huỷ theo job ${j.id}` }); }); log(`Huỷ job: ${why.trim()} · huỷ ${os.length} lệnh ca · mã tài xế hết hiệu lực`); setPanel(null); refresh(); flash(`Đã huỷ ${j.id}`); }}>Xác nhận huỷ</button></div></div>}
@@ -869,8 +871,9 @@ const DdOrderModal = ({ init, onClose, onSaved }) => {
       const d = diff();
       Object.assign(existing, { ...f, status: send && existing.status === "draft" ? "sent" : existing.status });
       if (existing.status !== "draft" && !existing.drvCode) existing.drvCode = ddDrvCode(existing.id + Date.now());
-      if (sentEdit && d) { existing.ack = []; existing.log.unshift({ at: ddNow(), by: DD_ME.id, text: `Sửa: ${d} · lý do: ${reason.trim()} · gửi lại thông báo tally` }); onSaved(`Đã sửa ${existing.id} & gửi lại thông báo tally`); return; }
+      if (sentEdit && d) { existing.ack = []; existing.log.unshift({ at: ddNow(), by: DD_ME.id, text: `Sửa: ${d} · lý do: ${reason.trim()} · gửi lại thông báo tally` }); ddJobLog(existing.job, `Sửa lệnh ca ${existing.id}: ${d} · lý do: ${reason.trim()}`); onSaved(`Đã sửa ${existing.id} & gửi lại thông báo tally`); return; }
       existing.log.unshift({ at: ddNow(), by: DD_ME.id, text: send ? `Gửi thông báo tài khoản ${f.tally.map(t => ddPerson(t).name).join(", ")}` : "Lưu nháp" });
+      if (send) ddJobLog(existing.job, `Gửi lệnh ca ${existing.id} · ${DD_SHIFTS[existing.shift - 1].label} ${existing.date} cho ${f.tally.map(t => ddPerson(t).name).join(", ")} · mã tài xế ${existing.drvCode || "—"}`);
       onSaved(send ? `Đã gửi ${existing.id} cho ${f.tally.map(t => ddPerson(t).name).join(", ")}` : "Đã lưu nháp");
       return;
     }
@@ -878,6 +881,7 @@ const DdOrderModal = ({ init, onClose, onSaved }) => {
     const n = Math.max(0, ...DD_ORDERS.filter(o => o.id.startsWith(pre)).map(o => Number(o.id.slice(pre.length)) || 0)) + 1;
     const id = `${pre}${String(n).padStart(2, "0")}`;
     DD_ORDERS.push({ ...f, id, curEq: ddCranes(f)[0] || null, status: send ? "sent" : "draft", drvCode: send ? ddDrvCode(id + Date.now()) : null, ack: [], log: [{ at: ddNow(), by: DD_ME.id, text: send ? `Tạo lệnh & gửi tài khoản ${f.tally.map(t => ddPerson(t).name).join(", ")}` : "Tạo nháp" }] });
+    { const no = DD_ORDERS[DD_ORDERS.length - 1]; ddJobLog(no.job, send ? `Tạo lệnh ca ${no.id} · ${DD_SHIFTS[no.shift - 1].label} ${no.date} · gửi ${f.tally.map(t => ddPerson(t).name).join(", ")} · mã tài xế ${no.drvCode}` : `Tạo nháp lệnh ca ${no.id}`); }
     /* v2.6: gửi lệnh ca không chuyển trạng thái job; job bắt đầu ở ghi nhận đầu tiên của tally (BR-DD-17) */
     onSaved(send ? `Đã tạo ${id} & gửi ${f.tally.map(t => ddPerson(t).name).join(", ")}` : `Đã lưu nháp ${id}`);
   };
