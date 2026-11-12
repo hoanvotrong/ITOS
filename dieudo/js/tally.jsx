@@ -15,6 +15,7 @@ const TL_INC_NOTES = ["Dừng làm hàng", "Làm chậm", "Cần kỹ thuật", 
 /* Giờ thật GMT+7 (thay đồng hồ giả lập của prototype). Tham số bước cũ bị bỏ qua. */
 const tlClock = () => window.ddVnNow().time;
 const tlFmt = (n, unit) => ddQty(n, unit); /* sản lượng: luôn 2 chữ số thập phân (trừ số cont) */
+const tlPlateKey = (p) => String(p || "").toUpperCase().replace(/[\s.\-]/g, ""); /* so khớp biển số: bỏ khoảng trắng, chấm, gạch */
 const tlContFmt = (no) => `${no.slice(0, 4)} ${no.slice(4, 10)} ${no.slice(10)}`;
 
 /* Dữ liệu nạp từ dd_docs (không còn dữ liệu mẫu) */
@@ -79,6 +80,16 @@ const TlPhone = ({ me, offline, onChange }) => {
   const [q, setQ] = React.useState("");
   const [msg, setMsg] = React.useState(null);
   const [np, setNp] = React.useState({ plate: "", owner: "" }); /* xe ngoài danh sách: tally tự nhập biển */
+  const [vq, setVq] = React.useState(""); /* tìm biển số ở bước chọn xe */
+  React.useEffect(() => { setVq(""); }, [st.s]);
+  /* Lọc biển số: bỏ khoảng trắng / chấm / gạch, khớp một phần (VD gõ "611" ra 43C-611.08) */
+  const vehHit = (plates) => { const q = tlPlateKey(vq); return q ? plates.filter(p => tlPlateKey(p).includes(q)) : plates; };
+  const vehSearch = (
+    <div className="tl-search" style={{ marginBottom: 8 }}><span>🔍</span>
+      <input style={{ flex: 1, border: 0, outline: "none", fontSize: 17, background: "transparent", fontFamily: "inherit", textTransform: "uppercase" }} placeholder="Tìm biển số (VD 611)" value={vq} onChange={e => setVq(e.target.value)} />
+      {vq && <button onClick={() => setVq("")}>✕</button>}
+    </div>
+  );
   const go = (s, extra = {}) => { setSt({ ...extra, s }); };
   const toast = (m) => { setMsg(m); clearTimeout(window.__tlT); window.__tlT = setTimeout(() => setMsg(null), 2000); };
   React.useEffect(() => { setSt({ s: "home" }); }, [me.id]);
@@ -242,27 +253,29 @@ const TlPhone = ({ me, offline, onChange }) => {
       <Bar title="Bước 1/3 · Chọn phương tiện" sub={`Theo danh sách xe của lệnh ca · ca này ${recs.length} chuyến · ${tlFmt(caTotal)} ${unit}`} back={() => go("order", { order: o.id })} />
       <Ctx />
       <div className="tl-scroll">
+        {vehSearch}
         {o.vehicles.length === 0 && <div className="tl-empty">Lệnh ca chưa đăng ký phương tiện — báo KHTH.</div>}
-        {o.vehicles.map(p => { const v = ddVeh(p); const t = trips(p); return (
+        {vehHit(o.vehicles).length === 0 && o.vehicles.length > 0 && !vehHit((o.extraVeh || []).map(v => v.plate)).length && <div className="tl-empty">Không thấy xe "{vq}" trong lệnh ca — bấm nút đỏ bên dưới để nhập biển.</div>}
+        {vehHit(o.vehicles).map(p => { const v = ddVeh(p); const t = trips(p); return (
           <button key={p} className="tl-choice" onClick={() => { setPad(""); setW({ f: 1, a: "", b: "", src: "manual" }); go(ddMeasure(job) === "scale" ? "w" : "pad", { order: o.id, plate: p, src: "manual" }); }}>
             <div style={{ textAlign: "left" }}><span className="tl-plate">{p}</span><div className="tl-muted" style={{ marginTop: 4 }}>{v.type}</div></div>
             <span className="tl-muted" style={{ textAlign: "right" }}>{t.length} chuyến<br/>{tlFmt(t.reduce((s, r) => s + r.qty, 0))} {unit}</span>
           </button>); })}
-        {(o.extraVeh || []).map(({ plate: p, owner }) => { const t = trips(p); return (
+        {(o.extraVeh || []).filter(v => vehHit([v.plate]).length).map(({ plate: p, owner }) => { const t = trips(p); return (
           <button key={p} className="tl-choice" onClick={() => { setPad(""); setW({ f: 1, a: "", b: "", src: "manual" }); go(ddMeasure(job) === "scale" ? "w" : "pad", { order: o.id, plate: p, src: "manual" }); }}>
             <div style={{ textAlign: "left" }}><span className="tl-plate">{p}</span><div className="tl-muted" style={{ marginTop: 4, color: "#B45309" }}>Ngoài danh sách{owner ? ` · ${owner}` : ""} · đã báo KHTH</div></div>
             <span className="tl-muted" style={{ textAlign: "right" }}>{t.length} chuyến<br/>{tlFmt(t.reduce((s, r) => s + r.qty, 0))} {unit}</span>
           </button>); })}
-        <button className="tl-sec danger" style={{ width: "100%" }} onClick={() => { setNp({ plate: "", owner: "" }); go("vehNew", { order: o.id, next: "bulk" }); }}>+ Xe không có trong danh sách · nhập biển số</button>
+        <button className="tl-sec danger" style={{ width: "100%" }} onClick={() => { setNp({ plate: vq.toUpperCase(), owner: "" }); go("vehNew", { order: o.id, next: "bulk" }); }}>+ Xe không có trong danh sách · nhập biển số</button>
       </div>
     </>);
   }
 
   /* ---------- Xe ngoài danh sách: tally nhập biển số ---------- */
   if (st.s === "vehNew" && o) {
-    const plate = np.plate.toUpperCase().replace(/s+/g, " ").trim();
-    const known = [...o.vehicles, ...(o.extraVeh || []).map(v => v.plate)].find(v => v.replace(/[s.-]/g, "") === plate.replace(/[s.-]/g, ""));
-    const ok = plate.replace(/[s.-]/g, "").length >= 5;
+    const plate = np.plate.toUpperCase().replace(/\s+/g, " ").trim();
+    const known = [...o.vehicles, ...(o.extraVeh || []).map(v => v.plate)].find(v => tlPlateKey(v) === tlPlateKey(plate));
+    const ok = tlPlateKey(plate).length >= 5;
     const next = () => {
       const p = known || plate;
       if (!known) addOffList(p, np.owner.trim());
@@ -426,18 +439,19 @@ const TlPhone = ({ me, offline, onChange }) => {
       <Bar title="Chọn xe" sub={`${tlContFmt(st.cont)} · tài xế chưa gắn xe trên web`} back={() => go("cont", { order: o.id, dir: st.dir })} />
       <Ctx />
       <div className="tl-scroll">
-        {o.vehicles.map(p => { const v = ddVeh(p); const n = recs.filter(r => r.plate === p).length; return (
+        {vehSearch}
+        {vehHit(o.vehicles).map(p => { const v = ddVeh(p); const n = recs.filter(r => r.plate === p).length; return (
           <button key={p} className="tl-choice" onClick={() => go("contOk", { ...st, truck: p })}>
             <div style={{ textAlign: "left" }}><span className="tl-plate">{p}</span><div className="tl-muted" style={{ marginTop: 4 }}>{v.type}</div></div>
             <span className="tl-muted">{n} cont</span>
           </button>); })}
-        {(o.extraVeh || []).map(({ plate: p, owner }) => { const n = recs.filter(r => r.plate === p).length; return (
+        {(o.extraVeh || []).filter(v => vehHit([v.plate]).length).map(({ plate: p, owner }) => { const n = recs.filter(r => r.plate === p).length; return (
           <button key={p} className="tl-choice" onClick={() => go("contOk", { ...st, truck: p })}>
             <div style={{ textAlign: "left" }}><span className="tl-plate">{p}</span><div className="tl-muted" style={{ marginTop: 4, color: "#B45309" }}>Ngoài danh sách{owner ? ` · ${owner}` : ""} · đã báo KHTH</div></div>
             <span className="tl-muted">{n} cont</span>
           </button>); })}
         {o.vehicles.length === 0 && !(o.extraVeh || []).length && <div className="tl-empty">Lệnh ca chưa có xe.</div>}
-        <button className="tl-sec danger" style={{ width: "100%" }} onClick={() => { setNp({ plate: "", owner: "" }); go("vehNew", { order: o.id, next: "cont", back: { ...st, s: undefined } }); }}>+ Xe không có trong danh sách · nhập biển số</button>
+        <button className="tl-sec danger" style={{ width: "100%" }} onClick={() => { setNp({ plate: vq.toUpperCase(), owner: "" }); go("vehNew", { order: o.id, next: "cont", back: { ...st, s: undefined } }); }}>+ Xe không có trong danh sách · nhập biển số</button>
       </div>
     </>);
   }
