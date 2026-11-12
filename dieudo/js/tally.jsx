@@ -407,18 +407,14 @@ const TlPhone = ({ me, offline, onChange }) => {
     const isIn = st.dir === "in";
     /* Gate In chỉ hiện cont hướng nhập lưu bãi; Gate Out hiện cont xuất thẳng / xuất bãi (BR-DD-11) */
     const pend = job.conts.filter(c => isIn ? ddCDir(c, job) === "import" && !c.gin : ddCDir(c, job) !== "import" && !c.gout);
-    const digits = (p) => (p || "").replace(/\D/g, "");
-    const shown = pend.filter(c => !q || c.no.includes(q) || digits(c.drvTruck).includes(q)).sort((a, b) => (!!b.drvTruck) - (!!a.drvTruck));
+    const qk = tlPlateKey(q); /* gõ số cont (đuôi hoặc đầy đủ) hoặc biển xe; bỏ khoảng trắng, chấm, gạch */
+    const shown = pend.filter(c => !qk || c.no.includes(qk) || tlPlateKey(c.drvTruck).includes(qk)).sort((a, b) => (!!b.drvTruck) - (!!a.drvTruck));
     const nAtt = pend.filter(c => c.drvTruck).length;
     body = (<>
       <Bar title={`${isIn ? "Gate In" : "Gate Out"} · chọn cont`} sub={`${pend.length} cont chưa ${isIn ? "gate in" : "gate out"} · ${ddDirLabel(job)}`} back={() => go("order", { order: o.id })} />
       <Ctx />
       <div style={{ padding: "10px 12px 0" }}>
-        <div className="tl-search">
-          <span>🔍</span><span className="tl-q">{q || <span style={{ color: "#94A3B8" }}>Số đuôi cont hoặc số biển xe</span>}</span>
-          {q && <button onClick={() => setQ("")}>✕</button>}
-        </div>
-        <div className="tl-minipad">{["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "⌫"].map(k => <button key={k} onClick={() => setQ(v => k === "⌫" ? v.slice(0, -1) : (v + k).slice(-7))}>{k}</button>)}</div>
+        <div className="tl-search"><span>🔍</span><input className="tl-qin" inputMode="search" autoCapitalize="characters" autoComplete="off" placeholder="Số cont hoặc biển xe (VD 812300)" value={q} onChange={e => setQ(e.target.value.toUpperCase())} />{q && <button onClick={() => setQ("")}>✕</button>}</div>
       </div>
       <div className="tl-scroll">
         {nAtt > 0 && !q && <div className="tl-muted" style={{ margin: "0 0 6px" }}>{nAtt} cont tài xế đã gắn xe — xếp lên đầu</div>}
@@ -517,7 +513,7 @@ const TlPhone = ({ me, offline, onChange }) => {
   if (st.s === "yard" && o) {
     const R = Object.values(window.DD_CONT_REG || {});
     const pending = R.filter(c => c.inPort && !c.pos);
-    const placed = R.filter(c => c.inPort && c.pos && (!yq || c.no.includes(yq)));
+    const placed = R.filter(c => c.inPort && c.pos && (!yq || c.no.includes(tlPlateKey(yq))));
     body = (<>
       <Bar title="Bãi cont" sub="Hạ bãi · đảo chuyển" back={() => go("order", { order: o.id })} />
       <div className="tl-tabs">
@@ -530,9 +526,8 @@ const TlPhone = ({ me, offline, onChange }) => {
           <button className="tl-main" disabled={!pending.length || !YDOK} onClick={() => go("ypos", { order: o.id, mode: "place", b: null })}>CHỌN VỊ TRÍ HẠ BÃI<small>{pending.length} cont đang chờ</small></button>
           {pending.slice(0, 12).map(c => <div key={c.no} className="tl-rec"><div style={{ flex: 1 }}><b className="mono">{tlContFmt(c.no)}</b><div className="tl-muted">{c.type} · {c.fe === "F" ? "Hàng" : "Rỗng"} · {c.line} · gate in {(c.gateInAt || "").slice(-5)}</div></div></div>)}
         </>) : (<>
-          <div className="tl-search"><span>🔍</span><span className="tl-q">{yq || <span style={{ color: "#94A3B8" }}>Số đuôi cont cần đảo chuyển</span>}</span>{yq && <button onClick={() => setYq("")}>✕</button>}</div>
-          <div className="tl-minipad" style={{ marginBottom: 8 }}>{["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "⌫"].map(k => <button key={k} onClick={() => setYq(v => k === "⌫" ? v.slice(0, -1) : (v + k).slice(-7))}>{k}</button>)}</div>
-          {yq.length < 3 ? <div className="tl-empty">Gõ ít nhất 3 số đuôi</div> : placed.slice(0, 10).map(c => { const top = YDOK ? ydBlocked(c) : null; return (
+          <div className="tl-search"><span>🔍</span><input className="tl-qin" inputMode="search" autoCapitalize="characters" autoComplete="off" placeholder="Số cont cần đảo chuyển" value={yq} onChange={e => setYq(e.target.value.toUpperCase())} />{yq && <button onClick={() => setYq("")}>✕</button>}</div>
+          {tlPlateKey(yq).length < 3 ? <div className="tl-empty">Gõ ít nhất 3 ký tự của số cont</div> : placed.slice(0, 10).map(c => { const top = YDOK ? ydBlocked(c) : null; return (
             <button key={c.no} className="tl-choice" disabled={!!top} style={{ opacity: top ? .55 : 1 }} onClick={() => go("ypos", { order: o.id, mode: "move", cont: c.no, b: null })}>
               <b className="mono">{tlContFmt(c.no)}</b><span className="tl-muted" style={{ textAlign: "right" }}><b style={{ color: "#0E7490" }}>{c.loc}</b>{top ? <><br/>bị đè bởi {tlContFmt(top)}</> : null}</span>
             </button>); })}
@@ -741,6 +736,8 @@ const TL_CSS = `
 .tl-grid button.on{border-color:#DC2626}
 .tl-toast{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);background:#0F172A;color:#fff;padding:10px 16px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap;z-index:5}
 .tl-search{display:flex;align-items:center;gap:8px;background:#fff;border-radius:12px;padding:8px 12px;font-size:16px;border:2px solid #E2E8F0}
+.tl-search .tl-qin{flex:1;min-width:0;border:0;outline:none;background:transparent;font-family:var(--font-mono,monospace);font-weight:700;font-size:17px;letter-spacing:.06em;color:#0F172A}
+.tl-search .tl-qin::placeholder{font-weight:400;letter-spacing:0;color:#94A3B8;font-family:inherit;font-size:15px}
 .tl-search .tl-q{flex:1;font-family:var(--font-mono,monospace);font-weight:700;letter-spacing:.06em}
 .tl-search button{border:0;background:#F1F5F9;border-radius:8px;width:28px;height:28px;cursor:pointer}
 .tl-minipad{display:grid;grid-template-columns:repeat(11,1fr);gap:4px;margin-top:6px}
