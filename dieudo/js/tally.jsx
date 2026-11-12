@@ -55,6 +55,8 @@ const ddEndShift = (o, by) => {
   const recs = DD_RECORDS.filter(r => r.order === o.id && r.status === "shift");
   recs.forEach(r => { r.status = "pending"; r.subAt = o.endAt; });
   (o.log = o.log || []).unshift({ at: o.endAt, by, text: `Kết ca · ${recs.length} bản ghi gửi văn phòng duyệt · mã tài xế ${o.drvCode || "—"} hết hiệu lực` });
+  const jj = DD_JOBS.find(x => x.id === o.job); const u = ddUnit(jj);
+  ddJobLog(jj, `Kết ca ${o.id} (${DD_SHIFTS[o.shift - 1].label} ${o.date}) · ${recs.length} bản ghi · ${ddQty(recs.reduce((t, r) => t + r.qty, 0), u)} ${u} gửi văn phòng duyệt`, by);
 };
 
 const tlMode = (job) => job.kind === "cont" ? "cont" : "bulk";
@@ -73,6 +75,7 @@ const TlPhone = ({ me, offline, onChange }) => {
   const [yq, setYq] = React.useState("");
   const [q, setQ] = React.useState("");
   const [msg, setMsg] = React.useState(null);
+  const [np, setNp] = React.useState({ plate: "", owner: "" }); /* xe ngoài danh sách: tally tự nhập biển */
   const go = (s, extra = {}) => { setSt({ ...extra, s }); };
   const toast = (m) => { setMsg(m); clearTimeout(window.__tlT); window.__tlT = setTimeout(() => setMsg(null), 2000); };
   React.useEffect(() => { setSt({ s: "home" }); }, [me.id]);
@@ -91,7 +94,7 @@ const TlPhone = ({ me, offline, onChange }) => {
   const dec = unit !== "cont"; /* mọi đơn vị nhập được 2 chữ số thập phân */
 
   const openOrder = (ord) => {
-    if (!ord.ack.includes(me.id)) { ord.ack.push(me.id); ord.log.unshift({ at: `${ddNow()}`, by: me.id, text: "Tally đã xem lệnh trên app" }); onChange(); }
+    if (!ord.ack.includes(me.id)) { ord.ack.push(me.id); ord.log.unshift({ at: `${ddNow()}`, by: me.id, text: "Tally đã xem lệnh trên app" }); ddJobLog(ord.job, `${me.name} đã xem lệnh ca ${ord.id} trên app`, me.id); onChange(); }
     go("order", { order: ord.id });
   };
   const addRecord = (rec) => {
@@ -99,8 +102,23 @@ const TlPhone = ({ me, offline, onChange }) => {
     DD_RECORDS.push(r);
     job.actual = Math.round((job.actual + r.qty) * 100) / 100;
     if (o.status === "sent") o.status = "running";
+    ddJobLog(job, r.cont ? `${o.id} · Gate ${r.gate === "in" ? "In" : "Out"} ${tlContFmt(r.cont)}${r.plate ? ` · xe ${r.plate}` : ""}${r.offList ? " (ngoài DS)" : ""}` : `${o.id} · ghi nhận ${r.plate || ""}: ${tlFmt(r.qty, unit)} ${unit}${r.offList ? " (xe ngoài DS)" : ""}`, me.id);
     window.ddJobTouch?.(job, me.id);
     onChange(); return r;
+  };
+  /* Xe chưa có trong danh sách lệnh ca: tally tự nhập biển, vẫn ghi nhận sản lượng; tự báo sự cố về KHTH (1 lần / xe / lệnh) */
+  const offList = (p) => (o && o.extraVeh || []).some(v => v.plate === p);
+  const addOffList = (plate, owner) => {
+    if (offList(plate) || o.vehicles.includes(plate)) return;
+    const at = ddNow();
+    (o.extraVeh = o.extraVeh || []).push({ plate, owner: owner || null, by: me.id, at });
+    (o.log = o.log || []).unshift({ at, by: me.id, text: `Tally ghi nhận xe ngoài danh sách ${plate}${owner ? ` · ${owner}` : ""}` });
+    const id = ddNewId("SC");
+    DD_INCIDENTS.unshift({ id, order: o.id, job: job.id, by: me.id, at, type: "scale", eq: null, plate, missing: "veh", photo: false, status: "open", offline,
+      notes: ["Cont/xe không có trong danh sách", `Xe ${plate}${owner ? ` · ${owner}` : ""} — tally đã ghi nhận sản lượng, KHTH kiểm tra / bổ sung vào lệnh ca`],
+      log: [{ at, by: me.id, text: "Tự động từ app tally: xe không có trong danh sách lệnh ca" }] });
+    ddJobLog(job, `${o.id} · xe ngoài danh sách ${plate}${owner ? ` · ${owner}` : ""} · tự báo sự cố ${id} về KHTH`, me.id);
+    onChange();
   };
   const press = (k) => setPad(p => k === "⌫" ? p.slice(0, -1) : k === "," ? (!dec || p.includes(",") || !p ? p : p + ",") : (p.split(",")[1]?.length >= 2 || p.length >= 7 ? p : (p === "0" ? k : p + k)));
 
@@ -221,7 +239,38 @@ const TlPhone = ({ me, offline, onChange }) => {
             <div style={{ textAlign: "left" }}><span className="tl-plate">{p}</span><div className="tl-muted" style={{ marginTop: 4 }}>{v.type}</div></div>
             <span className="tl-muted" style={{ textAlign: "right" }}>{t.length} chuyến<br/>{tlFmt(t.reduce((s, r) => s + r.qty, 0))} {unit}</span>
           </button>); })}
-        <button className="tl-sec danger" style={{ width: "100%" }} onClick={() => go("inc2", { order: o.id, type: "scale", notes: ["Cont/xe không có trong danh sách"], level: "mid", missing: "veh" })}>Xe không có trong danh sách → báo KHTH</button>
+        {(o.extraVeh || []).map(({ plate: p, owner }) => { const t = trips(p); return (
+          <button key={p} className="tl-choice" onClick={() => { setPad(""); setW({ f: 1, a: "", b: "", src: "manual" }); go(ddMeasure(job) === "scale" ? "w" : "pad", { order: o.id, plate: p, src: "manual" }); }}>
+            <div style={{ textAlign: "left" }}><span className="tl-plate">{p}</span><div className="tl-muted" style={{ marginTop: 4, color: "#B45309" }}>Ngoài danh sách{owner ? ` · ${owner}` : ""} · đã báo KHTH</div></div>
+            <span className="tl-muted" style={{ textAlign: "right" }}>{t.length} chuyến<br/>{tlFmt(t.reduce((s, r) => s + r.qty, 0))} {unit}</span>
+          </button>); })}
+        <button className="tl-sec danger" style={{ width: "100%" }} onClick={() => { setNp({ plate: "", owner: "" }); go("vehNew", { order: o.id, next: "bulk" }); }}>+ Xe không có trong danh sách · nhập biển số</button>
+      </div>
+    </>);
+  }
+
+  /* ---------- Xe ngoài danh sách: tally nhập biển số ---------- */
+  if (st.s === "vehNew" && o) {
+    const plate = np.plate.toUpperCase().replace(/s+/g, " ").trim();
+    const known = [...o.vehicles, ...(o.extraVeh || []).map(v => v.plate)].find(v => v.replace(/[s.-]/g, "") === plate.replace(/[s.-]/g, ""));
+    const ok = plate.replace(/[s.-]/g, "").length >= 5;
+    const next = () => {
+      const p = known || plate;
+      if (!known) addOffList(p, np.owner.trim());
+      if (st.next === "cont") go("contOk", { ...st.back, truck: p });
+      else { setPad(""); setW({ f: 1, a: "", b: "", src: "manual" }); go(ddMeasure(job) === "scale" ? "w" : "pad", { order: o.id, plate: p, src: "manual" }); }
+    };
+    body = (<>
+      <Bar title="Xe ngoài danh sách" sub="Nhập biển số · vẫn ghi nhận sản lượng" back={() => st.next === "cont" ? go("truck", st.back) : go("veh", { order: o.id })} />
+      <Ctx />
+      <div className="tl-scroll" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="tl-tag warn" style={{ margin: 0 }}>Xe chưa có trong lệnh ca. Ghi nhận bình thường; hệ thống tự báo sự cố về KHTH để kiểm tra.</div>
+        <label className="tl-muted">Biển số xe</label>
+        <input className="input mono" style={{ height: 52, fontSize: 20 }} autoCapitalize="characters" placeholder="VD: 43C-123.45" value={np.plate} onChange={e => setNp(x => ({ ...x, plate: e.target.value.toUpperCase() }))} />
+        <label className="tl-muted">Nhà xe / ghi chú (không bắt buộc)</label>
+        <input className="input" style={{ height: 46, fontSize: 15 }} placeholder="VD: Vận tải Minh Phát" value={np.owner} onChange={e => setNp(x => ({ ...x, owner: e.target.value }))} />
+        {known && <div className="tl-tag" style={{ margin: 0 }}>Xe {known} đã có trong lệnh ca — dùng luôn, không báo sự cố.</div>}
+        <button className="tl-main" disabled={!ok} onClick={next}>TIẾP TỤC GHI NHẬN<small>{known ? "Xe có trong danh sách" : "Tự báo sự cố \"Xe không có trong danh sách\" về KHTH"}</small></button>
       </div>
     </>);
   }
@@ -288,14 +337,15 @@ const TlPhone = ({ me, offline, onChange }) => {
       if (st.edit) {
         job.actual = Math.round((job.actual - target.qty + st.qty) * 100) / 100;
         target.hist = [...(target.hist || []), { at: `${ddNow()}`, by: me.id, from: target.qty, to: st.qty, kind: "Tally sửa bản ghi gần nhất" }];
+        ddJobLog(job, `${o.id} · sửa bản ghi ${target.plate || ""}: ${tlFmt(target.qty, unit)} → ${tlFmt(st.qty, unit)} ${unit}`, me.id);
         target.prev = target.qty; target.qty = st.qty; target.edited = true; if (st.abnormal) target.abnormal = true;
         onChange(); toast("Đã sửa bản ghi gần nhất"); go("order", { order: o.id });
       } else if (st.req) {
         const r = DD_RECORDS.find(x => x.id === st.req);
         DD_EDIT_REQS.unshift({ id: ddNewId("YC"), record: r.id, order: o.id, job: job.id, by: me.id, at: `${ddNow()}`, from: r.qty, to: st.qty, reason: st.reason, status: "pending" });
-        r.status = "editReq"; onChange(); toast("Đã gửi yêu cầu sửa cho văn phòng"); go("records", { order: o.id });
+        r.status = "editReq"; ddJobLog(job, `${o.id} · xin sửa bản ghi ${r.plate || ""}: ${tlFmt(r.qty, unit)} → ${tlFmt(st.qty, unit)} ${unit} · lý do: ${st.reason}`, me.id); onChange(); toast("Đã gửi yêu cầu sửa cho văn phòng"); go("records", { order: o.id });
       } else {
-        addRecord({ plate: st.plate, qty: st.qty, src: st.src || "manual", ...(st.w1 ? { w1: st.w1, w2: st.w2 } : {}), ...(st.abnormal ? { abnormal: true } : {}) });
+        addRecord({ plate: st.plate, qty: st.qty, src: st.src || "manual", ...(offList(st.plate) ? { offList: true } : {}), ...(st.w1 ? { w1: st.w1, w2: st.w2 } : {}), ...(st.abnormal ? { abnormal: true } : {}) });
         toast(`Đã ghi ${st.plate}: ${tlFmt(st.qty)} ${unit}${offline ? " · chờ đồng bộ" : ""}`); go("veh", { order: o.id });
       }
     };
@@ -372,8 +422,13 @@ const TlPhone = ({ me, offline, onChange }) => {
             <div style={{ textAlign: "left" }}><span className="tl-plate">{p}</span><div className="tl-muted" style={{ marginTop: 4 }}>{v.type}</div></div>
             <span className="tl-muted">{n} cont</span>
           </button>); })}
-        {o.vehicles.length === 0 && <div className="tl-empty">Lệnh ca chưa có xe — báo KHTH.</div>}
-        <button className="tl-sec danger" style={{ width: "100%" }} onClick={() => go("inc2", { order: o.id, type: "scale", notes: ["Cont/xe không có trong danh sách"], level: "mid", missing: "veh" })}>Xe không có trong danh sách → báo KHTH</button>
+        {(o.extraVeh || []).map(({ plate: p, owner }) => { const n = recs.filter(r => r.plate === p).length; return (
+          <button key={p} className="tl-choice" onClick={() => go("contOk", { ...st, truck: p })}>
+            <div style={{ textAlign: "left" }}><span className="tl-plate">{p}</span><div className="tl-muted" style={{ marginTop: 4, color: "#B45309" }}>Ngoài danh sách{owner ? ` · ${owner}` : ""} · đã báo KHTH</div></div>
+            <span className="tl-muted">{n} cont</span>
+          </button>); })}
+        {o.vehicles.length === 0 && !(o.extraVeh || []).length && <div className="tl-empty">Lệnh ca chưa có xe.</div>}
+        <button className="tl-sec danger" style={{ width: "100%" }} onClick={() => { setNp({ plate: "", owner: "" }); go("vehNew", { order: o.id, next: "cont", back: { ...st, s: undefined } }); }}>+ Xe không có trong danh sách · nhập biển số</button>
       </div>
     </>);
   }
@@ -413,7 +468,7 @@ const TlPhone = ({ me, offline, onChange }) => {
           {offline && <div><span>Mạng</span><b style={{ color: "#B45309" }}>Mất kết nối — lưu trên máy</b></div>}
         </div>
         <button className="tl-main" style={{ background: isIn ? "#16A34A" : undefined }} disabled={fcl && !sealV} onClick={() => {
-          const r = addRecord({ cont: c.no, plate: st.truck || null, qty: primary ? 1 : 0, gate: st.dir, ch: st.ch, seal: fcl ? sealV : null });
+          const r = addRecord({ ...(offList(st.truck) ? { offList: true } : {}), cont: c.no, plate: st.truck || null, qty: primary ? 1 : 0, gate: st.dir, ch: st.ch, seal: fcl ? sealV : null });
           if (fcl) {
             if (sealDiff) {
               c.sealPlan = c.seal; c.sealMismatch = true;
@@ -569,6 +624,7 @@ const TlPhone = ({ me, offline, onChange }) => {
           DD_INCIDENTS.unshift({ id, order: o.id, job: job.id, by: me.id, at: `${ddNow()}`, type: st.type, eq: t.stop ? (st.eq || o.curEq || ddCranes(o)[0] || null) : null, notes: st.notes || [], photo: !!st.photo, status: "open", offline, missing: st.missing, log: [{ at: `${ddNow()}`, by: me.id, text: `Báo từ app tally${st.photo ? " · 1 ảnh" : ""}` }] });
           /* pilot: ảnh thật lưu Storage dieudo-photos, phần tử giữ đường dẫn */
           if (st.photo) { const inc = DD_INCIDENTS.find(x => x.id === id); DD_SYNC.uploadPhoto(st.photo, `incident/${id}`).then(path => { inc.photo = path; onChange(); }); }
+          ddJobLog(job, `${o.id} · báo sự cố ${id}: ${t.label}${st.photo ? " · có ảnh" : ""}`, me.id);
           onChange(); toast(`Đã gửi ${id} tới KHTH`); go("order", { order: o.id });
         }}>GỬI SỰ CỐ</button>
       </div>

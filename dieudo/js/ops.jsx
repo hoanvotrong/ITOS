@@ -189,20 +189,22 @@ const DdIncidentPanel = ({ inc, onChange, go }) => {
 const DdSupplement = ({ inc, onDone }) => {
   const o = DD_ORDERS.find(x => x.id === inc.order);
   const j = DD_JOBS.find(x => x.id === inc.job);
-  const [plate, setPlate] = React.useState("");
-  const [newPlate, setNewPlate] = React.useState("");
+  /* pilot: biển số tally đã nhập (xe ngoài danh sách) điền sẵn */
+  const known = inc.plate && DD_VEHICLES.some(v => v.plate === inc.plate);
+  const [plate, setPlate] = React.useState(inc.plate ? (known ? inc.plate : "__new") : "");
+  const [newPlate, setNewPlate] = React.useState(inc.plate && !known ? inc.plate : "");
   const [cont, setCont] = React.useState("");
   const [ctype, setCtype] = React.useState("40GP");
   if (!o || !j) return null;
   const kinds = ddVehKinds(j);
-  const pool = DD_VEHICLES.filter(v => kinds.includes(v.kind) && !o.vehicles.includes(v.plate));
+  const pool = DD_VEHICLES.filter(v => (kinds.includes(v.kind) || v.plate === inc.plate) && !o.vehicles.includes(v.plate));
   const chk = cont ? ddContCheck(cont) : null;
   const dupCont = chk && chk.ok && j.conts && j.conts.some(c => c.no === chk.no);
   const close = (text) => { inc.status = "closed"; inc.assignee = inc.assignee || DD_ME.id; inc.result = text; inc.downtime = 0; inc.log.unshift({ at: ddNow(), by: DD_ME.id, text: `Đóng: ${text}` }); ddLogJob(j.id, text); };
   const addVeh = () => {
     let p = plate;
     if (p === "__new") { p = newPlate.trim().toUpperCase(); DD_VEHICLES.push({ plate: p, type: kinds[0] === "salan" ? "Sà lan (bổ sung)" : kinds[0] === "keo" ? "Đầu kéo (bổ sung)" : "Xe ben (bổ sung)", kind: kinds[0] || "ben", cap: kinds[0] === "salan" ? 1500 : kinds[0] === "ben" ? 28 : 1 }); }
-    o.vehicles.push(p); o.log.unshift({ at: ddNow(), by: DD_ME.id, text: `Bổ sung phương tiện ${p} (từ sự cố ${inc.id}) · gửi lại thông báo tally` });
+    o.vehicles.push(p); o.extraVeh = (o.extraVeh || []).filter(v => v.plate !== p); o.log.unshift({ at: ddNow(), by: DD_ME.id, text: `Bổ sung phương tiện ${p} (từ sự cố ${inc.id}) · gửi lại thông báo tally` });
     close(`Bổ sung phương tiện ${p} vào ${o.id}`); onDone(`Đã thêm ${p} vào ${o.id} — tally chọn được ngay`);
   };
   const addCont = () => {
@@ -307,7 +309,7 @@ const DdApprovalsScreen = ({ go, ctx }) => {
                     <td style={{ fontSize: 12.5 }}><b className="mono">{r.plate}</b><div className="muted mono" style={{ fontSize: 11 }}>{r.call || "chưa có lượt cập"}</div></td>
                     <td style={{ fontSize: 12 }}>{DD_MEASURE[r.meth || ddMeasure(j)]}<div className="muted" style={{ fontSize: 11 }}>{r.src === "auto" ? "Tự động từ cân" : "Nhập tay"}</div></td>
                     <td className="mono" style={{ textAlign: "right" }}>{tlFmt(r.qty)} {u}</td>
-                    <td>{r.review && <span className="badge danger">Cần xem lại</span>}{over && <span className="badge warning">Vượt tải {Math.round((r.qty / tp.cap - 1) * 100)}%</span>}{r.offline && <span className="badge neutral">Nhập offline</span>}{(r.hist || []).length > 0 && <span className="badge accent">Đã sửa {r.hist.length} lần</span>}{r.note && <div className="muted" style={{ fontSize: 11 }}>{r.note}</div>}</td>
+                    <td>{r.review && <span className="badge danger">Cần xem lại</span>}{over && <span className="badge warning">Vượt tải {Math.round((r.qty / tp.cap - 1) * 100)}%</span>}{r.offList && <span className="badge warning">Xe ngoài DS</span>}{r.offline && <span className="badge neutral">Nhập offline</span>}{(r.hist || []).length > 0 && <span className="badge accent">Đã sửa {r.hist.length} lần</span>}{r.note && <div className="muted" style={{ fontSize: 11 }}>{r.note}</div>}</td>
                     <td onClick={e => e.stopPropagation()}><div className="row" style={{ gap: 6, justifyContent: "flex-end" }}><button className="btn btn-sm ghost" onClick={() => setOpen(isOpen ? null : "rec:" + r.id)}>{isOpen ? "Ẩn chi tiết" : "Chi tiết"}</button><button className={`btn btn-sm ${r.review ? "" : "ghost"}`} onClick={() => { r.review = !r.review; ddLogJob(r.job, `${r.review ? "Đánh dấu cần xem lại" : "Bỏ đánh dấu xem lại"}: ${r.plate} ${tlFmt(r.qty)} ${u} (${r.at.slice(-5)}) của ${g.order}`); refresh(r.review ? "Đã đánh dấu cần xem lại" : "Đã bỏ đánh dấu"); }}>{r.review ? "✓ Cần xem lại" : "Cần xem lại"}</button></div></td>
                   </tr>
                   {isOpen && <tr><td colSpan={7} style={{ background: "var(--bg-canvas)", padding: "12px 18px" }}>
