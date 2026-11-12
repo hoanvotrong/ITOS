@@ -14,7 +14,7 @@ const TL_INC_NOTES = ["Dừng làm hàng", "Làm chậm", "Cần kỹ thuật", 
 
 /* Giờ thật GMT+7 (thay đồng hồ giả lập của prototype). Tham số bước cũ bị bỏ qua. */
 const tlClock = () => window.ddVnNow().time;
-const tlFmt = (n) => (Math.round(n * 100) / 100).toLocaleString("vi-VN");
+const tlFmt = (n, unit) => ddQty(n, unit); /* sản lượng: luôn 2 chữ số thập phân (trừ số cont) */
 const tlContFmt = (no) => `${no.slice(0, 4)} ${no.slice(4, 10)} ${no.slice(10)}`;
 
 /* Dữ liệu nạp từ dd_docs (không còn dữ liệu mẫu) */
@@ -49,12 +49,20 @@ const ddDownByEq = (incs, clip) => { const m = {}; incs.forEach(i => { const d =
 const ddFmtMin = (m) => { m = Math.round(m || 0); return m >= 60 ? `${Math.floor(m / 60)} giờ${m % 60 ? ` ${m % 60} phút` : ""}` : `${m} phút`; };
 const ddJobDown = (jobId) => { const incs = DD_INCIDENTS.filter(i => i.job === jobId); const byEq = ddDownByEq(incs); const byType = TL_INC_TYPES.filter(t => t.stop).map(t => ({ ...t, mins: incs.filter(i => i.type === t.id).reduce((s, i) => s + ((ddIncDown(i) || {}).mins || 0), 0) })).filter(x => x.mins); return { total: byEq.reduce((t, x) => t + x.mins, 0), byEq, byType, open: incs.filter(i => (ddIncDown(i) || {}).open).length }; };
 const ddOrderOpen = (o) => ["sent", "running"].includes(o.status);
-const ddEndShift = (o, by) => { o.status = "done"; o.endAt = ddNowAt(); o.endBy = by; (o.log = o.log || []).unshift({ at: o.endAt, by, text: `Kết ca · mã tài xế ${o.drvCode || "—"} hết hiệu lực` }); };
+const ddEndShift = (o, by) => {
+  o.status = "done"; o.endAt = ddNowAt(); o.endBy = by;
+  /* sản lượng của ca gửi lên Chờ duyệt */
+  const recs = DD_RECORDS.filter(r => r.order === o.id && r.status === "shift");
+  recs.forEach(r => { r.status = "pending"; r.subAt = o.endAt; });
+  (o.log = o.log || []).unshift({ at: o.endAt, by, text: `Kết ca · ${recs.length} bản ghi gửi văn phòng duyệt · mã tài xế ${o.drvCode || "—"} hết hiệu lực` });
+};
 
 const tlMode = (job) => job.kind === "cont" ? "cont" : "bulk";
 const TL_CH = { river: "Sà lan (kênh sông)", road: "Cổng bộ" };
 const tlSim = (lo, hi) => Math.round((lo + Math.random() * (hi - lo)) * 100) / 100;
-const tlNeedApprove = (job) => job.service === "bp"; /* US-BP-03 */
+const tlNeedApprove = (job) => true; /* pilot (12/11): mọi dịch vụ — sản lượng gửi văn phòng duyệt khi kết ca */
+/* Trạng thái bản ghi: "shift" = đang trong ca (chưa gửi duyệt) → kết ca → "pending" (Chờ duyệt) → văn phòng duyệt "ok" */
+const ddRecOpenStatus = (o) => o && o.status === "done" ? "pending" : "shift";
 
 /* ============ ĐIỆN THOẠI ============ */
 const TlPhone = ({ me, offline, onChange }) => {
@@ -80,14 +88,14 @@ const TlPhone = ({ me, offline, onChange }) => {
   const myRecs = recs.filter(r => r.by === me.id);
   const caTotal = recs.filter(r => r.status !== "returned").reduce((t, r) => t + r.qty, 0);
   const unit = job ? ddUnit(job) : "";
-  const dec = ddDecUnit(unit);
+  const dec = unit !== "cont"; /* mọi đơn vị nhập được 2 chữ số thập phân */
 
   const openOrder = (ord) => {
     if (!ord.ack.includes(me.id)) { ord.ack.push(me.id); ord.log.unshift({ at: `${ddNow()}`, by: me.id, text: "Tally đã xem lệnh trên app" }); onChange(); }
     go("order", { order: ord.id });
   };
   const addRecord = (rec) => {
-    const r = { id: ddNewId("R"), order: o.id, call: o.call || null, job: job.id, by: me.id, at: `${ddNow()}`, status: tlNeedApprove(job) ? "pending" : "ok", offline, meth: job.kind === "cont" ? null : ddMeasure(job), raw: rec.qty, eq: o.curEq || ddCranes(o)[0] || null, ...rec };
+    const r = { id: ddNewId("R"), order: o.id, call: o.call || null, job: job.id, by: me.id, at: `${ddNow()}`, status: "shift", offline, meth: job.kind === "cont" ? null : ddMeasure(job), raw: rec.qty, eq: o.curEq || ddCranes(o)[0] || null, ...rec };
     DD_RECORDS.push(r);
     job.actual = Math.round((job.actual + r.qty) * 100) / 100;
     if (o.status === "sent") o.status = "running";
@@ -127,7 +135,7 @@ const TlPhone = ({ me, offline, onChange }) => {
             </div>
             <div className="tl-big">{ddCusShort(j.customer)} · {j.kind === "cont" ? `Cont ${Object.keys(ddDirCount(j)).length > 1 ? "hỗn hợp" : DD_DIR_SHORT[j.contDir]}` : j.cargo}</div>
             <div className="tl-muted">{ddSvc(j.service).label} · {ddLoc(j)}</div>
-            <div className="tl-muted">Mục tiêu ca: <b>{ddNum(ord.target)} {ddUnit(j)}</b></div>
+            <div className="tl-muted">Mục tiêu ca: <b>{ddQty(ord.target, ddUnit(j))} {ddUnit(j)}</b></div>
           </button>); })}
       </div>
     </>);
@@ -143,9 +151,9 @@ const TlPhone = ({ me, offline, onChange }) => {
       <div className="tl-scroll">
         <div className="tl-progress">
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}><span>Sản lượng ca</span><b>{pct}%</b></div>
-          <div className="tl-num">{tlFmt(caTotal)} <small>/ {ddNum(o.target)} {unit}</small></div>
+          <div className="tl-num">{tlFmt(caTotal, unit)} <small>/ {ddQty(o.target, unit)} {unit}</small></div>
           <div className="tl-track"><div style={{ width: pct + "%" }}></div></div>
-          <div style={{ fontSize: 12, opacity: .85, marginTop: 6 }}>Lũy kế job: {tlFmt(job.actual)} / {ddNum(job.plan)} {unit}{left != null ? ` · còn ${left} cont` : ""}</div>
+          <div style={{ fontSize: 12, opacity: .85, marginTop: 6 }}>Lũy kế job: {tlFmt(job.actual, unit)} / {ddQty(job.plan, unit)} {unit}{left != null ? ` · còn ${left} cont` : ""}</div>
         </div>
         {o.note && <div className="tl-note"><b>Chỉ dẫn KHTH:</b> {o.note}</div>}
         {ddCranes(o).length > 0 && <div style={{ margin: "0 0 10px" }}>
@@ -180,7 +188,7 @@ const TlPhone = ({ me, offline, onChange }) => {
         {o.status !== "done" && !st.end && <button className="tl-sec" style={{ width: "100%", marginTop: 8 }} onClick={() => go("order", { order: o.id, end: true })}>■ Kết ca</button>}
         {st.end && <div className="tl-confirm" style={{ marginTop: 8, textAlign: "left" }}>
           <b>Kết ca {DD_SHIFTS[o.shift - 1].label}?</b>
-          <div className="tl-muted" style={{ margin: "4px 0 8px" }}>{recs.length} bản ghi · {tlFmt(caTotal)} {unit}. Sau khi kết ca: không ghi thêm vào lệnh này, mã tài xế của ca hết hiệu lực{DD_INCIDENTS.some(i => i.order === o.id && (ddIncDown(i) || {}).open) ? ", sự cố đang dừng tính thời gian lỗi đến lúc kết ca" : ""}.</div>
+          <div className="tl-muted" style={{ margin: "4px 0 8px" }}>{recs.length} bản ghi · {tlFmt(caTotal, unit)} {unit}. Sau khi kết ca: không ghi thêm vào lệnh này, mã tài xế của ca hết hiệu lực{DD_INCIDENTS.some(i => i.order === o.id && (ddIncDown(i) || {}).open) ? ", sự cố đang dừng tính thời gian lỗi đến lúc kết ca" : ""}.</div>
           <button className="tl-main" style={{ margin: 0 }} onClick={() => { ddEndShift(o, me.id); onChange(); toast(`Đã kết ca ${o.id}`); go("home"); }}>XÁC NHẬN KẾT CA</button>
           <button className="tl-link" style={{ marginTop: 6 }} onClick={() => go("order", { order: o.id })}>Thôi</button>
         </div>}
@@ -227,7 +235,7 @@ const TlPhone = ({ me, offline, onChange }) => {
       <Bar title={st.edit ? "Sửa bản ghi gần nhất" : st.req ? "Xin sửa bản ghi" : "Bước 2/3 · Nhập khối lượng"} back={() => go(st.edit || st.req ? "order" : "veh", { order: o.id })} />
       <Ctx />
       <div className="tl-padwrap">
-        <div className="tl-padtype"><span className="tl-plate" style={{ fontSize: 14 }}>{st.plate}</span> · {veh.type}{unit === "tấn" && veh.cap ? ` · tải ${ddNum(veh.cap)} tấn` : ""}</div>
+        <div className="tl-padtype"><span className="tl-plate" style={{ fontSize: 14 }}>{st.plate}</span> · {veh.type}{unit === "tấn" && veh.cap ? ` · tải ${ddQty(veh.cap)} tấn` : ""}</div>
         <div className="tl-display">{pad || "0"}<small> {unit}</small></div>
         {false && ddMeasure(job) === "hook" && !st.edit && !st.req && <button className="tl-sec" style={{ width: "100%", marginBottom: 8 }} onClick={() => { setPad(String(tlSim(18, 26)).replace(".", ",")); go("pad", { ...st, src: "auto" }); }}>⚖ Lấy số từ cân treo <span style={{ opacity: .7 }}>(giả lập — chưa kết nối)</span></button>}
         {st.src === "auto" && <div className="tl-tag" style={{ margin: "0 0 8px" }}>Số lấy từ cân treo · tally xác nhận</div>}
@@ -301,7 +309,7 @@ const TlPhone = ({ me, offline, onChange }) => {
           {st.w1 && <div className="tl-muted">Lần 1 {tlFmt(st.w1)} − lần 2 {tlFmt(st.w2)} tấn</div>}
           {!st.edit && !st.req && <div className="tl-tag" style={{ background: st.src === "auto" ? "#DCFCE7" : undefined }}>{st.src === "auto" ? "Số tự động từ cân" : ddMeasure(job) === "scale" || ddMeasure(job) === "hook" ? "Nhập tay theo phiếu cân" : "Nhập tay"}</div>}
           {st.abnormal && <div className="tl-tag warn">Bất thường · đã xác nhận lại</div>}
-          {tlNeedApprove(job) && !st.req && <div className="tl-tag">Sản lượng bến phao · chờ văn phòng duyệt</div>}
+          {!st.req && <div className="tl-tag">Sản lượng gửi văn phòng duyệt khi kết ca</div>}
         </div>
         <div className="tl-info">
           <div><span>Hàng</span><b>{job.cargo}</b></div>
@@ -503,7 +511,7 @@ const TlPhone = ({ me, offline, onChange }) => {
   if (st.s === "records" && o) {
     const lastMine = myRecs[myRecs.length - 1];
     body = (<>
-      <Bar title="Bản ghi ca" sub={`${o.id} · ${recs.length} bản ghi · ${tlFmt(caTotal)} ${unit}`} back={() => go("order", { order: o.id })} />
+      <Bar title="Bản ghi ca" sub={`${o.id} · ${recs.length} bản ghi · ${tlFmt(caTotal, unit)} ${unit}`} back={() => go("order", { order: o.id })} />
       <div className="tl-scroll">
         {recs.length === 0 && <div className="tl-empty">Chưa có bản ghi</div>}
         {[...recs].reverse().map(r => { const mineR = r.by === me.id; const isLast = r === lastMine; return (
@@ -666,7 +674,7 @@ const DdTallyScreen = ({ go }) => {
   const myOrders = DD_ORDERS.filter(o => o.date === ddToday() && o.status !== "draft");
   const jobs = [...new Set(myOrders.map(o => o.job))].map(id => DD_JOBS.find(j => j.id === id));
   const recent = DD_RECORDS.filter(r => r.status !== "void").sort((a, b) => a.at < b.at ? 1 : -1).slice(0, 8);
-  const recState = (r) => r.offline ? ["warning", "Chưa đồng bộ"] : r.status === "editReq" ? ["warning", "Xin sửa · chờ VP"] : r.status === "returned" ? ["danger", "VP trả lại"] : r.status === "pending" ? ["accent", "Chờ VP duyệt"] : ["success", DD_JOBS.find(j => j.id === r.job)?.service === "bp" ? "VP đã duyệt" : "Đã ghi nhận"];
+  const recState = (r) => r.offline ? ["warning", "Chưa đồng bộ"] : r.status === "editReq" ? ["warning", "Xin sửa · chờ VP"] : r.status === "returned" ? ["danger", "VP trả lại"] : r.status === "shift" ? ["neutral", "Trong ca"] : r.status === "pending" ? ["accent", "Chờ VP duyệt"] : ["success", DD_JOBS.find(j => j.id === r.job)?.service === "bp" ? "VP đã duyệt" : "Đã ghi nhận"];
 
   return (
     <div className="page" style={{ maxWidth: 1400 }}>

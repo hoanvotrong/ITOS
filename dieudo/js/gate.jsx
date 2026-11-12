@@ -350,7 +350,7 @@ const DdRiverScreen = ({ go, embed, onPick }) => {
         <div className="card" style={{ maxWidth: 760 }}>
           <div className="card-head"><div><h3><span className="mono">{cur.id}</span> · {cur.barge} · {cur.berth}</h3><div className="sub">{cur.eta.join(" ")} → {cur.etd.join(" ")} · {((ddRvH(...cur.etd) - ddRvH(...cur.eta))).toFixed(0)} giờ</div></div><span className={`badge ${st[0]}`}>{st[1]}</span></div>
           <div className="card-body" style={{ fontSize: 12.5, display: "flex", flexDirection: "column", gap: 8 }}>
-            {j && <div>Job: <a style={{ cursor: "pointer", color: "var(--brand-ink)" }} onClick={() => go("dd-job-detail", { id: j.id })}><span className="mono">{j.id}</span></a> · {ddCus(j.customer).name} · {j.kind === "cont" ? `${ddDirLabel(j)} · ${j.conts.length} cont` : `${j.cargo} · ${ddNum(j.plan)} ${ddUnit(j)}`}</div>}
+            {j && <div>Job: <a style={{ cursor: "pointer", color: "var(--brand-ink)" }} onClick={() => go("dd-job-detail", { id: j.id })}><span className="mono">{j.id}</span></a> · {ddCus(j.customer).name} · {j.kind === "cont" ? `${ddDirLabel(j)} · ${j.conts.length} cont` : `${j.cargo} · ${ddQty(j.plan)} ${ddUnit(j)}`}</div>}
             {conf.map(({ x, kind }) => <div key={x.id} style={{ color: "var(--st-danger)" }}>⚠ {kind === "berth" ? `Trùng bến với ${x.barge}` : `${cur.barge} cùng lúc được xếp ở ${x.berth}`} ({x.eta.join(" ")} → {x.etd.join(" ")})</div>)}
             <div className="row" style={{ gap: 8 }}>
               <button className="btn btn-sm" onClick={() => setForm({ ...cur, eta: [...cur.eta], etd: [...cur.etd] })}><Icon name="edit" size={12}/> Sửa lịch</button>

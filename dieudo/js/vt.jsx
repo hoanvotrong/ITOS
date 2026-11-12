@@ -392,7 +392,7 @@ const DdReportScreen = ({ go }) => {
   const days = [...DD_DAILY, today];
   const max = Math.max(...days.map(x => x.bp + x.icd + x.kho));
   const C = { bp: "#1F4E78", icd: "#0E7490", kho: "#B45309" };
-  const pendingT = recs.filter(r => r.status === "pending").reduce((s, r) => s + r.qty, 0);
+  const pendingT = recs.filter(r => r.status === "pending" || r.status === "shift").reduce((s, r) => s + r.qty, 0);
   const unsynced = (window.DD_RECORDS || []).filter(r => r.offline).length;
   const jobs = DD_JOBS.filter(j => j.status !== "closed").sort((a, b) => ({ done: 0, pendingEx: 1, running: 2, planned: 3 }[a.status] - { done: 0, pendingEx: 1, running: 2, planned: 3 }[b.status]));
   const closed = DD_JOBS.filter(j => j.status === "closed");
@@ -419,9 +419,9 @@ const DdReportScreen = ({ go }) => {
             <div style={{ display: "flex", alignItems: "flex-end", gap: 14, height: 220, padding: "0 6px", borderBottom: "1px solid var(--line)" }}>
               {days.map(x => { const tot = x.bp + x.icd + x.kho; return (
                 <div key={x.d} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                  <span className="mono" style={{ fontSize: 10.5, color: "var(--t-secondary)" }}>{ddNum(Math.round(tot))}</span>
+                  <span className="mono" style={{ fontSize: 10.5, color: "var(--t-secondary)" }}>{ddQty(tot)}</span>
                   <div style={{ width: "100%", maxWidth: 46, display: "flex", flexDirection: "column-reverse", height: `${tot / max * 180}px`, borderRadius: 4, overflow: "hidden", outline: x.live ? "2px dashed #DC2626" : "none", outlineOffset: 2 }}>
-                    {["bp", "icd", "kho"].map(k => <div key={k} title={`${k}: ${ddNum(Math.round(x[k]))} tấn`} style={{ height: `${tot ? x[k] / tot * 100 : 0}%`, background: C[k] }}></div>)}
+                    {["bp", "icd", "kho"].map(k => <div key={k} title={`${k}: ${ddQty(x[k])} tấn`} style={{ height: `${tot ? x[k] / tot * 100 : 0}%`, background: C[k] }}></div>)}
                   </div>
                 </div>); })}
             </div>
@@ -432,7 +432,7 @@ const DdReportScreen = ({ go }) => {
         <div className="card">
           <div className="card-head"><h3>Bàn giao Kế toán</h3><span className="badge success">{closed.length} job đã chốt</span></div>
           <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 12.5 }}>
-            {closed.map(j => <div key={j.id} style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--line)" }}><span><span className="mono">{j.id}</span> · {ddCusShort(j.customer)} · {j.cargo}{j.exApproved && <span className="badge warning" style={{ marginLeft: 6, fontSize: 10 }}>Ngoại lệ chưa HĐ</span>}</span><b className="mono">{ddNum(j.actual)} {ddUnit(j)}</b></div>)}
+            {closed.map(j => <div key={j.id} style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--line)" }}><span><span className="mono">{j.id}</span> · {ddCusShort(j.customer)} · {j.cargo}{j.exApproved && <span className="badge warning" style={{ marginLeft: 6, fontSize: 10 }}>Ngoại lệ chưa HĐ</span>}</span><b className="mono">{ddQty(j.actual, ddUnit(j))} {ddUnit(j)}</b></div>)}
             <div className="muted" style={{ fontSize: 11.5, marginTop: 4 }}>Job đã chốt được đẩy sang Kế toán làm căn cứ đối soát. OCC đọc sản lượng real-time & sự cố đang mở từ màn này cho BOD (D4).</div>
           </div>
         </div>
@@ -442,7 +442,7 @@ const DdReportScreen = ({ go }) => {
         <div className="card-head"><div><h3>Sản lượng theo job</h3><div className="sub">Job hoàn thành cần chốt trước khi bàn giao Kế toán</div></div></div>
         <div className="tbl-wrap"><table className="tbl">
           <thead><tr><th style={{ width: 130 }}>Job</th><th>Khách hàng · Hàng</th><th style={{ width: 110 }}>Dịch vụ</th><th style={{ width: 200 }}>Kế hoạch / thực tế</th><th style={{ width: 150 }}>Chưa duyệt</th><th style={{ width: 120 }}>Hợp đồng</th><th style={{ width: 170 }}>Trạng thái</th><th style={{ width: 110 }}></th></tr></thead>
-          <tbody>{jobs.map(j => { const p = (window.DD_RECORDS || []).filter(r => r.job === j.id && r.status === "pending").reduce((s, r) => s + r.qty, 0); return (
+          <tbody>{jobs.map(j => { const p = (window.DD_RECORDS || []).filter(r => r.job === j.id && (r.status === "pending" || r.status === "shift")).reduce((s, r) => s + r.qty, 0); return (
             <tr key={j.id}>
               <td className="mono" style={{ fontSize: 12 }}>{j.id}</td>
               <td style={{ fontSize: 12.5 }}>{ddCusShort(j.customer)} · {j.kind === "cont" ? ddDirLabel(j) : j.cargo}</td>

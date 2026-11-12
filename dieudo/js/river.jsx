@@ -89,7 +89,7 @@ const rvNotify = (c, text, to) => { const n = { at: ddNow(), call: c.id || c, to
 const rvLists = (c) => {
   const j = DD_JOBS.find(x => x.id === c.job);
   if (!j) return { dis: [], load: [], bulk: null, j };
-  if (j.kind !== "cont") return { dis: [], load: [], bulk: `${j.cargo} · ${ddNum(j.actual)}/${ddNum(j.plan)} ${ddUnit(j)}`, j };
+  if (j.kind !== "cont") return { dis: [], load: [], bulk: `${j.cargo} · ${ddQty(j.actual)}/${ddQty(j.plan)} ${ddUnit(j)}`, j };
   const cs = rvContsOf(c);
   const isIn = (x) => { const jc = (j.conts || []).find(y => y.no === (x.no || x)); return (jc ? ddCDir(jc, j) : j.contDir) === "import"; };
   return { dis: cs.filter(isIn), load: cs.filter(x => !isIn(x)), bulk: null, j };
@@ -196,7 +196,7 @@ const DdRiverGateScreen = ({ go }) => {
               <button key={k} className={`btn btn-sm ${on ? "primary" : ""}`} disabled={!!down || c.status === "departed"} title={down ? "Đang bảo dưỡng" : clash && clash.length ? `Trùng với ${clash.map(x => x.id).join(", ")}` : ""} onClick={() => setCranes(c, k)} style={clash && clash.length ? { outline: "2px solid #DC2626" } : undefined}>{k}{down ? " · BD" : ""}</button>); })}</div>
             {(c.cranes || []).some(k => rvCraneClash(c, k).length) && <div style={{ color: "var(--st-danger)", fontSize: 12, marginTop: 4 }}>⚠ {(c.cranes || []).filter(k => rvCraneClash(c, k).length).map(k => `${k} đã phân cho ${rvCraneClash(c, k).map(x => x.id).join(", ")}`).join(" · ")}</div>}
             {est && <div style={{ marginTop: 8, padding: "8px 10px", background: "var(--bg-canvas)", borderRadius: 6 }}>
-              Ước tính {c.status === "working" ? "phần còn lại" : "làm hàng"}: <b>{ddNum(est.n)} {est.unit}</b> / ({Math.max(1, (c.cranes || []).length)} cẩu × {est.unit === "cont" ? `${RV_RATE_CONT} cont` : `${RV_RATE_BULK} tấn`}/giờ) ≈ <b>{rvNum(est.h)} giờ</b> → rời khoảng <b className="mono">{rvFmt(rvFromH(Math.ceil((rvEstBase(c) + est.h) * 2) / 2))}</b>
+              Ước tính {c.status === "working" ? "phần còn lại" : "làm hàng"}: <b>{ddQty(est.n, est.unit)} {est.unit}</b> / ({Math.max(1, (c.cranes || []).length)} cẩu × {est.unit === "cont" ? `${RV_RATE_CONT} cont` : `${RV_RATE_BULK} tấn`}/giờ) ≈ <b>{rvNum(est.h)} giờ</b> → rời khoảng <b className="mono">{rvFmt(rvFromH(Math.ceil((rvEstBase(c) + est.h) * 2) / 2))}</b>
               {c.status !== "departed" && Math.abs(rvEstBase(c) + est.h - rvH(c.etd)) > 1 && <button className="btn btn-sm" style={{ marginLeft: 6 }} onClick={() => applyEtd(c)}>Áp dụng giờ rời</button>}
               {rate && <div className="muted" style={{ marginTop: 3 }}>Năng suất thực tế: <b style={{ color: "var(--t-primary)" }}>{rvNum(rate.v)} {rate.unit}</b></div>}
             </div>}

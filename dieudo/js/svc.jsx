@@ -24,7 +24,7 @@ const DdServiceScreen = ({ svc, go }) => {
   const calls = (window.DD_CALLS || []).filter(c => berths.includes(c.berth) && c.status !== "departed");
   const tons = recs.filter(r => !r.cont && DD_JOBS.find(j => j.id === r.job)?.unit === "tấn").reduce((t, r) => t + r.qty, 0);
   const conts = recs.filter(r => r.cont).length;
-  const pend = recs.filter(r => r.status === "pending").length;
+  const pend = recs.filter(r => r.status === "pending" || r.status === "shift").length;
   const incs = (window.DD_INCIDENTS || []).filter(i => i.status !== "closed" && jobs.some(j => j.id === i.job));
 
   return (
@@ -79,7 +79,7 @@ const DdServiceScreen = ({ svc, go }) => {
                 <div key={o.id} style={{ padding: "8px 10px", border: "1px solid var(--line)", borderRadius: 6 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5 }}><b>{DD_SHIFTS[o.shift - 1].label} · {ddCusShort(j.customer)}</b><DdBadge map={DD_ORDER_STATUS} s={o.status} /></div>
                   <div className="muted" style={{ fontSize: 11.5 }}><span className="mono">{o.id}</span> · {o.tally.map(t => ddPerson(t).short).join(", ")} · {(o.vehicles || []).join(", ") || "—"}</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5 }}><div style={{ flex: 1, height: 5, background: "var(--bg-sunken)", borderRadius: 3 }}><div style={{ width: pct + "%", height: "100%", background: "var(--brand-ink)", borderRadius: 3 }}></div></div><span className="mono" style={{ fontSize: 11 }}>{tlFmt(done)}/{ddNum(o.target)} {ddUnit(j)}</span></div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5 }}><div style={{ flex: 1, height: 5, background: "var(--bg-sunken)", borderRadius: 3 }}><div style={{ width: pct + "%", height: "100%", background: "var(--brand-ink)", borderRadius: 3 }}></div></div><span className="mono" style={{ fontSize: 11 }}>{tlFmt(done, ddUnit(j))}/{ddQty(o.target, ddUnit(j))} {ddUnit(j)}</span></div>
                 </div>); })}
             </div>
           </div>
