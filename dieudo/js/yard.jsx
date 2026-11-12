@@ -114,6 +114,7 @@ const ydPlace = (c, pos, by, note) => {
   const from = c.pos ? ydLocStr(c.pos) : "Chờ xếp bãi";
   c.pos = { ...pos }; c.loc = ydLocStr(pos);
   c.moves = c.moves || []; c.moves.unshift({ at: ddNow(), by, from, to: c.loc, note: note || null });
+  if (c.job) ddJobLog(c.job, `${from === "Chờ xếp bãi" ? "Hạ bãi" : "Đảo chuyển"} ${tlContFmt(c.no)} → ${c.loc}${note ? ` · ${note}` : ""}`, by);
   ydReindex();
 };
 
