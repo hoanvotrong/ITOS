@@ -38,7 +38,7 @@ const DrvCont = ({ view, auth, onView, back }) => {
   const teuOf = (x) => String(x.type || "").startsWith("2") ? 1 : 2;
   const used = mine.reduce((t, x) => t + teuOf(x), 0);
   const full = (x) => used + teuOf(x) > 2;
-  const list = open.filter(c => c.drvTruck !== plate && (!q || c.no.includes(q)));
+  const qk = q.toUpperCase().replace(/[\s.\-]/g, ""); /* số cont: bỏ khoảng trắng, chấm, gạch */ const list = open.filter(c => c.drvTruck !== plate && (!qk || c.no.includes(qk)));
   const c = sel && job.conts.find(x => x.no === sel);
 
   const attach = async () => {
@@ -79,8 +79,7 @@ const DrvCont = ({ view, auth, onView, back }) => {
         {un === x.no && <div style={{ width: "100%", marginTop: 8 }}><div className="tl-muted" style={{ marginBottom: 6 }}>Lý do bỏ gắn</div><div className="tl-chips">{DD_UNASSIGN_WHY.map(w => <button key={w} disabled={busy} onClick={() => unassign(x, w)}>{w}</button>)}</div></div>}</div>)}
       {used >= 2 && <div className="tl-tag warn" style={{ margin: "8px 0 0" }}>Xe đã đủ tải ({mine.length} cont) — chờ tally xác nhận gate, hoặc bỏ gắn trước khi nhận cont khác</div>}
       <div className="tl-muted" style={{ margin: "10px 0 6px" }}>Chọn cont của job ({list.length})</div>
-      <div className="tl-search"><span>🔍</span><span className="tl-q">{q || <span style={{ color: "#94A3B8" }}>Số đuôi cont</span>}</span>{q && <button onClick={() => setQ("")}>✕</button>}</div>
-      <div className="tl-minipad" style={{ marginBottom: 8 }}>{["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "⌫"].map(k => <button key={k} onClick={() => setQ(v => k === "⌫" ? v.slice(0, -1) : (v + k).slice(-7))}>{k}</button>)}</div>
+      <div className="tl-search"><span>🔍</span><input className="tl-qin" inputMode="search" autoCapitalize="characters" autoComplete="off" placeholder="Số cont (VD 812300)" value={q} onChange={e => setQ(e.target.value.toUpperCase())} />{q && <button onClick={() => setQ("")}>✕</button>}</div>
       {list.slice(0, 20).map(x => { const other = x.drvTruck && x.drvTruck !== plate; const over = !other && full(x); return (
         <button key={x.no} className="tl-choice" disabled={!!other || over} style={{ opacity: other || over ? .5 : 1 }} onClick={() => setSel(x.no)}>
           <b className="mono">{tlContFmt(x.no)}</b><span className="tl-muted" style={{ textAlign: "right" }}>{x.type} · {DD_DIR_SHORT[ddCDir(x, job)]}{x.dest ? ` · đi ${x.dest}` : ""}{other ? <><br/>xe {x.drvTruck} đã nhận</> : over ? <><br/>vượt sức chở xe</> : null}</span>

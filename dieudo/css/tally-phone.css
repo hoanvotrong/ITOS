@@ -78,3 +78,5 @@
 .tl-search button{border:0;background:#F1F5F9;border-radius:8px;width:28px;height:28px;cursor:pointer}
 .tl-minipad{display:grid;grid-template-columns:repeat(11,1fr);gap:4px;margin-top:6px}
 .tl-minipad button{height:34px;border:0;border-radius:8px;background:#fff;font-weight:700;font-size:15px;cursor:pointer;color:#0F172A;box-shadow:0 1px 0 #CBD5E1}
+.tl-search .tl-qin{flex:1;min-width:0;border:0;outline:none;background:transparent;font-family:var(--font-mono,monospace);font-weight:700;font-size:17px;letter-spacing:.06em;color:#0F172A}
+.tl-search .tl-qin::placeholder{font-weight:400;letter-spacing:0;color:#94A3B8;font-family:inherit;font-size:15px}
