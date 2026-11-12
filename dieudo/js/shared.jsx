@@ -4,9 +4,15 @@
    · PTKD (hợp đồng, báo giá) chưa kết nối trong pilot → danh sách rỗng, job gắn nhãn "Chưa có HĐ" */
 
 window.KD_CUSTOMERS = DD_BOOT.catalog.customer;
-window.KD_CONTRACTS = [];
+/* Hợp đồng: dd_catalog (kind = contract) — pilot nhập tay, chưa kết nối PTKD. Trạng thái tính theo ngày hiệu lực. */
+const KD_CONTRACT_STATUS = { active: { label: "Đang hiệu lực" }, expiring: { label: "Sắp hết hạn" }, expired: { label: "Hết hạn" }, draft: { label: "Nháp" } };
+window.KD_CONTRACTS = (DD_BOOT.catalog.contract || []).map(k => {
+  const d = (s) => { const [dd, mm, yy] = String(s || "").split("/").map(Number); return yy ? new Date(yy, mm - 1, dd) : null; };
+  const today = d(window.ddVnNow().date), to = d(k.to);
+  const status = k.status === "draft" ? "draft" : to && to < today ? "expired" : to && to - today < 30 * 864e5 ? "expiring" : "active";
+  return { ...k, status };
+});
 window.KD_QUOTES = [];
-const KD_CONTRACT_STATUS = {};
 const kdShortMoney = (v) => (v || 0).toLocaleString("vi-VN");
 
 /* Sản lượng: luôn 2 chữ số thập phân kiểu Việt Nam (1.234,50). Riêng số cont là số nguyên. */
