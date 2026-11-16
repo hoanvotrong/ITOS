@@ -175,19 +175,20 @@
         <section id="tab-scan">
           <div id="locbar"></div>
           <div id="reader"></div>
-          <div class="row" style="margin-top:8px"><button class="btn" id="camBtn" style="flex:1"></button></div>
-          <div id="flash" class="flash hide"></div>
-          <div class="card"><div class="row"><input id="manual" class="mono" placeholder="Nhập mã bằng tay (tem hỏng)" autocomplete="off"><button class="btn" id="manualBtn">Thêm</button></div></div>
+          <div class="row" style="margin:8px 0 12px"><button class="btn" id="camBtn" style="flex:1;min-height:56px;font-size:17px"></button></div>
+          <div class="card"><label class="f" for="manual">Nhập mã bằng tay (tem hỏng)</label><div class="row"><input id="manual" class="mono" placeholder="VD: VT-000123" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done"><button class="btn" id="manualBtn">Thêm</button></div></div>
           <div id="recent"></div>
         </section>
         <section id="tab-other" class="hide"></section>
       </main>
+      <div id="flash" class="flash hide" role="status" aria-live="polite"></div>
       <nav>${[["scan", "Quét"], ["loc", "Vị trí"], ["ds", "Danh sách"], ["dot", "Đợt"]].map(([k, l]) => `<button data-tab="${k}">${l}</button>`).join("")}</nav>`;
     $("nav").addEventListener("click", (e) => { const b = e.target.closest("[data-tab]"); if (b) setTab(b.dataset.tab); });
     $("#camBtn").onclick = () => (camOn ? stopCam().then(renderScan) : startCam());
     $("#manualBtn").onclick = () => { const v = $("#manual").value; $("#manual").value = ""; lastText = ""; onScanText(v); };
     $("#manual").addEventListener("keydown", (e) => { if (e.key === "Enter") $("#manualBtn").click(); });
     $("#who").onclick = logout;
+    $("#flash").onclick = () => $("#flash").classList.add("hide"); /* chạm để ẩn thông báo */
     document.body.addEventListener("click", onAct);
   }
   function setTab(t) {
@@ -233,7 +234,8 @@
     return `
       <div class="card"><div class="row" style="flex-wrap:wrap">${S.khos.map((x) => `<button class="btn sm ${x.id === k ? "" : "sec"}" data-act="kho" data-id="${x.id}">${esc(x.name)}</button>`).join("")}</div></div>
       <div class="card"><h3>Thêm tủ vào ${esc(kho(k).name)}</h3>
-        <div class="row"><input id="tuCode" placeholder="Mã tủ, VD A01" style="flex:1.1"><input id="tuName" placeholder="Tên (không bắt buộc)" style="flex:1.4"><input id="tuN" type="number" min="1" max="30" placeholder="Số tầng" style="flex:.8"></div>
+        <div class="row"><div style="flex:1.4"><label class="f" for="tuCode">Mã tủ</label><input id="tuCode" placeholder="VD: A01" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"></div><div style="flex:1"><label class="f" for="tuN">Số tầng</label><input id="tuN" type="number" inputmode="numeric" min="1" max="30" placeholder="1–30"></div></div>
+        <label class="f" for="tuName" style="margin-top:8px">Tên tủ (không bắt buộc)</label><input id="tuName" placeholder="VD: Tủ phụ tùng cẩu" autocomplete="off">
         <button class="btn" style="margin-top:8px;width:100%" data-act="add-tu">Thêm tủ</button></div>
       <div class="card list"><div class="row"><h3 style="flex:1">Tủ trong ${esc(kho(k).name)} (${tus.length})</h3>${tus.length ? `<button class="btn sm sec" data-act="print" data-kho="${k}">In tem tầng cả kho</button>` : ""}</div>
         ${tus.length ? tus.map((t) => `<div class="it" style="display:block"><div class="row"><b style="flex:1">Tủ ${esc(t.code)}${t.name ? ` · ${esc(t.name)}` : ""}</b><span class="mut">${t.so_tang} tầng</span><button class="btn sm sec" data-act="print" data-tu="${t.id}">In tem</button></div>
@@ -254,7 +256,7 @@
       body = keys.length ? keys.map((k) => `<div class="it" style="display:block"><div class="row"><b style="flex:1">${esc(locText(g[k][0]))}</b><span class="pill">${g[k].length} cái</span></div>${g[k].map((s) => `<div class="row" style="padding:4px 0 0 8px"><span class="mono" style="flex:1">${esc(s.code)}</span><span class="mut">${fmtT(s.at)} · ${esc(s.by_name || "")}</span>${s.pending ? "" : `<button class="btn sm sec" data-act="del" data-id="${s.client_id}">Xoá</button>`}</div>`).join("")}</div>`).join("") : '<div class="mut">Không có dữ liệu</div>';
     }
     return `<div class="card"><div class="row"><button class="btn sm ${S.dsView === "code" ? "" : "sec"}" data-act="dsv" data-v="code">Theo mã</button><button class="btn sm ${S.dsView === "loc" ? "" : "sec"}" data-act="dsv" data-v="loc">Theo vị trí</button><span style="flex:1"></span><span class="mut">${live().length} cái · ${new Set(live().map((s) => s.code)).size} mã</span></div>
-      <input id="dsq" style="margin-top:8px" placeholder="Tìm mã / kho / tủ"></div><div class="card list">${body}</div>
+      <input id="dsq" type="search" style="margin-top:8px" placeholder="Tìm mã / kho / tủ" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="search"></div><div class="card list">${body}</div>
       ${S.conflicts.length ? `<div class="card"><h3>Lượt quét bị từ chối vì trùng máy khác (${S.conflicts.length})</h3>${S.conflicts.map((r) => `<div class="mut mono">${esc(r.code)} · ${esc(locText(r))} · ${fmtT(r.at)}</div>`).join("")}</div>` : ""}`;
   }
   function viewDot() {
