@@ -1,5 +1,6 @@
 /* App kiểm kê kho vật tư — quét QR trên part, ghi vào Kho → Tủ → Tầng.
-   · Mỗi lần quét = 1 cái. Trong 1 đợt kiểm kê, mỗi mã (nội dung QR) chỉ tính 1 lần (chặn trùng).
+   · Quét mã → nhập số lượng (mặc định 1) → Lưu. Trong 1 đợt, mỗi mã chỉ 1 lượt ở mỗi vị trí (tủ, tầng):
+     quét lại cùng mã ở cùng vị trí → báo đã có, cho sửa số lượng. Cùng mã ở vị trí khác vẫn ghi được.
    · Tem QR của tầng: "VT-LOC|<mã kho>|<mã tủ>|<tầng>" — quét để đổi vị trí đang đứng.
    · Nhiều người dùng chung dữ liệu (Supabase Realtime). Mất sóng: lượt quét giữ trên máy, có sóng tự gửi.
    · Chế độ CHẠY THỬ (config.js để trống): dữ liệu lưu trên máy, các tab cùng trình duyệt thấy nhau. */
@@ -21,7 +22,11 @@
     user: null, khos: [], tus: [], dots: [], scans: [],
     dotId: lsGet("vt_dot", null), loc: lsGet("vt_loc", null), queue: lsGet("vt_queue", []),
     tab: "scan", khoSel: null, dsView: "code", q: "", online: navigator.onLine, conflicts: [],
+    sheet: null, /* bảng nhập số lượng đang mở: { code, kho_id, tu_id, tang, exId } */
   };
+  const qn = (s) => Number(s.qty) || 1;
+  const sumQ = (arr) => arr.reduce((a, s) => a + qn(s), 0);
+  const sameLoc = (a, b) => a.tu_id === b.tu_id && a.tang === b.tang;
 
   /* ================= LƯU TRỮ ================= */
   const Demo = (() => {
@@ -35,7 +40,8 @@
       async addTu(t) { const d = db(); if (d.tus.some((x) => x.kho_id === t.kho_id && x.code === t.code)) throw new Error("Mã tủ đã có trong kho này"); d.tus.push({ ...t, id: uid(), created_at: new Date().toISOString() }); save(d); },
       async addDot(name) { const d = db(); const x = { id: uid(), name, status: "open", created_at: new Date().toISOString() }; d.dots.push(x); save(d); return x; },
       async closeDot(id) { const d = db(); const x = d.dots.find((y) => y.id === id); x.status = "closed"; x.closed_at = new Date().toISOString(); save(d); },
-      async insertScan(r) { const d = db(); if (d.scans.some((s) => s.client_id === r.client_id)) return { ok: true }; if (d.scans.some((s) => s.dot_id === r.dot_id && s.code === r.code && !s.deleted)) return { dup: true }; d.scans.push({ ...r, id: uid() }); save(d); return { ok: true }; },
+      async insertScan(r) { const d = db(); if (d.scans.some((s) => s.client_id === r.client_id)) return { ok: true }; if (d.scans.some((s) => s.dot_id === r.dot_id && s.code === r.code && s.tu_id === r.tu_id && s.tang === r.tang && !s.deleted)) return { dup: true }; d.scans.push({ ...r, id: uid() }); save(d); return { ok: true }; },
+      async updateQty(clientId, qty) { const d = db(); const s = d.scans.find((x) => x.client_id === clientId); if (s) { s.qty = qty; save(d); } },
       async deleteScan(clientId, by) { const d = db(); const s = d.scans.find((x) => x.client_id === clientId); if (s) { s.deleted = true; s.deleted_by_name = by; s.deleted_at = new Date().toISOString(); save(d); } },
     };
   })();
@@ -70,6 +76,7 @@
         if (r.error.code === "23505") return /client_id/.test(r.error.message) ? { ok: true } : { dup: true };
         throw r.error;
       },
+      async updateQty(clientId, qty) { const r = await this.client().from("vt_scan").update({ qty }).eq("client_id", clientId); if (r.error) throw r.error; },
       async deleteScan(clientId) { const r = await this.client().from("vt_scan").update({ deleted: true, deleted_by: S.user.id, deleted_at: new Date().toISOString() }).eq("client_id", clientId); if (r.error) throw r.error; },
     };
   })();
@@ -103,6 +110,10 @@
     const now = Date.now();
     if (text === lastText && now - lastAt < 2500) return; /* camera đọc lặp cùng một tem */
     lastText = text; lastAt = now;
+    if (S.sheet) { /* đang nhập số lượng: không nhận tem khác cho đến khi Lưu / Huỷ */
+      if (text !== S.sheet.code) flash("info", "Đang nhập số lượng — bấm Lưu hoặc Huỷ trước khi quét tem khác");
+      return;
+    }
     if (text.startsWith(LOC_PREFIX)) return setLocFromQr(text);
     await addScan(text);
   }
@@ -118,15 +129,60 @@
     const d = dot();
     if (!d || d.status !== "open") { beep(false); return flash("bad", "Chưa có đợt kiểm kê đang mở — vào tab Đợt để tạo"); }
     if (!S.loc) { beep(false); return flash("bad", "Chưa chọn vị trí — quét tem tầng hoặc chọn ở tab Vị trí"); }
-    const ex = live().find((s) => s.code === code);
-    if (ex) { beep(false); return flash("bad", `TRÙNG — <span class="mono">${esc(code)}</span> đã quét lúc ${fmtT(ex.at)}<br><small>${esc(locText(ex))} · ${esc(ex.by_name || "")}</small>`); }
-    const row = { client_id: uid(), dot_id: d.id, code, kho_id: S.loc.kho_id, tu_id: S.loc.tu_id, tang: S.loc.tang, by_name: S.user.name, at: new Date().toISOString() };
-    S.scans.push({ ...row, pending: true });
-    S.queue.push(row); lsSet("vt_queue", S.queue);
-    beep(true);
-    flash("ok", `+1 <span class="mono">${esc(code)}</span> · tầng này ${atLoc(S.loc).length} cái`);
-    renderScan(); renderHeader();
-    flush();
+    const ex = live().find((s) => s.code === code && sameLoc(s, S.loc));
+    beep(!ex); /* bíp kép khi mã đã có ở vị trí này */
+    openSheet({ code, kho_id: S.loc.kho_id, tu_id: S.loc.tu_id, tang: S.loc.tang, exId: ex ? ex.client_id : null });
+  }
+
+  /* bảng nhập số lượng (hiện ngay sau khi quét) */
+  function openSheet(sh) {
+    S.sheet = sh;
+    const ex = sh.exId && S.scans.find((s) => s.client_id === sh.exId);
+    const others = live().filter((s) => s.code === sh.code && !sameLoc(s, sh));
+    $("#flash").classList.add("hide");
+    $("#sheet").innerHTML = `<div class="sheet-card">
+      <div class="mut">Mã vật tư</div><div class="sheet-code mono">${esc(sh.code)}</div>
+      <div class="mut" style="margin-bottom:8px">${esc(locText(sh))}</div>
+      ${ex ? `<div class="sheet-warn">Mã này ĐÃ CÓ ở vị trí này: <b>${qn(ex)} cái</b> · ${fmtT(ex.at)}${ex.by_name ? " · " + esc(ex.by_name) : ""}<br>Sửa số lượng bên dưới nếu cần.</div>` : ""}
+      ${others.length ? `<div class="mut" style="margin-bottom:8px">Mã này còn ở: ${others.map((s) => `${esc(locText(s))} (${qn(s)})`).join(" · ")}</div>` : ""}
+      <label class="f" for="qty">Số lượng</label>
+      <div class="qty"><button class="btn sec" data-act="qty-step" data-d="-1" aria-label="Bớt 1">−</button><input id="qty" type="number" inputmode="numeric" min="1" max="100000" value="${ex ? qn(ex) : 1}" enterkeyhint="done"><button class="btn sec" data-act="qty-step" data-d="1" aria-label="Thêm 1">+</button></div>
+      <div class="row" style="margin-top:12px"><button class="btn sec" style="flex:1" data-act="sheet-cancel">Huỷ</button><button class="btn" style="flex:2" data-act="sheet-save">${ex ? "Cập nhật" : "Lưu"}</button></div>
+    </div>`;
+    $("#sheet").classList.remove("hide");
+    const q = $("#qty");
+    q.addEventListener("focus", () => q.select());
+    q.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); saveSheet(); } });
+  }
+  function closeSheet() { S.sheet = null; $("#sheet").classList.add("hide"); $("#sheet").innerHTML = ""; lastText = ""; }
+  async function saveSheet() {
+    const sh = S.sheet; if (!sh) return;
+    const n = Math.floor(Number($("#qty").value));
+    if (!(n >= 1 && n <= 100000)) { $("#qty").focus(); return flash("bad", "Số lượng phải từ 1 trở lên"); }
+    if (sh.exId) {
+      const ok = await setQty(sh.exId, n);
+      if (!ok) return; /* giữ bảng mở để thử lại */
+      closeSheet(); beep(true);
+      flash("ok", `<span class="mono">${esc(sh.code)}</span> = ${n} cái · tầng này ${sumQ(atLoc(sh))} cái`);
+    } else {
+      const d = dot();
+      if (!d || d.status !== "open") { closeSheet(); return flash("bad", "Đợt kiểm kê đã đóng"); }
+      const row = { client_id: uid(), dot_id: d.id, code: sh.code, kho_id: sh.kho_id, tu_id: sh.tu_id, tang: sh.tang, qty: n, by_name: S.user.name, at: new Date().toISOString() };
+      S.scans.push({ ...row, pending: true });
+      S.queue.push(row); lsSet("vt_queue", S.queue);
+      closeSheet();
+      flash("ok", `+${n} <span class="mono">${esc(sh.code)}</span> · tầng này ${sumQ(atLoc(sh))} cái`);
+      flush();
+    }
+    renderAll();
+  }
+  /* sửa số lượng: lượt chưa gửi → sửa trên máy; đã gửi → cần có sóng */
+  async function setQty(clientId, n) {
+    const s = S.scans.find((x) => x.client_id === clientId);
+    const qr = S.queue.find((r) => r.client_id === clientId);
+    if (qr) { qr.qty = n; lsSet("vt_queue", S.queue); if (s) s.qty = n; return true; }
+    try { await Store.updateQty(clientId, n); if (s) s.qty = n; return true; }
+    catch (e) { beep(false); flash("bad", "Chưa sửa được số lượng (mất sóng?) — thử lại khi có sóng"); return false; }
   }
   let flushing = false;
   async function flush() {
@@ -142,7 +198,7 @@
         const s = S.scans.find((x) => x.client_id === row.client_id);
         if (r.dup) { /* máy khác đã quét mã này trước khi máy này gửi lên */
           S.scans = S.scans.filter((x) => x.client_id !== row.client_id);
-          S.conflicts.push(row); beep(false); flash("bad", `TRÙNG với máy khác — <span class="mono">${esc(row.code)}</span> không được tính`);
+          S.conflicts.push(row); onRemote(); beep(false); flash("bad", `TRÙNG với máy khác — <span class="mono">${esc(row.code)}</span> đã được ghi ở ${esc(locText(row))}; lượt ${qn(row)} cái này không được tính. Quét lại để sửa số lượng.`);
         } else if (s) delete s.pending;
       }
     } finally { flushing = false; renderHeader(); renderScan(); }
@@ -182,6 +238,7 @@
         <section id="tab-other" class="hide"></section>
       </main>
       <div id="flash" class="flash hide" role="status" aria-live="polite"></div>
+      <div id="sheet" class="sheet hide" role="dialog" aria-label="Nhập số lượng"></div>
       <nav>${[["scan", "Quét"], ["loc", "Vị trí"], ["ds", "Danh sách"], ["dot", "Đợt"]].map(([k, l]) => `<button data-tab="${k}">${l}</button>`).join("")}</nav>`;
     $("nav").addEventListener("click", (e) => { const b = e.target.closest("[data-tab]"); if (b) setTab(b.dataset.tab); });
     $("#camBtn").onclick = () => (camOn ? stopCam().then(renderScan) : startCam());
@@ -210,12 +267,12 @@
     $("#locbar").innerHTML = !d || d.status !== "open"
       ? `<div class="loc none"><div class="sp">Chưa có đợt kiểm kê đang mở</div><button class="btn sm" data-act="go-dot">Tạo / chọn đợt</button></div>`
       : S.loc
-        ? `<div class="loc"><div class="sp"><span class="mut">Đang ghi vào</span><br><b>${esc(locText(S.loc))}</b><br><span class="mut">Tầng này: ${atLoc(S.loc).length} cái · cả đợt: ${live().length} cái</span></div><button class="btn sm sec" data-act="go-loc">Đổi</button></div>`
+        ? `<div class="loc"><div class="sp"><span class="mut">Đang ghi vào</span><br><b>${esc(locText(S.loc))}</b><br><span class="mut">Tầng này: ${sumQ(atLoc(S.loc))} cái · cả đợt: ${sumQ(live())} cái</span></div><button class="btn sm sec" data-act="go-loc">Đổi</button></div>`
         : `<div class="loc none"><div class="sp"><b>Chưa chọn vị trí</b><br><span class="mut">Quét tem QR của tầng, hoặc chọn ở tab Vị trí</span></div><button class="btn sm" data-act="go-loc">Chọn</button></div>`;
     $("#camBtn").textContent = camOn ? "Tắt camera" : "Bật camera quét";
     $("#reader").classList.toggle("hide", !camOn);
     const mine = S.scans.filter((s) => !s.deleted && s.by_name === S.user.name).slice(-6).reverse();
-    $("#recent").innerHTML = mine.length ? `<div class="card list"><h3>Lượt quét gần nhất của tôi</h3>${mine.map((s, i) => `<div class="it"><div style="flex:1"><b class="mono">${esc(s.code)}</b>${s.pending ? ' <span class="tag">chờ gửi</span>' : ""}<div class="mut">${esc(locText(s))} · ${fmtT(s.at)}</div></div>${i === 0 ? `<button class="btn sm bad" data-act="undo" data-id="${s.client_id}">Hoàn tác</button>` : ""}</div>`).join("")}</div>` : "";
+    $("#recent").innerHTML = mine.length ? `<div class="card list"><h3>Lượt quét gần nhất của tôi</h3>${mine.map((s, i) => `<div class="it"><div style="flex:1"><b class="mono">${esc(s.code)}</b> <span class="pill">× ${qn(s)}</span>${s.pending ? ' <span class="tag">chờ gửi</span>' : ""}<div class="mut">${esc(locText(s))} · ${fmtT(s.at)}</div></div><button class="btn sm sec" data-act="edit-qty" data-id="${s.client_id}">Sửa SL</button>${i === 0 ? `<button class="btn sm bad" data-act="undo" data-id="${s.client_id}">Hoàn tác</button>` : ""}</div>`).join("")}</div>` : "";
   }
   function renderOther() {
     const el = $("#tab-other");
@@ -230,7 +287,7 @@
     const k = S.khoSel || (S.loc && S.loc.kho_id) || (S.khos[0] && S.khos[0].id);
     S.khoSel = k;
     const tus = S.tus.filter((t) => t.kho_id === k).sort((a, b) => a.code.localeCompare(b.code, "vi", { numeric: true }));
-    const cnt = (t, n) => live().filter((s) => s.tu_id === t.id && s.tang === n).length;
+    const cnt = (t, n) => sumQ(live().filter((s) => s.tu_id === t.id && s.tang === n));
     return `
       <div class="card"><div class="row" style="flex-wrap:wrap">${S.khos.map((x) => `<button class="btn sm ${x.id === k ? "" : "sec"}" data-act="kho" data-id="${x.id}">${esc(x.name)}</button>`).join("")}</div></div>
       <div class="card"><h3>Thêm tủ vào ${esc(kho(k).name)}</h3>
@@ -249,20 +306,20 @@
     if (S.dsView === "code") {
       const g = {}; rows.forEach((s) => (g[s.code] = g[s.code] || []).push(s));
       const keys = Object.keys(g).sort();
-      body = keys.length ? keys.map((c) => `<div class="it"><div style="flex:1"><b class="mono">${esc(c)}</b><div class="mut">${g[c].map((s) => esc(locText(s))).join(" · ")}</div></div><span class="pill">${g[c].length}</span></div>`).join("") : '<div class="mut">Không có dữ liệu</div>';
+      body = keys.length ? keys.map((c) => `<div class="it"><div style="flex:1"><b class="mono">${esc(c)}</b><div class="mut">${g[c].map((s) => `${esc(locText(s))} (${qn(s)})`).join(" · ")}</div></div><span class="pill">${sumQ(g[c])} cái</span></div>`).join("") : '<div class="mut">Không có dữ liệu</div>';
     } else {
       const g = {}; rows.forEach((s) => { const k = `${s.tu_id}|${s.tang}`; (g[k] = g[k] || []).push(s); });
       const keys = Object.keys(g).sort((a, b) => locText(g[a][0]).localeCompare(locText(g[b][0]), "vi", { numeric: true }));
-      body = keys.length ? keys.map((k) => `<div class="it" style="display:block"><div class="row"><b style="flex:1">${esc(locText(g[k][0]))}</b><span class="pill">${g[k].length} cái</span></div>${g[k].map((s) => `<div class="row" style="padding:4px 0 0 8px"><span class="mono" style="flex:1">${esc(s.code)}</span><span class="mut">${fmtT(s.at)} · ${esc(s.by_name || "")}</span>${s.pending ? "" : `<button class="btn sm sec" data-act="del" data-id="${s.client_id}">Xoá</button>`}</div>`).join("")}</div>`).join("") : '<div class="mut">Không có dữ liệu</div>';
+      body = keys.length ? keys.map((k) => `<div class="it" style="display:block"><div class="row"><b style="flex:1">${esc(locText(g[k][0]))}</b><span class="pill">${sumQ(g[k])} cái</span></div>${g[k].map((s) => `<div class="row" style="padding:6px 0 0 8px"><div style="flex:1"><span class="mono"><b>${esc(s.code)}</b></span> <span class="pill">× ${qn(s)}</span><div class="mut">${fmtT(s.at)} · ${esc(s.by_name || "")}</div></div><button class="btn sm sec" data-act="edit-qty" data-id="${s.client_id}">Sửa SL</button>${s.pending ? "" : `<button class="btn sm sec" data-act="del" data-id="${s.client_id}">Xoá</button>`}</div>`).join("")}</div>`).join("") : '<div class="mut">Không có dữ liệu</div>';
     }
-    return `<div class="card"><div class="row"><button class="btn sm ${S.dsView === "code" ? "" : "sec"}" data-act="dsv" data-v="code">Theo mã</button><button class="btn sm ${S.dsView === "loc" ? "" : "sec"}" data-act="dsv" data-v="loc">Theo vị trí</button><span style="flex:1"></span><span class="mut">${live().length} cái · ${new Set(live().map((s) => s.code)).size} mã</span></div>
+    return `<div class="card"><div class="row"><button class="btn sm ${S.dsView === "code" ? "" : "sec"}" data-act="dsv" data-v="code">Theo mã</button><button class="btn sm ${S.dsView === "loc" ? "" : "sec"}" data-act="dsv" data-v="loc">Theo vị trí</button><span style="flex:1"></span><span class="mut">${sumQ(live())} cái · ${new Set(live().map((s) => s.code)).size} mã</span></div>
       <input id="dsq" type="search" style="margin-top:8px" placeholder="Tìm mã / kho / tủ" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="search"></div><div class="card list">${body}</div>
       ${S.conflicts.length ? `<div class="card"><h3>Lượt quét bị từ chối vì trùng máy khác (${S.conflicts.length})</h3>${S.conflicts.map((r) => `<div class="mut mono">${esc(r.code)} · ${esc(locText(r))} · ${fmtT(r.at)}</div>`).join("")}</div>` : ""}`;
   }
   function viewDot() {
     const d = dot();
     return `<div class="card"><h3>Đợt kiểm kê mới</h3><div class="row"><input id="dotName" value="Kiểm kê ${today()}"><button class="btn" data-act="add-dot">Tạo</button></div></div>
-      ${d ? `<div class="card"><div class="row"><div style="flex:1"><b>${esc(d.name)}</b><div class="mut">${d.status === "open" ? "Đang mở" : "Đã đóng"} · ${live().length} cái · ${new Set(live().map((s) => s.code)).size} mã</div></div></div>
+      ${d ? `<div class="card"><div class="row"><div style="flex:1"><b>${esc(d.name)}</b><div class="mut">${d.status === "open" ? "Đang mở" : "Đã đóng"} · ${sumQ(live())} cái · ${new Set(live().map((s) => s.code)).size} mã</div></div></div>
         <div class="row" style="margin-top:10px"><button class="btn" style="flex:1" data-act="export">Xuất Excel</button>${d.status === "open" ? '<button class="btn sec" data-act="close-dot">Đóng đợt</button>' : ""}</div></div>` : ""}
       <div class="card list"><h3>Các đợt</h3>${S.dots.length ? S.dots.slice().sort((a, b) => (a.created_at < b.created_at ? 1 : -1)).map((x) => `<div class="it"><div style="flex:1"><b>${esc(x.name)}</b><div class="mut">${x.status === "open" ? "Đang mở" : "Đã đóng"} · ${fmtT(x.created_at)}</div></div><button class="btn sm ${x.id === S.dotId ? "" : "sec"}" data-act="pick-dot" data-id="${x.id}">${x.id === S.dotId ? "Đang chọn" : "Chọn"}</button></div>`).join("") : '<div class="mut">Chưa có đợt nào</div>'}</div>`;
   }
@@ -281,10 +338,10 @@
   function exportXlsx() {
     const d = dot(); const L = live();
     const byCode = {}; L.forEach((s) => (byCode[s.code] = byCode[s.code] || []).push(s));
-    const s1 = [["Mã vật tư", "Số lượng", "Vị trí"]].concat(Object.keys(byCode).sort().map((c) => [c, byCode[c].length, byCode[c].map((s) => locText(s)).join("; ")]));
-    const byLoc = {}; L.forEach((s) => { const k = `${s.kho_id}|${tu(s.tu_id).code}|${s.tang}|${s.code}`; byLoc[k] = (byLoc[k] || 0) + 1; });
+    const s1 = [["Mã vật tư", "Số lượng", "Vị trí"]].concat(Object.keys(byCode).sort().map((c) => [c, sumQ(byCode[c]), byCode[c].map((s) => `${locText(s)} (${qn(s)})`).join("; ")]));
+    const byLoc = {}; L.forEach((s) => { const k = `${s.kho_id}|${tu(s.tu_id).code}|${s.tang}|${s.code}`; byLoc[k] = (byLoc[k] || 0) + qn(s); });
     const s2 = [["Kho", "Tủ", "Tầng", "Mã vật tư", "Số lượng"]].concat(Object.keys(byLoc).sort((a, b) => a.localeCompare(b, "vi", { numeric: true })).map((k) => { const [kh, t, n, c] = k.split("|"); return [kho(kh).name, t, Number(n), c, byLoc[k]]; }));
-    const s3 = [["Thời gian", "Mã vật tư", "Kho", "Tủ", "Tầng", "Người quét", "Trạng thái"]].concat(S.scans.slice().sort((a, b) => (a.at < b.at ? -1 : 1)).map((s) => [fmtT(s.at), s.code, kho(s.kho_id).name, tu(s.tu_id).code, s.tang, s.by_name || "", s.deleted ? "Đã xoá / hoàn tác" : s.pending ? "Chờ gửi" : "Hợp lệ"]));
+    const s3 = [["Thời gian", "Mã vật tư", "Số lượng", "Kho", "Tủ", "Tầng", "Người quét", "Trạng thái"]].concat(S.scans.slice().sort((a, b) => (a.at < b.at ? -1 : 1)).map((s) => [fmtT(s.at), s.code, qn(s), kho(s.kho_id).name, tu(s.tu_id).code, s.tang, s.by_name || "", s.deleted ? "Đã xoá / hoàn tác" : s.pending ? "Chờ gửi" : "Hợp lệ"]));
     const wb = XLSX.utils.book_new();
     [[s1, "Tong hop theo ma"], [s2, "Theo vi tri"], [s3, "Nhat ky quet"]].forEach(([a, n]) => { const ws = XLSX.utils.aoa_to_sheet(a); ws["!cols"] = a[0].map((h, i) => ({ wch: i === 2 && n.startsWith("Tong") ? 60 : 16 })); XLSX.utils.book_append_sheet(wb, ws, n); });
     XLSX.writeFile(wb, `KiemKe_${(d ? d.name : "vat_tu").replace(/[^\p{L}\p{N}]+/gu, "_")}.xlsx`);
@@ -311,6 +368,10 @@
       if (a === "close-dot") { if (!confirm("Đóng đợt kiểm kê? Sau khi đóng không quét thêm vào đợt này.")) return; await Store.closeDot(S.dotId); await reload(); }
       if (a === "export") exportXlsx();
       if (a === "dsv") { S.dsView = b.dataset.v; renderOther(); }
+      if (a === "qty-step") { const q = $("#qty"); q.value = Math.max(1, (Math.floor(Number(q.value)) || 0) + Number(b.dataset.d)); }
+      if (a === "sheet-save") await saveSheet();
+      if (a === "sheet-cancel") closeSheet();
+      if (a === "edit-qty") { const s = S.scans.find((x) => x.client_id === b.dataset.id); if (s && !S.sheet) openSheet({ code: s.code, kho_id: s.kho_id, tu_id: s.tu_id, tang: s.tang, exId: s.client_id }); }
       if (a === "undo") await undo(b.dataset.id);
       if (a === "del") { if (!confirm("Xoá lượt quét này? (đánh dấu đã xoá, vẫn còn trong nhật ký)")) return; await undo(b.dataset.id); }
     } catch (err) { flash("bad", esc(err.message || err)); }
