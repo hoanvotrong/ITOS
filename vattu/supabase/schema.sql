@@ -44,6 +44,7 @@ create table if not exists public.vt_scan (
   kho_id      text not null references public.vt_kho(id),
   tu_id       uuid not null references public.vt_tu(id),
   tang        int  not null,
+  qty         int  not null default 1 constraint vt_scan_qty_chk check (qty between 1 and 100000),  -- số lượng
   by_uid      uuid default auth.uid(),
   by_name     text,
   at          timestamptz not null default now(),
@@ -52,8 +53,9 @@ create table if not exists public.vt_scan (
   deleted_at  timestamptz
 );
 create index if not exists vt_scan_dot_idx on public.vt_scan (dot_id);
--- Chặn quét trùng: trong 1 đợt, mỗi mã chỉ 1 lượt còn hiệu lực
-create unique index if not exists vt_scan_dot_code_uq on public.vt_scan (dot_id, code) where not deleted;
+-- Chặn quét trùng: trong 1 đợt, mỗi mã chỉ 1 lượt còn hiệu lực ở mỗi vị trí (tủ, tầng).
+-- Cùng mã ở vị trí khác vẫn ghi được; số cái ghi ở cột qty.
+create unique index if not exists vt_scan_dot_code_loc_uq on public.vt_scan (dot_id, code, tu_id, tang) where not deleted;
 
 -- RLS: giống Kho — chỉ email có trong app_users (hàm is_member() tạo trong
 -- warehouse/supabase/schema.sql) mới đọc / ghi. Xoá = đánh dấu deleted (không xoá cứng).

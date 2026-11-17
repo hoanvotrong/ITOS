@@ -36,6 +36,13 @@ label.f{display:block;font-size:13px;color:var(--mut);font-weight:600;margin-bot
 /* Thông báo nổi ngay trên thanh tab: luôn thấy được, kể cả khi camera chiếm màn hình hay đang ở tab khác */
 .flash{position:fixed;left:12px;right:12px;bottom:calc(64px + env(safe-area-inset-bottom));max-width:696px;margin:0 auto;z-index:6;border-radius:14px;padding:14px;font-weight:700;text-align:center;font-size:18px;line-height:1.35;box-shadow:0 8px 24px rgba(15,23,42,.22)}
 .flash.ok{background:#DCFCE7;color:#166534;border:2px solid #16A34A}.flash.bad{background:#FEE2E2;color:#991B1B;border:2px solid #DC2626}.flash.info{background:#E0F2FE;color:#075985;border:2px solid #0284C7}
+/* Bảng nhập số lượng: trượt lên từ đáy, che thanh tab */
+.sheet{position:fixed;inset:0;z-index:8;background:rgba(15,23,42,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet-card{background:#fff;width:100%;max-width:720px;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px rgba(15,23,42,.25);max-height:90vh;overflow:auto}
+.sheet-code{font-size:24px;font-weight:800;word-break:break-all}
+.sheet-warn{background:#FEF3C7;color:#92400E;border:2px solid #F59E0B;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-weight:600}
+.qty{display:flex;gap:8px}.qty .btn{width:64px;min-height:56px;font-size:28px;padding:0}
+.qty input{flex:1;text-align:center;font-size:26px;font-weight:800;min-height:56px}
 .list .it{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line)}
 .list .it:first-child{border-top:0}
 .pill{display:inline-block;padding:2px 8px;border-radius:99px;background:#E2E8F0;font-size:12px;font-weight:600}
