@@ -79,6 +79,7 @@ const TlPhone = ({ me, offline, onChange }) => {
   const [yq, setYq] = React.useState("");
   const [q, setQ] = React.useState("");
   const [msg, setMsg] = React.useState(null);
+  const [bill, setBill] = React.useState(""); /* số bill / phiếu của nhà máy (cách ghi nhận "bill") */
   const [np, setNp] = React.useState({ plate: "", owner: "" }); /* xe ngoài danh sách: tally tự nhập biển */
   const [vq, setVq] = React.useState(""); /* tìm biển số ở bước chọn xe */
   React.useEffect(() => { setVq(""); }, [st.s]);
@@ -116,7 +117,7 @@ const TlPhone = ({ me, offline, onChange }) => {
     DD_RECORDS.push(r);
     job.actual = Math.round((job.actual + r.qty) * 100) / 100;
     if (o.status === "sent") o.status = "running";
-    ddJobLog(job, r.cont ? `${o.id} · Gate ${r.gate === "in" ? "In" : "Out"} ${tlContFmt(r.cont)}${r.plate ? ` · xe ${r.plate}` : ""}${r.offList ? " (ngoài DS)" : ""}` : `${o.id} · ghi nhận ${r.plate || ""}: ${tlFmt(r.qty, unit)} ${unit}${r.offList ? " (xe ngoài DS)" : ""}`, me.id);
+    ddJobLog(job, r.cont ? `${o.id} · Gate ${r.gate === "in" ? "In" : "Out"} ${tlContFmt(r.cont)}${r.plate ? ` · xe ${r.plate}` : ""}${r.offList ? " (ngoài DS)" : ""}` : `${o.id} · ghi nhận ${r.plate || ""}: ${tlFmt(r.qty, unit)} ${unit}${r.meth === "bill" ? ` · theo bill ${r.billNo || ""}` : r.w1 ? " · cân xe" : ""}${r.offList ? " (xe ngoài DS)" : ""}`, me.id);
     window.ddJobTouch?.(job, me.id);
     onChange(); return r;
   };
@@ -134,6 +135,13 @@ const TlPhone = ({ me, offline, onChange }) => {
     ddJobLog(job, `${o.id} · xe ngoài danh sách ${plate}${owner ? ` · ${owner}` : ""} · tự báo sự cố ${id} về KHTH`, me.id);
     onChange();
   };
+  /* Cách ghi nhận hàng rời: tally chọn từng chuyến, mặc định theo job */
+  const tripOpts = () => job && job.kind !== "cont" ? ddMeasureOpts(job.service, job.unit || "tấn") : [];
+  const startTrip = (p, m) => { const meth = m || ddMeasure(job); setPad(""); setBill(""); setW({ f: 1, a: "", b: "", src: "manual" }); go(meth === "scale" ? "w" : "pad", { order: o.id, plate: p, src: "manual", meth }); };
+  const TL_METH_SHORT = { scale: "Cân xe", bill: "Bill nhà máy", hook: "Cân treo", count: "Đếm", manual: "Nhập tay" };
+  const methChips = (cur) => tripOpts().length > 1 && !st.edit && !st.req ? (
+    <div style={{ marginBottom: 8 }}><div className="tl-muted" style={{ fontSize: 12, marginBottom: 4 }}>Cách ghi nhận chuyến này</div>
+      <div className="tl-chips">{tripOpts().map(m => <button key={m} className={cur === m ? "on" : ""} onClick={() => cur !== m && startTrip(st.plate, m)}>{TL_METH_SHORT[m]}</button>)}</div></div>) : null;
   const press = (k) => setPad(p => k === "⌫" ? p.slice(0, -1) : k === "," ? (!dec || p.includes(",") || !p ? p : p + ",") : (p.split(",")[1]?.length >= 2 || p.length >= 7 ? p : (p === "0" ? k : p + k)));
 
   const Bar = ({ title, back, sub }) => (
@@ -307,11 +315,13 @@ const TlPhone = ({ me, offline, onChange }) => {
       <Ctx />
       <div className="tl-padwrap">
         <div className="tl-padtype"><span className="tl-plate" style={{ fontSize: 14 }}>{st.plate}</span> · {veh.type}{unit === "tấn" && veh.cap ? ` · tải ${ddQty(veh.cap)} tấn` : ""}</div>
-        <div className="tl-display">{pad || "0"}<small> {unit}</small></div>
+        {methChips(st.meth || ddMeasure(job))}
+        {(st.meth === "bill") && <input className="input mono" style={{ height: 46, fontSize: 17, marginBottom: 8 }} autoCapitalize="characters" placeholder="Số bill / phiếu của nhà máy" value={bill} onChange={e => setBill(e.target.value.toUpperCase())} />}
+        <div className="tl-display">{pad || "0"}<small> {unit}{st.meth === "bill" ? " · theo bill" : ""}</small></div>
         {false && ddMeasure(job) === "hook" && !st.edit && !st.req && <button className="tl-sec" style={{ width: "100%", marginBottom: 8 }} onClick={() => { setPad(String(tlSim(18, 26)).replace(".", ",")); go("pad", { ...st, src: "auto" }); }}>⚖ Lấy số từ cân treo <span style={{ opacity: .7 }}>(giả lập — chưa kết nối)</span></button>}
         {st.src === "auto" && <div className="tl-tag" style={{ margin: "0 0 8px" }}>Số lấy từ cân treo · tally xác nhận</div>}
         <Pad />
-        <button className="tl-main" disabled={!v} onClick={() => go(over ? "warn" : "confirm", { ...st, qty: v, src: st.src || "manual" })}>TIẾP TỤC</button>
+        <button className="tl-main" disabled={!v || (st.meth === "bill" && !bill.trim())} onClick={() => go(over ? "warn" : "confirm", { ...st, qty: v, src: st.src || "manual", ...(st.meth === "bill" ? { billNo: bill.trim() } : {}) })}>TIẾP TỤC{st.meth === "bill" && !bill.trim() ? <small>Nhập số bill của nhà máy</small> : null}</button>
       </div>
     </>);
   }
@@ -326,6 +336,7 @@ const TlPhone = ({ me, offline, onChange }) => {
       <Bar title="Bước 2/3 · Số cân theo phiếu" sub={`${st.plate} · ${veh.type}`} back={() => go("veh", { order: o.id })} />
       <Ctx />
       <div className="tl-padwrap">
+        {methChips("scale")}
         <div className="tl-row2" style={{ marginBottom: 8 }}>
           {[[1, "Lần 1 · xe có hàng", w.a], [2, "Lần 2 · xe rỗng", w.b]].map(([k, l, v]) => (
             <button key={k} className={`tl-sec ${w.f === k ? "on" : ""}`} style={{ height: 64, textAlign: "left", padding: "6px 10px", border: w.f === k ? "2px solid #0E7490" : undefined }} onClick={() => setW(x => ({ ...x, f: k }))}>
@@ -367,7 +378,7 @@ const TlPhone = ({ me, offline, onChange }) => {
         DD_EDIT_REQS.unshift({ id: ddNewId("YC"), record: r.id, order: o.id, job: job.id, by: me.id, at: `${ddNow()}`, from: r.qty, to: st.qty, reason: st.reason, status: "pending" });
         r.status = "editReq"; ddJobLog(job, `${o.id} · xin sửa bản ghi ${r.plate || ""}: ${tlFmt(r.qty, unit)} → ${tlFmt(st.qty, unit)} ${unit} · lý do: ${st.reason}`, me.id); onChange(); toast("Đã gửi yêu cầu sửa cho văn phòng"); go("records", { order: o.id });
       } else {
-        addRecord({ plate: st.plate, qty: st.qty, src: st.src || "manual", ...(offList(st.plate) ? { offList: true } : {}), ...(st.w1 ? { w1: st.w1, w2: st.w2 } : {}), ...(st.abnormal ? { abnormal: true } : {}) });
+        addRecord({ plate: st.plate, qty: st.qty, src: st.src || "manual", meth: st.meth || ddMeasure(job), ...(st.billNo ? { billNo: st.billNo } : {}), ...(offList(st.plate) ? { offList: true } : {}), ...(st.w1 ? { w1: st.w1, w2: st.w2 } : {}), ...(st.abnormal ? { abnormal: true } : {}) });
         toast(`Đã ghi ${st.plate}: ${tlFmt(st.qty)} ${unit}${offline ? " · chờ đồng bộ" : ""}`); go("veh", { order: o.id });
       }
     };
@@ -379,7 +390,7 @@ const TlPhone = ({ me, offline, onChange }) => {
           <div className="tl-big" style={{ fontSize: 40 }}>{tlFmt(st.qty)} <small style={{ fontSize: 18 }}>{unit}</small></div>
           {target && <div className="tl-muted">Trước: {tlFmt(target.qty)} {unit}</div>}
           {st.w1 && <div className="tl-muted">Lần 1 {tlFmt(st.w1)} − lần 2 {tlFmt(st.w2)} tấn</div>}
-          {!st.edit && !st.req && <div className="tl-tag" style={{ background: st.src === "auto" ? "#DCFCE7" : undefined }}>{st.src === "auto" ? "Số tự động từ cân" : ddMeasure(job) === "scale" || ddMeasure(job) === "hook" ? "Nhập tay theo phiếu cân" : "Nhập tay"}</div>}
+          {!st.edit && !st.req && <div className="tl-tag" style={{ background: st.src === "auto" ? "#DCFCE7" : undefined }}>{st.src === "auto" ? "Số tự động từ cân" : { scale: "Cân xe qua cầu cân", bill: `Theo bill nhà máy · số bill ${st.billNo || "—"}`, hook: "Cân treo · nhập theo số cân", count: "Đếm", manual: "Nhập tay" }[st.meth || ddMeasure(job)]}</div>}
           {st.abnormal && <div className="tl-tag warn">Bất thường · đã xác nhận lại</div>}
           {!st.req && <div className="tl-tag">Sản lượng gửi văn phòng duyệt khi kết ca</div>}
         </div>
@@ -590,7 +601,7 @@ const TlPhone = ({ me, offline, onChange }) => {
         {[...recs].reverse().map(r => { const mineR = r.by === me.id; const isLast = r === lastMine; return (
           <div key={r.id} className="tl-rec">
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div>{r.cont ? <><b className="mono">{tlContFmt(r.cont)}</b> <span className="tl-muted">· Gate {r.gate === "in" ? "In" : "Out"}</span></> : <b>{tlFmt(r.qty)} {unit}</b>} <span className="tl-muted">· {r.plate || (r.cont ? "—" : "")}{r.w1 ? ` · ${tlFmt(r.w1)} − ${tlFmt(r.w2)}` : ""}{r.src === "auto" ? " · từ cân" : ""}</span>{r.prev != null && <span className="tl-muted"> (sửa từ {tlFmt(r.prev)})</span>}</div>
+              <div>{r.cont ? <><b className="mono">{tlContFmt(r.cont)}</b> <span className="tl-muted">· Gate {r.gate === "in" ? "In" : "Out"}</span></> : <b>{tlFmt(r.qty)} {unit}</b>} <span className="tl-muted">· {r.plate || (r.cont ? "—" : "")}{r.w1 ? ` · ${tlFmt(r.w1)} − ${tlFmt(r.w2)}` : ""}{r.billNo ? ` · bill ${r.billNo}` : ""}{r.src === "auto" ? " · từ cân" : ""}</span>{r.prev != null && <span className="tl-muted"> (sửa từ {tlFmt(r.prev)})</span>}</div>
               <div className="tl-muted">{r.at.slice(-5)} · {ddPerson(r.by).name}{r.offline ? " · chưa đồng bộ" : ""}</div>
             </div>
             {r.status === "returned" ? <span className="tl-tag warn" style={{ margin: 0, background: "#FEE2E2", color: "#B91C1C" }}>VP trả lại</span>

@@ -22,8 +22,9 @@ const DD_SERVICES_NEW = DD_SERVICES_ON.filter(s => ["bp", "icd"].includes(s.id))
 const ddUnit = (j) => !j ? "" : j.kind === "cont" ? "cont" : (j.unit || "tấn");
 const DD_UNITS = ["tấn", "m³", "bao", "kiện", "phuy", "cuộn", "tấm", "chiếc", "chuyến"];
 /* Cách ghi nhận hàng rời (v2.5) */
-const DD_MEASURE = { scale: "Qua cầu cân", count: "Đếm (cuộn, tấm…)", hook: "Cân treo (cẩu nổi)", manual: "Nhập tay" };
-const ddMeasureOpts = (svc, unit) => unit === "tấn" ? (svc === "bp" ? ["hook", "manual"] : ["scale", "manual"]) : ddDecUnit(unit) ? ["manual"] : ["count", "manual"];
+const DD_MEASURE = { scale: "Cân xe qua cầu cân", bill: "Số trên bill nhà máy", count: "Đếm (cuộn, tấm…)", hook: "Cân treo (cẩu nổi)", manual: "Nhập tay" };
+/* Cách đầu tiên = mặc định của job; tally chọn lại được từng chuyến (pilot 25/11: thêm "Số trên bill nhà máy") */
+const ddMeasureOpts = (svc, unit) => unit === "tấn" ? (svc === "bp" ? ["hook", "bill", "manual"] : ["scale", "bill", "manual"]) : ddDecUnit(unit) ? ["manual", "bill"] : ["count", "manual"];
 const ddMeasure = (j) => j.measure || ddMeasureOpts(j.service, j.unit || "tấn")[0];
 /* Mã tài xế: 6 số ngẫu nhiên, không trùng mã của lệnh ca nào còn mở (DD_ORDERS khai báo phía dưới, chỉ gọi lúc chạy) */
 const ddDrvCode = () => {
@@ -485,7 +486,7 @@ const DdJobNewScreen = ({ go }) => {
                 <div className="field"><label>Tên hàng <span className="req">*</span></label><input className="input" list="dd-kho-cargos" value={f.cargo} onChange={e => set("cargo", e.target.value)} placeholder={f.service === "kho" ? "Chọn theo danh mục hàng hóa của Kho" : "VD: Clinker rời, thép cuộn, xi măng bao"} />{f.service === "kho" && <datalist id="dd-kho-cargos">{ddKhoCargos().map(c => <option key={c} value={c} />)}</datalist>}</div>
                 <div className="field"><label>Đơn vị tính <span className="req">*</span></label><select className="select" value={f.unit} onChange={e => set("unit", e.target.value)}>{(f.service === "kho" ? ["tấn"] : DD_UNITS).map(u => <option key={u}>{u}</option>)}</select>{f.service === "kho" && <div className="muted" style={{ fontSize: 11, marginTop: 3 }}>Kho quản lý theo tấn</div>}</div>
                 <div className="field"><label>Khối lượng kế hoạch ({f.unit}) <span className="req">*</span></label><DdQtyInput className="input mono" value={f.plan} onChange={v => set("plan", v)} /></div>
-                <div className="muted" style={{ gridColumn: "1 / -1", fontSize: 12 }}>Cách ghi nhận tại hiện trường: <b>{DD_MEASURE[ddMeasureOpts(f.service, f.unit)[0]]}</b> — hệ thống tự gán theo dịch vụ và đơn vị tính; cân chưa kết nối thì tally nhập tay.</div>
+                <div className="muted" style={{ gridColumn: "1 / -1", fontSize: 12 }}>Cách ghi nhận tại hiện trường: <b>{DD_MEASURE[ddMeasureOpts(f.service, f.unit)[0]]}</b> (mặc định) — tally chọn lại được từng chuyến: {ddMeasureOpts(f.service, f.unit).map(m => DD_MEASURE[m]).join(" / ")}.</div>
               </div>
             ) : (
               <>
