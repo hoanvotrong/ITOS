@@ -75,11 +75,11 @@ const DdServiceScreen = ({ svc, go }) => {
             <div className="card-head"><h3>Ca hôm nay</h3><button className="btn btn-sm" onClick={() => go("dd-shifts")}>Mở lịch ca</button></div>
             <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {orders.length === 0 && <div className="muted" style={{ fontSize: 12.5 }}>Không có lệnh ca hôm nay.</div>}
-              {orders.map(o => { const j = DD_JOBS.find(x => x.id === o.job); const done = (window.DD_RECORDS || []).filter(r => r.order === o.id && r.status !== "void" && r.status !== "returned").reduce((t, r) => t + r.qty, 0); const pct = Math.min(100, Math.round(done / o.target * 100)); return (
+              {orders.map(o => { const j = DD_JOBS.find(x => x.id === o.job); const done = (window.DD_RECORDS || []).filter(r => r.order === o.id && r.status !== "void" && r.status !== "returned").reduce((t, r) => t + r.qty, 0); const pct = o.target > 0 ? Math.min(100, Math.round(done / o.target * 100)) : 0; return (
                 <div key={o.id} style={{ padding: "8px 10px", border: "1px solid var(--line)", borderRadius: 6 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5 }}><b>{DD_SHIFTS[o.shift - 1].label} · {ddCusShort(j.customer)}</b><DdBadge map={DD_ORDER_STATUS} s={o.status} /></div>
                   <div className="muted" style={{ fontSize: 11.5 }}><span className="mono">{o.id}</span> · {o.tally.map(t => ddPerson(t).short).join(", ")} · {(o.vehicles || []).join(", ") || "—"}</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5 }}><div style={{ flex: 1, height: 5, background: "var(--bg-sunken)", borderRadius: 3 }}><div style={{ width: pct + "%", height: "100%", background: "var(--brand-ink)", borderRadius: 3 }}></div></div><span className="mono" style={{ fontSize: 11 }}>{tlFmt(done, ddUnit(j))}/{ddQty(o.target, ddUnit(j))} {ddUnit(j)}</span></div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5 }}><div style={{ flex: 1, height: 5, background: "var(--bg-sunken)", borderRadius: 3 }}><div style={{ width: pct + "%", height: "100%", background: "var(--brand-ink)", borderRadius: 3 }}></div></div><span className="mono" style={{ fontSize: 11 }}>{tlFmt(done, ddUnit(j))}{o.target > 0 ? `/${ddTargetTxt(o, ddUnit(j))}` : ` ${ddUnit(j)}`}</span></div>
                 </div>); })}
             </div>
           </div>

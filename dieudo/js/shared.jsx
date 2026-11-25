@@ -20,6 +20,8 @@ const ddQty = (n, unit) => {
   const v = Math.round((Number(n) || 0) * 100) / 100;
   return unit === "cont" ? Math.round(v).toLocaleString("vi-VN") : v.toLocaleString("vi-VN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
+/* Mục tiêu ca (không bắt buộc): "200,00 tấn" hoặc "—" khi chưa đặt */
+const ddTargetTxt = (o, unit) => o && o.target > 0 ? `${ddQty(o.target, unit)} ${unit}` : "—";
 /* Ô nhập sản lượng: gõ dấu phẩy (hoặc chấm) thập phân, tối đa 2 chữ số sau dấu phẩy; rời ô thì hiện dạng 1.234,50.
    int = true: chỉ nhận số nguyên (mục tiêu ca của job cont). */
 const DdQtyInput = ({ value, onChange, int, className, disabled, placeholder = "0,00" }) => {
@@ -160,4 +162,4 @@ const DdPhoto = ({ path, label = "Ảnh", inline, height = 140 }) => {
   );
 };
 
-Object.assign(window, { DdPlateList, ddJobLog, ddQty, DdQtyInput, Avatar, Topbar, KdToast, useKdToast, KdStepper, DdPhotoBtn, DdPhoto, DdSyncBadge, ddNewId });
+Object.assign(window, { ddTargetTxt, DdPlateList, ddJobLog, ddQty, DdQtyInput, Avatar, Topbar, KdToast, useKdToast, KdStepper, DdPhotoBtn, DdPhoto, DdSyncBadge, ddNewId });

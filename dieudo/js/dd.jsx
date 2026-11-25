@@ -707,7 +707,7 @@ const DdJobDetailScreen = ({ go, ctx }) => {
                       <td style={{ fontSize: 12.5 }}>{o.tally.map(t => ddPerson(t).name).join(", ")}</td>
                       <td style={{ fontSize: 12 }}>{o.equip.join(", ") || "—"}</td>
                       <td style={{ fontSize: 12, minWidth: 200 }}><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>{(o.vehicles || []).length + (o.extraVeh || []).length} xe{(o.extraVeh || []).length ? ` · ${o.extraVeh.length} ngoài danh sách` : ""}</div><DdPlateList plates={[...(o.vehicles || []), ...(o.extraVeh || []).map(v => v.plate)]} /></td>
-                      <td className="mono" style={{ textAlign: "right", fontSize: 12 }}>{ddQty(o.target, ddUnit(j))}</td>
+                      <td className="mono" style={{ textAlign: "right", fontSize: 12 }}>{o.target > 0 ? ddQty(o.target, ddUnit(j)) : <span className="muted">—</span>}</td>
                       <td><DdBadge map={DD_ORDER_STATUS} s={o.status} /></td>
                     </tr>
                   ))}
@@ -856,7 +856,7 @@ const DdOrderModal = ({ init, onClose, onSaved }) => {
   const sentEdit = existing && existing.status !== "draft";
   const changed = existing && JSON.stringify({ ...existing, log: 0, ack: 0, status: 0 }) !== JSON.stringify({ ...f, log: 0, ack: 0, status: 0 });
   const noConts = job && job.kind === "cont" && !job.conts.length;
-  const valid = job && f.tally.length > 0 && f.target > 0 && (!sentEdit || !changed || reason.trim());
+  const valid = job && f.tally.length > 0 && (!sentEdit || !changed || reason.trim()); /* mục tiêu sản lượng ca: không bắt buộc (25/11) */
   const toggle = (k, v) => set(k, f[k].includes(v) ? f[k].filter(x => x !== v) : [...f[k], v]);
   const locked = existing && existing.status === "done";
 
@@ -865,7 +865,7 @@ const DdOrderModal = ({ init, onClose, onSaved }) => {
     if (existing.date !== f.date || existing.shift !== f.shift) out.push(`ngày/ca ${existing.date.slice(0, 5)} ${DD_SHIFTS[existing.shift - 1].label} → ${f.date.slice(0, 5)} ${DD_SHIFTS[f.shift - 1].label}`);
     const add = f.tally.filter(t => !existing.tally.includes(t)), rm = existing.tally.filter(t => !f.tally.includes(t));
     if (add.length || rm.length) out.push(`tally ${rm.map(t => "−" + ddPerson(t).short).concat(add.map(t => "+" + ddPerson(t).short)).join(" ")}`);
-    if (existing.target !== f.target) out.push(`mục tiêu ${ddQty(existing.target, ddUnit(job))} → ${ddQty(f.target, ddUnit(job))}`);
+    if (existing.target !== f.target) out.push(`mục tiêu ${ddTargetTxt(existing, ddUnit(job))} → ${ddTargetTxt(f, ddUnit(job))}`);
     if (JSON.stringify(existing.equip) !== JSON.stringify(f.equip)) out.push("thiết bị");
     if (JSON.stringify(existing.vehicles) !== JSON.stringify(f.vehicles)) out.push(`phương tiện ${f.vehicles.join(", ") || "—"}`);
     if (existing.note !== f.note) out.push("chỉ dẫn");
@@ -963,7 +963,7 @@ const DdOrderModal = ({ init, onClose, onSaved }) => {
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>{DD_EQUIP.map(x => <Chip key={x} on={f.equip.includes(x)} onClick={() => toggle("equip", x)}><span style={{ width: 5 }}></span>{x}</Chip>)}</div>
           </div>
           <div className="field-row">
-            <div className="field"><label>Mục tiêu sản lượng ca ({ddUnit(job)}) <span className="req">*</span></label>
+            <div className="field"><label>Mục tiêu sản lượng ca ({ddUnit(job)}) <span className="opt">— không bắt buộc</span></label>
               <DdQtyInput className="input mono" disabled={locked} value={f.target} int={ddUnit(job) === "cont"} onChange={v => set("target", v)} />
             </div>
           </div>
@@ -1070,7 +1070,7 @@ const DdShiftsScreen = ({ go }) => {
                           <Icon name={ddSvc(j.service).icon} size={11}/>
                         </div>
                         <div style={{ fontSize: 12, fontWeight: 600, marginTop: 2 }}>{ddCusShort(j.customer)} {!j.contract && <span style={{ color: "var(--st-danger)", fontSize: 10.5 }}>· chưa HĐ</span>}</div>
-                        <div className="muted" style={{ fontSize: 11 }}>{j.cargo} · {ddQty(o.target, ddUnit(j))} {ddUnit(j)}</div>
+                        <div className="muted" style={{ fontSize: 11 }}>{j.cargo}{o.target > 0 ? ` · ${ddTargetTxt(o, ddUnit(j))}` : ""}</div>
                         <div style={{ display: "flex", alignItems: "center", marginTop: 5 }}>
                           {o.tally.map((t, i) => <span key={t} style={{ marginLeft: i ? -5 : 0, opacity: o.status === "sent" && !o.ack.includes(t) ? 0.45 : 1 }}><Avatar person={ddPerson(t)} size={18} /></span>)}
                           <span style={{ marginLeft: "auto", fontSize: 10.5 }} className={`badge ${DD_ORDER_STATUS[o.status].cls}`}>{o.status === "sent" ? `Đã xem ${o.ack.length}/${o.tally.length}` : DD_ORDER_STATUS[o.status].label}</span>

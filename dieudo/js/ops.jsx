@@ -297,7 +297,7 @@ const DdApprovalsScreen = ({ go, ctx }) => {
                 </div>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: 10, padding: "0 18px 12px" }}>
-                {[["Mục tiêu ca", `${tlFmt(o.target || 0)} ${u}`, o.equip?.join(", ")], ["Đã ghi trong ca", `${tlFmt(caSum)} ${u}`, `${pct}% mục tiêu · đã duyệt ${tlFmt(okSum)} ${u}`], ["Luỹ kế job", `${tlFmt(j.actual)} / ${tlFmt(j.plan)} ${u}`, `${Math.round(j.actual / j.plan * 100)}% kế hoạch · ${j.from} → ${j.to}`], ["Lượt cập · sà lan", calls.length ? calls.join(", ") : "Chưa có lượt cập", [...new Set(g.recs.map(r => r.plate))].join(", ")]].map(([l, v, d]) => (
+                {[["Mục tiêu ca", ddTargetTxt(o, u), o.equip?.join(", ")], ["Đã ghi trong ca", `${tlFmt(caSum)} ${u}`, `${o.target > 0 ? `${pct}% mục tiêu · ` : ""}đã duyệt ${tlFmt(okSum)} ${u}`], ["Luỹ kế job", `${tlFmt(j.actual)} / ${tlFmt(j.plan)} ${u}`, `${Math.round(j.actual / j.plan * 100)}% kế hoạch · ${j.from} → ${j.to}`], ["Lượt cập · sà lan", calls.length ? calls.join(", ") : "Chưa có lượt cập", [...new Set(g.recs.map(r => r.plate))].join(", ")]].map(([l, v, d]) => (
                   <div key={l} style={{ border: "1px solid var(--line)", borderRadius: "var(--r-sm)", padding: "8px 12px" }}><div className="muted" style={{ fontSize: 11.5 }}>{l}</div><div className="mono" style={{ fontSize: 14, fontWeight: 600, marginTop: 2 }}>{v}</div><div className="muted" style={{ fontSize: 11 }}>{d}</div></div>))}
               </div>
               <div className="tbl-wrap"><table className="tbl">

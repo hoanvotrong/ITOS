@@ -175,7 +175,7 @@ const TlPhone = ({ me, offline, onChange }) => {
             </div>
             <div className="tl-big">{ddCusShort(j.customer)} · {j.kind === "cont" ? `Cont ${Object.keys(ddDirCount(j)).length > 1 ? "hỗn hợp" : DD_DIR_SHORT[j.contDir]}` : j.cargo}</div>
             <div className="tl-muted">{ddSvc(j.service).label} · {ddLoc(j)}</div>
-            <div className="tl-muted">Mục tiêu ca: <b>{ddQty(ord.target, ddUnit(j))} {ddUnit(j)}</b></div>
+            <div className="tl-muted">Mục tiêu ca: <b>{ord.target > 0 ? ddTargetTxt(ord, ddUnit(j)) : "chưa đặt"}</b></div>
           </button>); })}
       </div>
     </>);
@@ -183,16 +183,16 @@ const TlPhone = ({ me, offline, onChange }) => {
 
   /* ---------- ORDER ---------- */
   if (st.s === "order" && o) {
-    const pct = Math.min(100, Math.round(caTotal / o.target * 100));
+    const pct = o.target > 0 ? Math.min(100, Math.round(caTotal / o.target * 100)) : null; /* lệnh không đặt mục tiêu: không tính % */
     const last = myRecs[myRecs.length - 1];
     const left = job.kind === "cont" ? job.conts.filter(c => c.status !== "done").length : null;
     body = (<>
       <Bar title={`${ddCusShort(job.customer)} · ${DD_SHIFTS[o.shift - 1].label}`} sub={`${o.id} · ${ddSvc(job.service).label}`} back={() => go("home")} />
       <div className="tl-scroll">
         <div className="tl-progress">
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}><span>Sản lượng ca</span><b>{pct}%</b></div>
-          <div className="tl-num">{tlFmt(caTotal, unit)} <small>/ {ddQty(o.target, unit)} {unit}</small></div>
-          <div className="tl-track"><div style={{ width: pct + "%" }}></div></div>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}><span>Sản lượng ca</span><b>{pct != null ? `${pct}%` : "không đặt mục tiêu"}</b></div>
+          <div className="tl-num">{tlFmt(caTotal, unit)} <small>{pct != null ? `/ ${ddTargetTxt(o, unit)}` : unit}</small></div>
+          {pct != null && <div className="tl-track"><div style={{ width: pct + "%" }}></div></div>}
           <div style={{ fontSize: 12, opacity: .85, marginTop: 6 }}>Lũy kế job: {tlFmt(job.actual, unit)} / {ddQty(job.plan, unit)} {unit}{left != null ? ` · còn ${left} cont` : ""}</div>
         </div>
         {o.note && <div className="tl-note"><b>Chỉ dẫn KHTH:</b> {o.note}</div>}
