@@ -2,7 +2,7 @@
    Sơ đồ vẽ lại từ bản vẽ "MB BÃI ICD 25.09.2026 - PA2" (repo ITOS, screens-hungthai.jsx):
    5 khu A–E, 81 block, sức chứa thiết kế 12.386 TEU.
    Vị trí cont: Block – Hàng (bay) – Cột (1..4) – Tầng (1..4). Cont 40' chiếm 2 hàng liền nhau.
-   Giả định cần xác nhận: 4 cột × tối đa 4 tầng mỗi hàng; block lạnh B1–B3; khu E chỉ cont rỗng.
+   Đã chốt (25/11): tối đa 5 tầng. Giả định cần xác nhận: 4 cột mỗi hàng; block lạnh B1–B3; khu E chỉ cont rỗng.
    Hệ thống là nơi ghi vị trí chính (phương án A) — xếp bãi, đảo chuyển ghi tại đây. */
 
 const YD_YARDS = {
@@ -12,7 +12,7 @@ const YD_YARDS = {
   D: { name: "Bãi 4", zone: "Khu D", cap: 5746 },
   E: { name: "Bãi depot", zone: "Khu E", cap: 922 },
 };
-const YD_LANES = 4, YD_TIERS = 4;
+const YD_LANES = 4, YD_TIERS = 5; /* 5 tầng (chốt 25/11) */
 const YD_REEFER = ["B1", "B2", "B3"];
 
 const YD_BLOCKS = (() => {
@@ -364,7 +364,7 @@ const DdYardMapScreen = ({ go }) => {
         )}
         {tab === "vas" && <DdYardScreen go={go} embed />}
       </div>
-      <div className="muted" style={{ fontSize: 11.5, marginTop: 8 }}>Sức chứa theo bản vẽ thiết kế. Giả định cần xác nhận: mỗi hàng 4 cột, tối đa 4 tầng; block lạnh B1–B3; khu E chỉ cont rỗng (OI-KT-20…22). Dữ liệu cont nền là mẫu để minh hoạ.</div>
+      <div className="muted" style={{ fontSize: 11.5, marginTop: 8 }}>Sức chứa theo bản vẽ thiết kế. Tối đa 5 tầng. Giả định cần xác nhận: mỗi hàng 4 cột; block lạnh B1–B3; khu E chỉ cont rỗng (OI-KT-20…22).</div>
       <KdToast text={toast} />
     </div>
   );
