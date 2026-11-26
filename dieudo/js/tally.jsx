@@ -530,9 +530,23 @@ const TlPhone = ({ me, offline, onChange }) => {
       <div className="tl-tabs">
         <button className={st.tab === "place" ? "on" : ""} onClick={() => go("yard", { ...st, tab: "place" })}>Hạ bãi ({pending.length})</button>
         <button className={st.tab === "move" ? "on" : ""} onClick={() => go("yard", { ...st, tab: "move" })}>Đảo chuyển</button>
+        {typeof DD_YARD_MOVES !== "undefined" && <button className={st.tab === "lc" ? "on" : ""} onClick={() => go("yard", { ...st, tab: "lc" })}>Lệnh LC ({DD_YARD_MOVES.filter(l => l.status === "open").length})</button>}
       </div>
       <div className="tl-scroll">
-        {st.tab === "place" ? (<>
+        {st.tab === "lc" ? (<>
+          <div className="tl-note">Lệnh luân chuyển do văn phòng tạo. Chuyển cont xong bấm <b>Đã chuyển</b> — cont tầng trên làm trước.</div>
+          {DD_YARD_MOVES.filter(l => l.status === "open").length === 0 && <div className="tl-empty">Không có lệnh luân chuyển đang mở</div>}
+          {DD_YARD_MOVES.filter(l => l.status === "open").map(lc => (
+            <div key={lc.id} style={{ marginBottom: 14 }}>
+              <div style={{ fontWeight: 700, margin: "6px 2px" }}><span className="mono">{lc.id}</span> → {ydLcTarget(lc)}{lc.truck ? <span className="tl-muted"> · xe {lc.truck}</span> : null}<div className="tl-muted">{lc.items.filter(i => i.to).length}/{lc.items.filter(i => !i.skip).length} cont{lc.note ? ` · ${lc.note}` : ""}</div></div>
+              {lc.items.filter(i => !i.skip).map(it => { const c = DD_CONT_REG[it.no] || {}; const top = !it.to && c.pos ? (ydReindex(), ydBlocked(c)) : null; return (
+                <div key={it.no} className="tl-rec" style={{ opacity: it.to ? .55 : 1 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}><b className="mono">{tlContFmt(it.no)}</b><div className="tl-muted">{c.type} · {it.from} → <b>{it.to || (it.plan ? ydLocStr(it.plan) : "—")}</b>{top ? ` · bị ${tlContFmt(top)} đè` : ""}</div></div>
+                  {it.to ? <span className="tl-muted">✓ {(it.at || "").slice(-5)}</span>
+                    : <button className="tl-link" disabled={!!top} onClick={() => { const w = ydLcDo(lc, it.no, me.id); onChange(); toast(w || `${tlContFmt(it.no)} → ${DD_CONT_REG[it.no].loc}`); }}>Đã chuyển</button>}
+                </div>); })}
+            </div>))}
+        </>) : st.tab === "place" ? (<>
           <div className="tl-note">Chọn <b>vị trí</b> trước, sau đó chọn cont trong danh sách "chưa có vị trí" (đã gate in) và bấm Xác nhận hạ bãi.</div>
           <button className="tl-main" disabled={!pending.length || !YDOK} onClick={() => go("ypos", { order: o.id, mode: "place", b: null })}>CHỌN VỊ TRÍ HẠ BÃI<small>{pending.length} cont đang chờ</small></button>
           {pending.slice(0, 12).map(c => <div key={c.no} className="tl-rec"><div style={{ flex: 1 }}><b className="mono">{tlContFmt(c.no)}</b><div className="tl-muted">{c.type} · {c.fe === "F" ? "Hàng" : "Rỗng"} · {c.line} · gate in {(c.gateInAt || "").slice(-5)}</div></div></div>)}

@@ -1,7 +1,7 @@
 /* Điều độ khai thác — Bãi container: sơ đồ bãi ICD VNL
    Sơ đồ vẽ lại từ bản vẽ "MB BÃI ICD 25.09.2026 - PA2" (repo ITOS, screens-hungthai.jsx):
    5 khu A–E, 81 block, sức chứa thiết kế 12.386 TEU.
-   Vị trí cont: Block – Hàng (bay) – Cột (1..4) – Tầng (1..4). Cont 40' chiếm 2 hàng liền nhau.
+   Vị trí cont: Block – Hàng (bay) – Cột (1..4) – Tầng (1..5). Cont 40' chiếm 2 hàng liền nhau.
    Đã chốt (25/11): tối đa 5 tầng. Giả định cần xác nhận: 4 cột mỗi hàng; block lạnh B1–B3; khu E chỉ cont rỗng.
    Hệ thống là nơi ghi vị trí chính (phương án A) — xếp bãi, đảo chuyển ghi tại đây. */
 
@@ -229,6 +229,8 @@ const DdYardMapScreen = ({ go }) => {
   const [focus, setFocus] = React.useState(null);
   const [view, setView] = React.useState("");
   const [f, setF] = React.useState({ line: "", customer: "", fe: "", kind: "", dwell: 0, job: "" });
+  const [hist, setHist] = React.useState(null);   /* số cont đang xem lịch sử */
+  const [moving, setMoving] = React.useState(null); /* { conts, done } — luân chuyển nhiều cont */
   ydReindex();
   const inYard = ydInYard();
   const pending = Object.values(DD_CONT_REG).filter(c => c.inPort && !c.pos);
@@ -251,6 +253,10 @@ const DdYardMapScreen = ({ go }) => {
     if (!c.pos) { setTab("pending"); setSel(c.no); return flash("Cont đang chờ xếp bãi"); }
     setTab("map"); setPick(c.pos.b); setTier(c.pos.tier); setSel(c.no); setFocus(c.pos.b); setView(YD_BLK[c.pos.b].yard); setTimeout(() => setFocus(null), 4000);
   };
+  const locate = (c) => { if (!c || !c.pos) return; setTab("map"); setPick(c.pos.b); setTier(c.pos.tier); setSel(c.no); setFocus(c.pos.b); setView(YD_BLK[c.pos.b].yard); setTimeout(() => setFocus(null), 4000); };
+  const openLc = DD_YARD_MOVES.filter(l => l.status === "open").length;
+  const hlTxt = [f.line && `hãng ${f.line}`, f.customer && `KH ${ddCusShort(f.customer)}`, f.fe && (f.fe === "F" ? "hàng" : "rỗng"), f.kind && (f.kind === "rf" ? "cont lạnh" : "cont khô"), f.dwell && `lưu ≥ ${f.dwell} ngày`, f.job].filter(Boolean).join(" · ");
+  const exportMap = (blocks, name) => ydExportMap({ blocks, name, hlFn, filterTxt: hlTxt }).then(r => flash(`Đã xuất sơ đồ ${name}: ${r.conts} cont · ${r.sheets} sheet`), e => flash(e.message || "Không xuất được"));
   const startPlace = (c, b) => { setPlacing(c); setSel(c.no); const s = ydSuggest(c, 1)[0]; const blk = b || (s && s.b); if (blk) { setPick(blk); setView(YD_BLK[blk].yard); setTier((ydFirstFree(c, blk) || { tier: 1 }).tier); } setTab("map"); };
   const doPlace = (pos) => {
     const c = placing; const moving = !!c.pos;
@@ -265,10 +271,11 @@ const DdYardMapScreen = ({ go }) => {
   return (
     <div className="page" style={{ maxWidth: 1560 }}>
       <div className="page-head">
-        <div><h1 style={{ display: "flex", alignItems: "center", gap: 10 }}><Icon name="grid" size={20}/>Bãi container</h1><div className="sub">Sơ đồ bãi ICD VNL theo bản vẽ MB BÃI ICD 25.09.2026 · xem, tìm cont (hạ bãi, đảo chuyển do tally làm trên App Tally) · cont · hệ thống là nơi ghi vị trí chính</div></div>
+        <div><h1 style={{ display: "flex", alignItems: "center", gap: 10 }}><Icon name="grid" size={20}/>Bãi container</h1><div className="sub">Sơ đồ bãi ICD VNL theo bản vẽ MB BÃI ICD 25.09.2026 · danh sách cont, lịch sử di chuyển, luân chuyển cont, báo cáo tồn bãi · hệ thống là nơi ghi vị trí chính</div></div>
         <div className="actions">
           <div className="search" style={{ margin: 0, width: 260 }}><Icon name="search" size={14} className="muted"/><input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === "Enter" && find()} placeholder="Tìm số cont (≥ 4 ký tự), Enter" /></div>
           <button className="btn" onClick={find}>Tìm</button>
+          <button className="btn" title="Tra lịch sử cả cont đã ra khỏi cảng" onClick={() => { const k = q.toUpperCase().replace(/[s.-]/g, ""); const no = k.length >= 4 && (Object.keys(DD_CONT_REG).find(n => n === k) || Object.keys(DD_CONT_REG).find(n => n.includes(k)) || (DD_GATE_LOG.find(g => g.no.includes(k)) || {}).no); no ? setHist(no) : flash("Không tìm thấy cont trong dữ liệu"); }}>Lịch sử</button>
         </div>
       </div>
 
@@ -289,7 +296,10 @@ const DdYardMapScreen = ({ go }) => {
       )}
 
       <div className="card">
-        <DdTabs tab={tab} setTab={setTab} tabs={[["map", "Sơ đồ bãi", YD_BLOCKS.length], ["pending", "Chờ xếp bãi", pending.length], ["vas", "Dịch vụ cộng thêm", DD_VAS.length]]} />
+        <DdTabs tab={tab} setTab={setTab} tabs={[["map", "Sơ đồ bãi", YD_BLOCKS.length], ["list", "Danh sách cont", inYard.length + pending.length], ["pending", "Chờ xếp bãi", pending.length], ["lc", "Lệnh luân chuyển", openLc], ["report", "Báo cáo tồn bãi", null], ["vas", "Dịch vụ cộng thêm", DD_VAS.length]]} />
+        {tab === "list" && <DdYardList flash={flash} onLocate={locate} onHistory={setHist} onMove={(conts, done) => setMoving({ conts, done })} />}
+        {tab === "lc" && <DdYardLcList flash={flash} refresh={refresh} onHistory={setHist} />}
+        {tab === "report" && <DdYardReport flash={flash} onHistory={setHist} />}
         {tab === "map" && (
           <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 470px", minHeight: 640 }}>
             <div style={{ borderRight: "1px solid var(--line)", display: "flex", flexDirection: "column" }}>
@@ -303,6 +313,7 @@ const DdYardMapScreen = ({ go }) => {
                 <select className="select" style={{ height: 30, fontSize: 12, width: 140 }} value={f.job} onChange={e => setF(s => ({ ...s, job: e.target.value }))}><option value="">Job</option>{jobs.map(j => <option key={j.id} value={j.id}>{j.id}</option>)}</select>
                 {hlOn && <button className="btn btn-sm ghost" onClick={() => setF({ line: "", customer: "", fe: "", kind: "", dwell: 0, job: "" })}>Bỏ lọc</button>}
                 {hlOn && <span style={{ fontSize: 12, fontWeight: 600 }}>{inYard.filter(hlFn).length} cont khớp</span>}
+                <button className="btn btn-sm" style={{ marginLeft: "auto" }} title="Excel: mỗi block 1 sheet (lưới hàng × cột theo tầng) + tổng hợp + danh sách cont" onClick={() => view ? exportMap(YD_BLOCKS.filter(b => b.yard === view).map(b => b.id).sort((a, b) => a.localeCompare(b, "en", { numeric: true })), YD_YARDS[view].zone) : exportMap(YD_BLOCKS.map(b => b.id).sort((a, b) => a.localeCompare(b, "en", { numeric: true })), "Toàn bãi")}><Icon name="download" size={13}/> Xuất sơ đồ {view ? YD_YARDS[view].zone : "toàn bãi"}</button>
               </div>
               <div style={{ position: "relative" }}>
                 <div className="row" style={{ position: "absolute", top: 8, left: 8, gap: 4, zIndex: 2, flexWrap: "wrap" }}>
@@ -319,7 +330,7 @@ const DdYardMapScreen = ({ go }) => {
               {blk && (<>
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                    <h3 style={{ margin: 0, fontSize: 18 }} className="mono">Block {blk.id}</h3>
+                    <h3 style={{ margin: 0, fontSize: 18, display: "flex", alignItems: "center", gap: 8 }} className="mono">Block {blk.id}<button className="btn btn-sm" style={{ fontFamily: "inherit" }} onClick={() => exportMap([blk.id], `Block ${blk.id}`)}><Icon name="download" size={12}/> Xuất</button></h3>
                     <span className="muted" style={{ fontSize: 12 }}>{YD_YARDS[blk.yard].zone} · {ydKind(blk.id)}</span>
                   </div>
                   <div style={{ fontSize: 12.5, marginTop: 4 }}><b>{stats[blk.id].teu}</b> / {blk.cap} TEU · {stats[blk.id].n} cont · {Math.round(stats[blk.id].pct * 100)}% · {blk.rows} hàng</div>
@@ -342,7 +353,9 @@ const DdYardMapScreen = ({ go }) => {
                     <span className="muted">Dịch vụ</span><span>{DD_VAS.filter(v => v.no === selC.no).map(v => `${v.type} ×${v.qty}`).join(", ") || "—"}</span>
                   </div>
                   <div className="row" style={{ gap: 8, marginTop: 10 }}>
-                    <span className="muted" style={{ fontSize: 11.5 }}>Đảo chuyển: tally làm trên App Tally › Bãi cont</span>
+                    <button className="btn btn-sm" onClick={() => setHist(selC.no)}>Lịch sử đầy đủ</button>
+                    {ydCanMove() && selC.inPort && !ydOpenLc(selC.no) && <button className="btn btn-sm accent" onClick={() => setMoving({ conts: [selC] })}>Luân chuyển</button>}
+                    {ydOpenLc(selC.no) && <span style={{ fontSize: 11.5, color: "var(--st-warning)" }}>Đang trong lệnh {ydOpenLc(selC.no).id}</span>}
                     {ydBlocked(selC) && <span style={{ fontSize: 11.5, color: "var(--st-warning)" }}>Có cont đè phía trên: {tlContFmt(ydBlocked(selC))}</span>}
                   </div>
                   <div className="muted" style={{ fontSize: 11.5, marginTop: 10, marginBottom: 4 }}>Lịch sử di chuyển</div>
@@ -362,12 +375,14 @@ const DdYardMapScreen = ({ go }) => {
                 <td style={{ fontSize: 12 }}>{c.customer ? ddCusShort(c.customer) : "—"}<div className="muted mono" style={{ fontSize: 11 }}>{c.job || ""}</div></td>
                 <td style={{ fontSize: 12 }}>{c.gateInAt}<div className="muted" style={{ fontSize: 11 }}>{c.via}</div></td>
                 <td style={{ fontSize: 12 }}>{ydSuggest(c).map(s => s.b).join(" · ") || <span style={{ color: "var(--st-danger)" }}>Hết chỗ phù hợp</span>}</td>
-                <td><span className="muted" style={{ fontSize: 11.5 }}>Tally hạ bãi trên App Tally</span></td></tr>)}
+                <td><button className="btn btn-sm ghost" onClick={() => setHist(c.no)}>Lịch sử</button></td></tr>)}
             </tbody></table></div>
         )}
         {tab === "vas" && <DdYardScreen go={go} embed />}
       </div>
       <div className="muted" style={{ fontSize: 11.5, marginTop: 8 }}>Sức chứa theo bản vẽ thiết kế. Tối đa 5 tầng. Giả định cần xác nhận: mỗi hàng 4 cột; block lạnh B1–B3; khu E chỉ cont rỗng (OI-KT-20…22).</div>
+      {hist && <DdContHistory no={hist} onClose={() => setHist(null)} onLocate={locate} />}
+      {moving && <DdYardMoveModal conts={moving.conts} onClose={() => setMoving(null)} onDone={(m) => { moving.done && moving.done(); setMoving(null); setSel(null); refresh(); flash(m); }} />}
       <KdToast text={toast} />
     </div>
   );
