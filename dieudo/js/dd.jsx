@@ -93,6 +93,8 @@ const ddLineFrom = (line) => { const U = line.toUpperCase(); const full = DD_LIN
 const ddDirToken = (t) => ({ XT: "direct", "XUẤT THẲNG": "direct", "XUAT THANG": "direct", XB: "export", "XUẤT BÃI": "export", NB: "import", "NHẬP BÃI": "import", "LƯU BÃI": "import", "NHẬP LƯU BÃI": "import" })[t] || null;
 /* Danh sách cont theo mẫu KHTH: STT · Mã Container · Mã ISO · Loại Cont · Hiện trạng · Khối lượng · Cảng đích ICD · Hãng Conts · Số seal · Thời gian · Số xe · Ghi chú */
 Object.assign(DD_ISO_MAP, { "45GP": "40HC", "42GP": "40GP", "22GP": "20GP", "45RT": "40RF", "22RT": "20RF", "45R0": "40RF", "22R0": "20RF" });
+/* Cont 45' thật: mã ISO bắt đầu bằng L (L5G1, L5GP…). 45G1 / 45GP là 40' cao (4 = dài 40', 5 = cao 9'6") → 40HC */
+Object.assign(DD_ISO_MAP, { "L5G1": "45HC", "L5GP": "45HC", "L5G0": "45HC", "LEG1": "45HC", "L5R1": "45HC", "45HC": "45HC" });
 const DD_FE_TOKEN = { F: "F", FULL: "F", FCL: "F", LADEN: "F", "HÀNG": "F", E: "E", MTY: "E", EMPTY: "E", MT: "E", "RỖNG": "E" };
 const DD_CONT_TPL = ["STT", "Mã Container", "Mã ISO", "Loại Cont", "Hiện trạng", "Khối lượng", "Cảng đích ICD", "Hãng Conts", "Số seal", "Tình trạng cont", "Mã booking", "Thời gian", "Số xe", "Ghi chú"];
 const ddNoAcc = (t) => String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
@@ -599,6 +601,75 @@ const DdJobNewScreen = ({ go }) => {
 };
 
 /* ================= CHI TIẾT JOB ================= */
+/* ---------- Sửa job (pilot 25/11) ----------
+   Sửa được: tên hàng, thời gian, bến, vị trí chi tiết, tàu/phương tiện, KHTH phụ trách, ghi chú;
+   hàng rời: khối lượng kế hoạch, cách ghi nhận mặc định, đơn vị (chỉ khi chưa có ghi nhận);
+   hàng cont: loại / booking / tình trạng của cont chưa xong.
+   Không sửa: khách hàng, dịch vụ, loại hàng hoá (gắn với HĐ và dữ liệu đã ghi). Mọi thay đổi ghi nhật ký job. */
+const DdJobEditPanel = ({ j, hasRec, onDone, onCancel }) => {
+  const [f, setF] = React.useState({ cargo: j.cargo || "", unit: j.unit || "tấn", plan: j.plan || 0, measure: ddMeasure(j), from: ddIso(j.from), to: ddIso(j.to),
+    location: j.location || "", yard: j.yard || "", vessel: j.vessel && j.vessel !== "—" ? j.vessel : "", owner: j.owner || "", note: j.note || "" });
+  const [ct, setCt] = React.useState({}); /* sửa từng cont: { [no]: { type, booking, cond } } */
+  const [reason, setReason] = React.useState("");
+  const set = (k, v) => setF(x => ({ ...x, [k]: v }));
+  const isCont = j.kind === "cont";
+  const openConts = isCont ? j.conts.filter(c => !ddContDone(c, j) && !c.closedAs) : [];
+  const fromD = ddFromIso(f.from), toD = ddFromIso(f.to);
+  const locs = [...new Set([...ddLocOptions(j.service), j.location].filter(Boolean))];
+  const khth = DD_PEOPLE.filter(p => ["KHTH", "TP"].includes(p.appRole) || p.id === j.owner);
+  const changes = [];
+  const chg = (label, a, b) => { if (String(a ?? "") !== String(b ?? "")) changes.push(`${label}: ${a || "—"} → ${b || "—"}`); };
+  chg("Tên hàng", j.cargo, f.cargo.trim());
+  if (!isCont) { chg("Đơn vị", j.unit, f.unit); if (Number(j.plan) !== Number(f.plan)) changes.push(`Khối lượng kế hoạch: ${ddQty(j.plan, j.unit)} → ${ddQty(f.plan, f.unit)} ${f.unit}`); chg("Cách ghi nhận mặc định", DD_MEASURE[ddMeasure(j)], DD_MEASURE[f.measure]); }
+  chg("Từ ngày", j.from, fromD); chg("Đến ngày", j.to, toD); chg("Bến", j.location, f.location); chg("Vị trí chi tiết", j.yard, f.yard.trim());
+  chg("Tàu / phương tiện", j.vessel && j.vessel !== "—" ? j.vessel : "", f.vessel.trim()); chg("KHTH phụ trách", ddPerson(j.owner).name, ddPerson(f.owner).name); chg("Ghi chú", j.note, f.note.trim());
+  const contChanges = Object.entries(ct).map(([no, v]) => { const c = j.conts.find(x => x.no === no); const d = []; if (v.type !== undefined && v.type !== c.type) d.push(`loại ${c.type} → ${v.type}`); if (v.booking !== undefined && (v.booking || "") !== (c.booking || "")) d.push(`booking ${c.booking || "—"} → ${v.booking || "—"}`); if (v.cond !== undefined && (v.cond || "") !== (c.cond || "")) d.push(`tình trạng ${c.cond || "—"} → ${v.cond || "—"}`); return d.length ? { no, v, text: `${tlContFmt(no)}: ${d.join(", ")}` } : null; }).filter(Boolean);
+  const err = (!isCont && !f.cargo.trim()) ? "Thiếu tên hàng" : (!isCont && !(f.plan > 0)) ? "Khối lượng kế hoạch phải > 0" : !f.from || !f.to || ddD(fromD) > ddD(toD) ? "Thời gian không hợp lệ" : null;
+  const needReason = j.status !== "planned";
+  const total = changes.length + contChanges.length;
+  const save = () => {
+    j.cargo = f.cargo.trim(); j.from = fromD; j.to = toD; j.location = f.location; j.yard = f.yard.trim(); j.vessel = f.vessel.trim() || "—"; j.owner = f.owner; j.note = f.note.trim();
+    if (!isCont) { j.unit = f.unit; j.plan = f.plan; j.measure = f.measure; }
+    contChanges.forEach(({ no, v }) => { const c = j.conts.find(x => x.no === no); if (v.type) c.type = v.type; if (v.booking !== undefined) c.booking = v.booking || null; if (v.cond !== undefined) c.cond = v.cond || null; });
+    ddJobLog(j, `Sửa job: ${[...changes, ...contChanges.map(x => x.text)].join("; ")}${reason.trim() ? ` · lý do: ${reason.trim()}` : ""}`);
+    onDone(`Đã sửa ${total} mục`);
+  };
+  const F = ({ label, children, wide }) => <div className="field" style={{ gridColumn: wide ? "1 / -1" : undefined, marginBottom: 0 }}><label>{label}</label>{children}</div>;
+  return (
+    <div>
+      <b>Sửa job</b> <span className="muted">· khách hàng, dịch vụ, loại hàng hoá không sửa được</span>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10, marginTop: 10 }}>
+        {F({ label: isCont ? "Mô tả hàng" : "Tên hàng *", wide: true, children: <input className="input" value={f.cargo} onChange={e => set("cargo", e.target.value)} /> })}
+        {!isCont && F({ label: `Đơn vị${hasRec ? " (đã có ghi nhận — không đổi)" : ""}`, children: <select className="select" disabled={hasRec} value={f.unit} onChange={e => setF(x => ({ ...x, unit: e.target.value, measure: ddMeasureOpts(j.service, e.target.value)[0] }))}>{DD_UNITS.map(u => <option key={u}>{u}</option>)}</select> })}
+        {!isCont && F({ label: `Khối lượng kế hoạch (${f.unit}) *`, children: <DdQtyInput className="input mono" value={f.plan} onChange={v => set("plan", v)} /> })}
+        {!isCont && F({ label: "Cách ghi nhận mặc định", children: <select className="select" value={f.measure} onChange={e => set("measure", e.target.value)}>{ddMeasureOpts(j.service, f.unit).map(m => <option key={m} value={m}>{DD_MEASURE[m]}</option>)}</select> })}
+        {F({ label: "Từ ngày", children: <input className="input" type="date" value={f.from} onChange={e => set("from", e.target.value)} /> })}
+        {F({ label: "Đến ngày", children: <input className="input" type="date" value={f.to} onChange={e => set("to", e.target.value)} /> })}
+        {F({ label: "Bến", children: <select className="select" value={f.location} onChange={e => set("location", e.target.value)}>{locs.map(x => <option key={x}>{x}</option>)}</select> })}
+        {F({ label: "Vị trí chi tiết", children: <input className="input" value={f.yard} onChange={e => set("yard", e.target.value)} /> })}
+        {F({ label: "Tàu / phương tiện của KH", children: <input className="input" value={f.vessel} onChange={e => set("vessel", e.target.value)} /> })}
+        {F({ label: "KHTH phụ trách", children: <select className="select" value={f.owner} onChange={e => set("owner", e.target.value)}>{khth.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select> })}
+        {F({ label: "Ghi chú", wide: true, children: <input className="input" value={f.note} onChange={e => set("note", e.target.value)} /> })}
+      </div>
+      {isCont && openConts.length > 0 && (<div style={{ marginTop: 12 }}>
+        <div className="muted" style={{ marginBottom: 4 }}>Cont chưa xong ({openConts.length}) — sửa loại / booking / tình trạng</div>
+        <div style={{ border: "1px solid var(--line)", borderRadius: 6, maxHeight: 240, overflow: "auto" }}><table className="tbl"><thead><tr><th>Số cont</th><th>Loại</th><th>Booking</th><th>Tình trạng</th></tr></thead>
+          <tbody>{openConts.map(c => { const v = ct[c.no] || {}; const up = (k, val) => setCt(x => ({ ...x, [c.no]: { ...(x[c.no] || {}), [k]: val } })); return (
+            <tr key={c.no}><td className="mono" style={{ fontSize: 12 }}>{tlContFmt(c.no)}</td>
+              <td><select className="select" style={{ height: 26, fontSize: 11.5, width: 80 }} value={v.type ?? c.type} onChange={e => up("type", e.target.value)}>{[...new Set([...DD_CONT_TYPES, c.type])].map(t => <option key={t}>{t}</option>)}</select></td>
+              <td><input className="input mono" style={{ height: 26, fontSize: 11.5, width: 130 }} value={v.booking ?? (c.booking || "")} onChange={e => up("booking", e.target.value.toUpperCase().replace(/\s+/g, ""))} /></td>
+              <td><input className="input" style={{ height: 26, fontSize: 11.5, width: 130 }} value={v.cond ?? (c.cond || "")} onChange={e => up("cond", e.target.value)} /></td></tr>); })}</tbody></table></div>
+      </div>)}
+      {needReason && <div className="field" style={{ marginTop: 10, marginBottom: 0 }}><label>Lý do sửa <span className="req">*</span> <span className="opt">— job đang thực hiện</span></label><input className="input" value={reason} onChange={e => setReason(e.target.value)} placeholder="VD: KH đổi tàu; bổ sung booking" /></div>}
+      <div className="row" style={{ gap: 8, marginTop: 10, alignItems: "center" }}>
+        <span className="muted" style={{ flex: 1 }}>{err ? <span style={{ color: "var(--st-danger)" }}>{err}</span> : total ? `${total} thay đổi sẽ ghi vào nhật ký job` : "Chưa có thay đổi"}</span>
+        <button className="btn ghost btn-sm" onClick={onCancel}>Huỷ</button>
+        <button className="btn primary btn-sm" disabled={!!err || !total || (needReason && !reason.trim())} onClick={save}>Lưu thay đổi</button>
+      </div>
+    </div>
+  );
+};
+
 const DdJobDetailScreen = ({ go, ctx }) => {
   const j = DD_JOBS.find(x => x.id === ctx?.id) || DD_JOBS[0];
   const [, force] = React.useState(0);
@@ -658,6 +729,7 @@ const DdJobDetailScreen = ({ go, ctx }) => {
             <span className="tag">{j.id}</span><DdBadge map={DD_JOB_STATUS} s={j.status} />{!j.contract && <DdNoHd job={j} />}
             <div style={{ flex: 1 }}></div>
             {j.status === "planned" && <span className="muted" style={{ fontSize: 11.5 }}>Tự chuyển Đang thực hiện khi tally ghi nhận lần đầu</span>}
+            {live && ddCan("KHTH", "TP") && <button className="btn btn-sm" onClick={() => setPanel(panel === "edit" ? null : "edit")}><Icon name="document" size={12}/> Sửa job</button>}
             {live && <button className="btn btn-sm" onClick={() => { setPanel(panel === "ext" ? null : "ext"); setExtTo(""); }}><Icon name="schedule" size={12}/> Gia hạn</button>}
             {j.status === "running" && j.kind !== "cont" && <button className="btn btn-sm" onClick={() => { j.status = "done"; log("Đánh dấu hoàn thành · mã tài xế hết hiệu lực"); ddCloseJobShifts(j); refresh(); flash("Job hoàn thành — chờ chốt sản lượng"); }}><Icon name="check" size={12}/> Đánh dấu hoàn thành</button>}
             {j.status === "running" && j.kind === "cont" && left.length > 0 && <button className="btn btn-sm" onClick={() => { setPanel(panel === "early" ? null : "early"); setWhy(""); }}><Icon name="check" size={12}/> Đóng sớm</button>}
@@ -668,6 +740,7 @@ const DdJobDetailScreen = ({ go, ctx }) => {
           {overdue && panel !== "ext" && <div style={{ marginBottom: 12, padding: "10px 12px", borderRadius: 8, background: "var(--st-warning-bg)", fontSize: 12.5 }}>Đã quá ngày kết thúc kế hoạch ({j.to}). KHTH gia hạn hoặc {j.kind === "cont" ? "đóng sớm" : "đánh dấu hoàn thành"} — hệ thống nhắc mỗi ngày, không tự gia hạn.</div>}
           {panel && (
             <div style={{ marginBottom: 14, padding: 12, border: "1px solid var(--line)", borderRadius: 8, background: "var(--bg-canvas)", fontSize: 12.5 }}>
+              {panel === "edit" && <DdJobEditPanel j={j} hasRec={hasRec} onCancel={() => setPanel(null)} onDone={(m) => { setPanel(null); refresh(); flash(m); }} />}
               {panel === "ext" && <div className="row" style={{ gap: 8, flexWrap: "wrap" }}><b>Gia hạn đến ngày</b><input className="input" type="date" style={{ width: 160, height: 30 }} value={extTo} onChange={e => setExtTo(e.target.value)} />
                 <button className="btn primary btn-sm" disabled={!extTo || ddD(ddFromIso(extTo)) <= ddD(j.to)} onClick={() => { const nt = ddFromIso(extTo); log(`Gia hạn: ${j.to} → ${nt}`); j.to = nt; setPanel(null); refresh(); flash(`Đã gia hạn đến ${nt}`); }}>Lưu</button><button className="btn btn-sm ghost" onClick={() => setPanel(null)}>Thôi</button></div>}
               {panel === "early" && <div><b>Đóng sớm job</b> · còn {left.length} cont chưa làm<div className="row" style={{ gap: 8, marginTop: 8, flexWrap: "wrap" }}>
@@ -707,7 +780,7 @@ const DdJobDetailScreen = ({ go, ctx }) => {
                       <td style={{ fontSize: 12.5 }}>{o.tally.map(t => ddPerson(t).name).join(", ")}</td>
                       <td style={{ fontSize: 12 }}>{o.equip.join(", ") || "—"}</td>
                       <td style={{ fontSize: 12, minWidth: 200 }}><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>{(o.vehicles || []).length + (o.extraVeh || []).length} xe{(o.extraVeh || []).length ? ` · ${o.extraVeh.length} ngoài danh sách` : ""}</div><DdPlateList plates={[...(o.vehicles || []), ...(o.extraVeh || []).map(v => v.plate)]} /></td>
-                      <td className="mono" style={{ textAlign: "right", fontSize: 12 }}>{ddQty(o.target, ddUnit(j))}</td>
+                      <td className="mono" style={{ textAlign: "right", fontSize: 12 }}>{o.target > 0 ? ddQty(o.target, ddUnit(j)) : <span className="muted">—</span>}</td>
                       <td><DdBadge map={DD_ORDER_STATUS} s={o.status} /></td>
                     </tr>
                   ))}
@@ -856,7 +929,7 @@ const DdOrderModal = ({ init, onClose, onSaved }) => {
   const sentEdit = existing && existing.status !== "draft";
   const changed = existing && JSON.stringify({ ...existing, log: 0, ack: 0, status: 0 }) !== JSON.stringify({ ...f, log: 0, ack: 0, status: 0 });
   const noConts = job && job.kind === "cont" && !job.conts.length;
-  const valid = job && f.tally.length > 0 && f.target > 0 && (!sentEdit || !changed || reason.trim());
+  const valid = job && f.tally.length > 0 && (!sentEdit || !changed || reason.trim()); /* mục tiêu sản lượng ca: không bắt buộc (25/11) */
   const toggle = (k, v) => set(k, f[k].includes(v) ? f[k].filter(x => x !== v) : [...f[k], v]);
   const locked = existing && existing.status === "done";
 
@@ -865,7 +938,7 @@ const DdOrderModal = ({ init, onClose, onSaved }) => {
     if (existing.date !== f.date || existing.shift !== f.shift) out.push(`ngày/ca ${existing.date.slice(0, 5)} ${DD_SHIFTS[existing.shift - 1].label} → ${f.date.slice(0, 5)} ${DD_SHIFTS[f.shift - 1].label}`);
     const add = f.tally.filter(t => !existing.tally.includes(t)), rm = existing.tally.filter(t => !f.tally.includes(t));
     if (add.length || rm.length) out.push(`tally ${rm.map(t => "−" + ddPerson(t).short).concat(add.map(t => "+" + ddPerson(t).short)).join(" ")}`);
-    if (existing.target !== f.target) out.push(`mục tiêu ${ddQty(existing.target, ddUnit(job))} → ${ddQty(f.target, ddUnit(job))}`);
+    if (existing.target !== f.target) out.push(`mục tiêu ${ddTargetTxt(existing, ddUnit(job))} → ${ddTargetTxt(f, ddUnit(job))}`);
     if (JSON.stringify(existing.equip) !== JSON.stringify(f.equip)) out.push("thiết bị");
     if (JSON.stringify(existing.vehicles) !== JSON.stringify(f.vehicles)) out.push(`phương tiện ${f.vehicles.join(", ") || "—"}`);
     if (existing.note !== f.note) out.push("chỉ dẫn");
@@ -963,7 +1036,7 @@ const DdOrderModal = ({ init, onClose, onSaved }) => {
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>{DD_EQUIP.map(x => <Chip key={x} on={f.equip.includes(x)} onClick={() => toggle("equip", x)}><span style={{ width: 5 }}></span>{x}</Chip>)}</div>
           </div>
           <div className="field-row">
-            <div className="field"><label>Mục tiêu sản lượng ca ({ddUnit(job)}) <span className="req">*</span></label>
+            <div className="field"><label>Mục tiêu sản lượng ca ({ddUnit(job)}) <span className="opt">— không bắt buộc</span></label>
               <DdQtyInput className="input mono" disabled={locked} value={f.target} int={ddUnit(job) === "cont"} onChange={v => set("target", v)} />
             </div>
           </div>
@@ -1070,7 +1143,7 @@ const DdShiftsScreen = ({ go }) => {
                           <Icon name={ddSvc(j.service).icon} size={11}/>
                         </div>
                         <div style={{ fontSize: 12, fontWeight: 600, marginTop: 2 }}>{ddCusShort(j.customer)} {!j.contract && <span style={{ color: "var(--st-danger)", fontSize: 10.5 }}>· chưa HĐ</span>}</div>
-                        <div className="muted" style={{ fontSize: 11 }}>{j.cargo} · {ddQty(o.target, ddUnit(j))} {ddUnit(j)}</div>
+                        <div className="muted" style={{ fontSize: 11 }}>{j.cargo}{o.target > 0 ? ` · ${ddTargetTxt(o, ddUnit(j))}` : ""}</div>
                         <div style={{ display: "flex", alignItems: "center", marginTop: 5 }}>
                           {o.tally.map((t, i) => <span key={t} style={{ marginLeft: i ? -5 : 0, opacity: o.status === "sent" && !o.ack.includes(t) ? 0.45 : 1 }}><Avatar person={ddPerson(t)} size={18} /></span>)}
                           <span style={{ marginLeft: "auto", fontSize: 10.5 }} className={`badge ${DD_ORDER_STATUS[o.status].cls}`}>{o.status === "sent" ? `Đã xem ${o.ack.length}/${o.tally.length}` : DD_ORDER_STATUS[o.status].label}</span>

@@ -2,7 +2,7 @@
    Sơ đồ vẽ lại từ bản vẽ "MB BÃI ICD 25.09.2026 - PA2" (repo ITOS, screens-hungthai.jsx):
    5 khu A–E, 81 block, sức chứa thiết kế 12.386 TEU.
    Vị trí cont: Block – Hàng (bay) – Cột (1..4) – Tầng (1..4). Cont 40' chiếm 2 hàng liền nhau.
-   Giả định cần xác nhận: 4 cột × tối đa 4 tầng mỗi hàng; block lạnh B1–B3; khu E chỉ cont rỗng.
+   Đã chốt (25/11): tối đa 5 tầng. Giả định cần xác nhận: 4 cột mỗi hàng; block lạnh B1–B3; khu E chỉ cont rỗng.
    Hệ thống là nơi ghi vị trí chính (phương án A) — xếp bãi, đảo chuyển ghi tại đây. */
 
 const YD_YARDS = {
@@ -12,7 +12,7 @@ const YD_YARDS = {
   D: { name: "Bãi 4", zone: "Khu D", cap: 5746 },
   E: { name: "Bãi depot", zone: "Khu E", cap: 922 },
 };
-const YD_LANES = 4, YD_TIERS = 4;
+const YD_LANES = 4, YD_TIERS = 5; /* 5 tầng (chốt 25/11) */
 const YD_REEFER = ["B1", "B2", "B3"];
 
 const YD_BLOCKS = (() => {
@@ -185,18 +185,20 @@ function YdBayView({ b, tier, setTier, sel, onCont, placing, onSlot, hlFn }) {
               {Array.from({ length: blk.rows }, (_, bi) => bi + 1).map(bay => {
                 const no = ydAt(b, bay, lane, tier); const c = no && DD_CONT_REG[no];
                 const head = c && c.pos.bay === bay;
+                if (c && !head) return null; /* hàng thứ 2 của cont 40'/45': đã gộp vào khối của hàng đầu */
+                const L = c ? ydLen(c) : 1, is45 = c && (c.type || "").startsWith("45");
                 const why = placing && !no ? ydCheck(placing, b, bay, lane, tier) : "x";
                 const ok = placing && !no && !why;
                 const isSel = c && sel === c.no;
                 const bg = c ? (YD_LINE_COL[c.line] || "#64748B") : ok ? "#BBF7D0" : "#F1F5F9";
                 const dim = c && hlFn && !hlFn(c);
                 return (
-                  <div key={bay} title={c ? `${tlContFmt(c.no)} · ${c.type} · ${c.fe === "F" ? "Hàng" : "Rỗng"} · ${c.line}` : ok ? "Chọn ô này" : placing ? why : `${b}-${ydPad(bay)}-${lane}-${tier} · trống`}
+                  <div key={bay} title={c ? `${tlContFmt(c.no)} · ${c.type} · ${c.fe === "F" ? "Hàng" : "Rỗng"} · ${c.line} · ${ydLocStr(c.pos)}${L === 2 ? ` (chiếm hàng ${ydPad(bay)}–${ydPad(bay + 1)})` : ""}` : ok ? "Chọn ô này" : placing ? why : `${b}-${ydPad(bay)}-${lane}-${tier} · trống`}
                     onClick={() => c ? onCont(c.no) : ok && onSlot({ b, bay, lane, tier })}
-                    style={{ height: cell, borderRadius: 3, background: bg, opacity: dim ? 0.25 : 1, cursor: c || ok ? "pointer" : "default",
+                    style={{ gridColumn: L === 2 ? "span 2" : undefined, height: cell, borderRadius: 3, background: bg, opacity: dim ? 0.25 : 1, cursor: c || ok ? "pointer" : "default", boxSizing: "border-box", border: is45 ? "2px dashed rgba(255,255,255,.9)" : undefined,
                       outline: isSel ? "2px solid #DC2626" : ok ? "1px dashed #16A34A" : "none", outlineOffset: -1,
                       color: "#fff", fontSize: 8.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Geist Mono',monospace" }}>
-                    {c ? (head ? (c.type.startsWith("4") ? "40" : "20") + (c.fe === "E" ? "E" : "") : "·") : ""}
+                    {c ? <>{is45 ? "45" : L === 2 ? "40" : "20"}{c.fe === "E" ? "E" : ""}{L === 2 && <span style={{ fontWeight: 500, opacity: .85, marginLeft: 3 }}>{c.no.slice(-4, -1)}</span>}</> : ""}
                   </div>);
               })}
             </React.Fragment>
@@ -206,6 +208,7 @@ function YdBayView({ b, tier, setTier, sel, onCont, placing, onSlot, hlFn }) {
       <div className="row" style={{ gap: 10, flexWrap: "wrap", marginTop: 6, fontSize: 11 }}>
         {Object.entries(YD_LINE_COL).map(([l, col]) => <span key={l} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><i style={{ width: 9, height: 9, borderRadius: 2, background: col, display: "inline-block" }}></i>{l}</span>)}
         {placing && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><i style={{ width: 9, height: 9, borderRadius: 2, background: "#BBF7D0", border: "1px dashed #16A34A", display: "inline-block" }}></i>Ô hợp lệ</span>}
+        <span className="muted" style={{ marginLeft: "auto" }}>1 ô = vị trí 20' · 40' = khối 2 ô · 45' viền nét đứt · chữ E = rỗng</span>
       </div>
     </div>
   );
@@ -364,7 +367,7 @@ const DdYardMapScreen = ({ go }) => {
         )}
         {tab === "vas" && <DdYardScreen go={go} embed />}
       </div>
-      <div className="muted" style={{ fontSize: 11.5, marginTop: 8 }}>Sức chứa theo bản vẽ thiết kế. Giả định cần xác nhận: mỗi hàng 4 cột, tối đa 4 tầng; block lạnh B1–B3; khu E chỉ cont rỗng (OI-KT-20…22). Dữ liệu cont nền là mẫu để minh hoạ.</div>
+      <div className="muted" style={{ fontSize: 11.5, marginTop: 8 }}>Sức chứa theo bản vẽ thiết kế. Tối đa 5 tầng. Giả định cần xác nhận: mỗi hàng 4 cột; block lạnh B1–B3; khu E chỉ cont rỗng (OI-KT-20…22).</div>
       <KdToast text={toast} />
     </div>
   );
