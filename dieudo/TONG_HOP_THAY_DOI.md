@@ -1,6 +1,6 @@
 # Tổng hợp thay đổi — Module Điều độ khai thác (bản chạy thử) so với prototype TTOS v61
 
-Thời gian: 11/11/2026 → 12/11/2026 · Repo `hoanvotrong/ITOS`, thư mục `dieudo/` · Đã chạy trên GitHub Pages.
+Thời gian: 11/11/2026 → 26/11/2026 · Repo `hoanvotrong/ITOS`, thư mục `dieudo/` · Đã chạy trên GitHub Pages.
 Nguồn gốc: gói bàn giao `DieuDo_ChayThu_v61` (HUONG_DAN_CLAUDE_CODE.md, prototype_v61, supabase_dieudo.sql, KICH_BAN_CHAY_THU.md).
 Dùng tài liệu này để đồng bộ lại prototype / BRD Điều độ khai thác v2.6.
 
@@ -53,7 +53,7 @@ Vai trò trong `dd_users`: `KHTH`, `TP` (Trưởng phòng — duyệt ngoại l�
 ## 4. Thay đổi nghiệp vụ / quy tắc (cần cập nhật BRD & prototype)
 
 ### 4.1 Sản lượng
-1. **Sản lượng luôn 2 chữ số thập phân** với mọi đơn vị (nhập và hiển thị `1.234,50`). Riêng **số cont là số nguyên**. Áp dụng: keypad tally, khối lượng kế hoạch, mục tiêu ca, mọi màn hiển thị.
+1. **Sản lượng luôn 3 chữ số thập phân** với mọi đơn vị (nhập và hiển thị `1.234,500`; trước PR #20 là 2 chữ số). Riêng **số cont là số nguyên**. Áp dụng: keypad tally (cân xe, bill, nhập tay), khối lượng kế hoạch, mục tiêu ca, lũy kế job, số tịnh khi cân, sửa khi duyệt, mọi màn hiển thị.
 2. **Duyệt sản lượng theo ca cho MỌI dịch vụ** (prototype: chỉ Bến phao — US-BP-03):
    - Bản ghi trong ca: trạng thái mới **"Trong ca"** (`shift`).
    - Tally bấm **Kết ca** → toàn bộ bản ghi của ca chuyển **"Chờ duyệt"** (`pending`) → màn Chờ duyệt › **Sản lượng ca** → văn phòng duyệt (`ok`) hoặc đánh dấu "Cần xem lại".
@@ -79,6 +79,27 @@ Vai trò trong `dd_users`: `KHTH`, `TP` (Trưởng phòng — duyệt ngoại l�
 ### 4.6 Phân công xử lý sự cố
 7. Danh sách người xử lý = người dùng Điều độ trong `dd_users` (trừ tài khoản tally ca). Prototype dùng người mẫu cố định (kỹ thuật, QHSE) — chưa có trong pilot.
 
+### 4.7 Hàng rời — cách ghi nhận từng chuyến (mới)
+8. Thêm cách ghi nhận **"Số trên bill nhà máy"** bên cạnh các cách cũ (đổi tên cân xe thành "Cân xe qua cầu cân"; móc cẩu nổi, đếm, nhập tay giữ nguyên).
+   - **Tally chọn cách cho từng chuyến**; cách mặc định của job được chọn sẵn. Chuyến theo bill **bắt buộc nhập số bill**.
+   - Cách ghi nhận và số bill lưu trên bản ghi (`meth`, `billNo`), hiện ở Bản ghi ca, Chờ duyệt và nhật ký job.
+
+### 4.8 Lệnh làm việc ca — mục tiêu không bắt buộc
+9. **Mục tiêu sản lượng ca không bắt buộc**: lưu / gửi lệnh được khi để trống. Các màn (tally, chi tiết job, lịch tuần, Chờ duyệt, màn dịch vụ) hiện "—" / "chưa đặt" và bỏ % + thanh tiến độ khi không có mục tiêu.
+
+### 4.9 Sửa job sau khi tạo (mới)
+10. Nút **"Sửa job"** ở chi tiết job (job Kế hoạch / Đang thực hiện; KHTH và TP):
+    - Sửa: hàng, thời gian, bến, bãi, tàu / phương tiện KH, KHTH phụ trách, ghi chú.
+    - Hàng rời: thêm khối lượng kế hoạch, cách ghi nhận mặc định; **đơn vị** chỉ sửa được khi chưa có bản ghi.
+    - Hàng cont: sửa loại / mã booking / tình trạng của cont **chưa làm**.
+    - **Khoá**: khách hàng, dịch vụ, loại hàng (rời / cont).
+    - Mỗi thay đổi ghi vào nhật ký job dạng cũ → mới; job đang thực hiện thì **bắt buộc nhập lý do**.
+
+### 4.10 Bãi container ICD
+11. **Tối đa 5 tầng** (trước giả định 4): xếp bãi trên tally, chọn tầng trên sơ đồ, kiểm tra chồng cont đều theo `YD_TIERS = 5`.
+12. **Cont 40' / 45' vẽ thành 1 khối** phủ 2 ô 20' liền nhau trên sơ đồ block (nhãn 40 / 45 + đuôi số cont); 45' viền nét đứt; có chú thích. Đánh số hàng liên tục 01, 02, 03…; sức chứa giữ theo bản vẽ (box × 2 = 12.386 TEU).
+13. Mã ISO cont 45' thật (`L5G1`, `L5GP`, …) → **45HC**; `45G1` / `45GP` vẫn là **40' cao** (40HC).
+
 ---
 
 ## 5. Thay đổi giao diện / thao tác
@@ -87,6 +108,7 @@ Vai trò trong `dd_users`: `KHTH`, `TP` (Trưởng phòng — duyệt ngoại l�
 |---|---|
 | Tạo job · bảng kiểm tra danh sách cont | **Sửa loại từng cont** (ô chọn ở cột "ISO · loại"). Thêm loại 45HC, 20OT, 40OT, 20FR, 40FR, 20TK. |
 | Tạo job · nhập Excel cont | Nhận thêm mã hãng: HDM/HMM/HDMU → HMM; OOCL/OOLU; ZIM/ZIMU; PIL/PCIU; SITC/SITU; KMTC/KMTU. |
+| Tạo job · file mẫu cont | Thêm 2 cột **Tình trạng cont** và **Mã booking** (sau "Số seal"); sửa được ở bảng kiểm tra, lưu trên từng cont (`cond`, `booking`), hiện dưới số cont ở chi tiết job. File cũ 12 cột vẫn nhập được. |
 | Tạo job | Ngày mặc định = hôm nay → +4 ngày; bến mặc định = bến đầu danh mục. Mã job `JOB-yyyy-nnnn` theo năm hiện tại. |
 | Lệnh làm việc ca | Danh sách ngày = hôm nay + 6 ngày (nhãn thứ tính theo ngày thật); màn tuần bắt đầu thứ Hai tuần hiện tại. Mã lệnh `LV-ddmmyy-nn`. |
 | Chi tiết job · bảng lệnh ca | Tách cột Tally (tên tài khoản ca) / Thiết bị / Phương tiện; Phương tiện hiện số xe + 3 biển đầu + "+N xe" (mở/thu gọn). Xe ngoài tô cam. |
@@ -105,7 +127,9 @@ Vai trò trong `dd_users`: `KHTH`, `TP` (Trưởng phòng — duyệt ngoại l�
 - Ghi đè "bản ghi sau thắng" theo cả phần tử: 2 thiết bị sửa cùng job trong vài giây có thể mất thay đổi của bên ghi trước.
 - Chưa kết nối cân treo / cầu cân, E-Office, PTKD (khách hàng tạm FR-DP-09, báo giá), Kho nhúng, Depot.
 - Dịch vụ GTGT ở bãi chưa lưu CSDL; ảnh chưa tải lên khi mất mạng chỉ giữ trong bộ nhớ.
-- Sửa loại cont mới có ở form **tạo job**, chưa có ở chi tiết job.
+- Sửa job không đổi được khách hàng / dịch vụ / loại hàng; không thêm / bớt cont của job.
+- Sơ đồ bãi: còn giả định chưa xác nhận — 4 cột mỗi hàng, block lạnh B1–B3, khu E chỉ cont rỗng.
+- Xin sửa bản ghi chỉ đổi số, chưa có thao tác xoá bản ghi trên giao diện (xoá phải qua SQL của quản trị).
 - Vận tải VNL / tài xế VNL chưa dùng (job chạy thử không có).
 
 ---
@@ -122,5 +146,11 @@ Vai trò trong `dd_users`: `KHTH`, `TP` (Trưởng phòng — duyệt ngoại l�
 | #8 | Tìm biển số ở bước chọn xe của tally |
 | #9 | Gọn bảng lệnh ca; phân công sự cố theo người dùng thật |
 | #10 | Ô nhập số cont bằng bàn phím điện thoại |
+| #15 | File mẫu cont thêm cột Tình trạng cont và Mã booking |
+| #16 | Hàng rời ghi nhận theo cân xe hoặc bill nhà máy, tally chọn từng chuyến |
+| #17 | Mục tiêu sản lượng ca không bắt buộc |
+| #18 | Sửa job sau khi tạo |
+| #19 | Bãi cont 5 tầng; cont 40'/45' vẽ thành 1 khối; mã ISO 45' |
+| #20 | Sản lượng 3 chữ số thập phân |
 
 Kiểm tra: SQL chạy thử trên Postgres (30/30 mục RLS, hàm tài xế, ảnh); giao diện chạy thử với Supabase giả lập (kịch bản A bước 1–17 + từng thay đổi); Supabase thật: khoá anon không đọc được `dd_docs`, `dd_users`, `dd_catalog`.
