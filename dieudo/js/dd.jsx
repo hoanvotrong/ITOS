@@ -93,6 +93,8 @@ const ddLineFrom = (line) => { const U = line.toUpperCase(); const full = DD_LIN
 const ddDirToken = (t) => ({ XT: "direct", "XUẤT THẲNG": "direct", "XUAT THANG": "direct", XB: "export", "XUẤT BÃI": "export", NB: "import", "NHẬP BÃI": "import", "LƯU BÃI": "import", "NHẬP LƯU BÃI": "import" })[t] || null;
 /* Danh sách cont theo mẫu KHTH: STT · Mã Container · Mã ISO · Loại Cont · Hiện trạng · Khối lượng · Cảng đích ICD · Hãng Conts · Số seal · Thời gian · Số xe · Ghi chú */
 Object.assign(DD_ISO_MAP, { "45GP": "40HC", "42GP": "40GP", "22GP": "20GP", "45RT": "40RF", "22RT": "20RF", "45R0": "40RF", "22R0": "20RF" });
+/* Cont 45' thật: mã ISO bắt đầu bằng L (L5G1, L5GP…). 45G1 / 45GP là 40' cao (4 = dài 40', 5 = cao 9'6") → 40HC */
+Object.assign(DD_ISO_MAP, { "L5G1": "45HC", "L5GP": "45HC", "L5G0": "45HC", "LEG1": "45HC", "L5R1": "45HC", "45HC": "45HC" });
 const DD_FE_TOKEN = { F: "F", FULL: "F", FCL: "F", LADEN: "F", "HÀNG": "F", E: "E", MTY: "E", EMPTY: "E", MT: "E", "RỖNG": "E" };
 const DD_CONT_TPL = ["STT", "Mã Container", "Mã ISO", "Loại Cont", "Hiện trạng", "Khối lượng", "Cảng đích ICD", "Hãng Conts", "Số seal", "Tình trạng cont", "Mã booking", "Thời gian", "Số xe", "Ghi chú"];
 const ddNoAcc = (t) => String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
