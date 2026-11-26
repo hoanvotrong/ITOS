@@ -14,7 +14,7 @@ const TL_INC_NOTES = ["Dừng làm hàng", "Làm chậm", "Cần kỹ thuật", 
 
 /* Giờ thật GMT+7 (thay đồng hồ giả lập của prototype). Tham số bước cũ bị bỏ qua. */
 const tlClock = () => window.ddVnNow().time;
-const tlFmt = (n, unit) => ddQty(n, unit); /* sản lượng: luôn 2 chữ số thập phân (trừ số cont) */
+const tlFmt = (n, unit) => ddQty(n, unit); /* sản lượng: luôn 3 chữ số thập phân (trừ số cont) */
 const tlPlateKey = (p) => String(p || "").toUpperCase().replace(/[\s.\-]/g, ""); /* so khớp biển số: bỏ khoảng trắng, chấm, gạch */
 const tlContFmt = (no) => `${no.slice(0, 4)} ${no.slice(4, 10)} ${no.slice(10)}`;
 
@@ -106,7 +106,7 @@ const TlPhone = ({ me, offline, onChange }) => {
   const myRecs = recs.filter(r => r.by === me.id);
   const caTotal = recs.filter(r => r.status !== "returned").reduce((t, r) => t + r.qty, 0);
   const unit = job ? ddUnit(job) : "";
-  const dec = unit !== "cont"; /* mọi đơn vị nhập được 2 chữ số thập phân */
+  const dec = unit !== "cont"; /* mọi đơn vị nhập được 3 chữ số thập phân */
 
   const openOrder = (ord) => {
     if (!ord.ack.includes(me.id)) { ord.ack.push(me.id); ord.log.unshift({ at: `${ddNow()}`, by: me.id, text: "Tally đã xem lệnh trên app" }); ddJobLog(ord.job, `${me.name} đã xem lệnh ca ${ord.id} trên app`, me.id); onChange(); }
@@ -115,7 +115,7 @@ const TlPhone = ({ me, offline, onChange }) => {
   const addRecord = (rec) => {
     const r = { id: ddNewId("R"), order: o.id, call: o.call || null, job: job.id, by: me.id, at: `${ddNow()}`, status: "shift", offline, meth: job.kind === "cont" ? null : ddMeasure(job), raw: rec.qty, eq: o.curEq || ddCranes(o)[0] || null, ...rec };
     DD_RECORDS.push(r);
-    job.actual = Math.round((job.actual + r.qty) * 100) / 100;
+    job.actual = Math.round((job.actual + r.qty) * 1000) / 1000;
     if (o.status === "sent") o.status = "running";
     ddJobLog(job, r.cont ? `${o.id} · Gate ${r.gate === "in" ? "In" : "Out"} ${tlContFmt(r.cont)}${r.plate ? ` · xe ${r.plate}` : ""}${r.offList ? " (ngoài DS)" : ""}` : `${o.id} · ghi nhận ${r.plate || ""}: ${tlFmt(r.qty, unit)} ${unit}${r.meth === "bill" ? ` · theo bill ${r.billNo || ""}` : r.w1 ? " · cân xe" : ""}${r.offList ? " (xe ngoài DS)" : ""}`, me.id);
     window.ddJobTouch?.(job, me.id);
@@ -142,7 +142,7 @@ const TlPhone = ({ me, offline, onChange }) => {
   const methChips = (cur) => tripOpts().length > 1 && !st.edit && !st.req ? (
     <div style={{ marginBottom: 8 }}><div className="tl-muted" style={{ fontSize: 12, marginBottom: 4 }}>Cách ghi nhận chuyến này</div>
       <div className="tl-chips">{tripOpts().map(m => <button key={m} className={cur === m ? "on" : ""} onClick={() => cur !== m && startTrip(st.plate, m)}>{TL_METH_SHORT[m]}</button>)}</div></div>) : null;
-  const press = (k) => setPad(p => k === "⌫" ? p.slice(0, -1) : k === "," ? (!dec || p.includes(",") || !p ? p : p + ",") : (p.split(",")[1]?.length >= 2 || p.length >= 7 ? p : (p === "0" ? k : p + k)));
+  const press = (k) => setPad(p => k === "⌫" ? p.slice(0, -1) : k === "," ? (!dec || p.includes(",") || !p ? p : p + ",") : (p.split(",")[1]?.length >= 3 || p.length >= 9 ? p : (p === "0" ? k : p + k)));
 
   const Bar = ({ title, back, sub }) => (
     <div className="tl-bar">
@@ -328,8 +328,8 @@ const TlPhone = ({ me, offline, onChange }) => {
   /* ---------- BULK: qua cầu cân — nhập lần 1, lần 2 theo phiếu cân ---------- */
   if (st.s === "w" && o) {
     const veh = ddVeh(st.plate);
-    const pressW = (k) => setW(x => { const key = x.f === 1 ? "a" : "b"; const p = x[key]; const n = k === "⌫" ? p.slice(0, -1) : k === "," ? (p.includes(",") || !p ? p : p + ",") : (p.split(",")[1]?.length >= 2 || p.length >= 6 ? p : (p === "0" ? k : p + k)); return { ...x, [key]: n, src: "manual" }; });
-    const a = Number(w.a.replace(",", ".")) || 0, b = Number(w.b.replace(",", ".")) || 0, net = Math.round((a - b) * 100) / 100;
+    const pressW = (k) => setW(x => { const key = x.f === 1 ? "a" : "b"; const p = x[key]; const n = k === "⌫" ? p.slice(0, -1) : k === "," ? (p.includes(",") || !p ? p : p + ",") : (p.split(",")[1]?.length >= 3 || p.length >= 8 ? p : (p === "0" ? k : p + k)); return { ...x, [key]: n, src: "manual" }; });
+    const a = Number(w.a.replace(",", ".")) || 0, b = Number(w.b.replace(",", ".")) || 0, net = Math.round((a - b) * 1000) / 1000;
     const bad = a && b && b >= a;
     const over = veh.cap && net > veh.cap * 1.2;
     body = (<>
@@ -368,7 +368,7 @@ const TlPhone = ({ me, offline, onChange }) => {
     const target = st.edit && DD_RECORDS.find(r => r.id === st.edit);
     const save = () => {
       if (st.edit) {
-        job.actual = Math.round((job.actual - target.qty + st.qty) * 100) / 100;
+        job.actual = Math.round((job.actual - target.qty + st.qty) * 1000) / 1000;
         target.hist = [...(target.hist || []), { at: `${ddNow()}`, by: me.id, from: target.qty, to: st.qty, kind: "Tally sửa bản ghi gần nhất" }];
         ddJobLog(job, `${o.id} · sửa bản ghi ${target.plate || ""}: ${tlFmt(target.qty, unit)} → ${tlFmt(st.qty, unit)} ${unit}`, me.id);
         target.prev = target.qty; target.qty = st.qty; target.edited = true; if (st.abnormal) target.abnormal = true;

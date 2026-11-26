@@ -350,7 +350,7 @@ const DdApprovalsScreen = ({ go, ctx }) => {
                     <td><div className="row" style={{ gap: 6, justifyContent: "flex-end" }}>
                       <button className="btn btn-sm" onClick={() => setOpen(q.id)}>Từ chối</button>
                       <button className="btn btn-sm primary" onClick={() => {
-                        const j = DD_JOBS.find(x => x.id === q.job); j.actual = Math.round((j.actual - r.qty + q.to) * 100) / 100;
+                        const j = DD_JOBS.find(x => x.id === q.job); j.actual = Math.round((j.actual - r.qty + q.to) * 1000) / 1000;
                         r.hist = [...(r.hist || []), { at: ddNow(), by: DD_ME.id, from: r.qty, to: q.to, kind: `KHTH duyệt yêu cầu sửa ${q.id}: ${q.reason}` }]; r.prev = r.qty; r.qty = q.to; r.status = ddRecOpenStatus(DD_ORDERS.find(x => x.id === r.order)); q.status = "approved";
                         ddLogJob(j.id, `Duyệt sửa bản ghi ${q.order}: ${tlFmt(q.from)} → ${tlFmt(q.to)} ${u}`); refresh("Đã duyệt sửa bản ghi");
                       }}>Duyệt sửa</button>

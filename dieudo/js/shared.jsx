@@ -15,16 +15,16 @@ window.KD_CONTRACTS = (DD_BOOT.catalog.contract || []).map(k => {
 window.KD_QUOTES = [];
 const kdShortMoney = (v) => (v || 0).toLocaleString("vi-VN");
 
-/* Sản lượng: luôn 2 chữ số thập phân kiểu Việt Nam (1.234,50). Riêng số cont là số nguyên. */
+/* Sản lượng: luôn 3 chữ số thập phân kiểu Việt Nam (1.234,500) — chốt 26/11. Riêng số cont là số nguyên. */
 const ddQty = (n, unit) => {
-  const v = Math.round((Number(n) || 0) * 100) / 100;
-  return unit === "cont" ? Math.round(v).toLocaleString("vi-VN") : v.toLocaleString("vi-VN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const v = Math.round((Number(n) || 0) * 1000) / 1000;
+  return unit === "cont" ? Math.round(v).toLocaleString("vi-VN") : v.toLocaleString("vi-VN", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
 };
 /* Mục tiêu ca (không bắt buộc): "200,00 tấn" hoặc "—" khi chưa đặt */
 const ddTargetTxt = (o, unit) => o && o.target > 0 ? `${ddQty(o.target, unit)} ${unit}` : "—";
-/* Ô nhập sản lượng: gõ dấu phẩy (hoặc chấm) thập phân, tối đa 2 chữ số sau dấu phẩy; rời ô thì hiện dạng 1.234,50.
+/* Ô nhập sản lượng: gõ dấu phẩy (hoặc chấm) thập phân, tối đa 3 chữ số sau dấu phẩy; rời ô thì hiện dạng 1.234,500.
    int = true: chỉ nhận số nguyên (mục tiêu ca của job cont). */
-const DdQtyInput = ({ value, onChange, int, className, disabled, placeholder = "0,00" }) => {
+const DdQtyInput = ({ value, onChange, int, className, disabled, placeholder = "0,000" }) => {
   const fmt = (v) => v ? (int ? ddQty(v, "cont") : ddQty(v)) : "";
   const [txt, setTxt] = React.useState(fmt(value));
   const [focus, setFocus] = React.useState(false);
@@ -32,10 +32,10 @@ const DdQtyInput = ({ value, onChange, int, className, disabled, placeholder = "
   const change = (raw) => {
     let t = raw.replace(/\./g, ",").replace(/[^\d,]/g, "");
     const i = t.indexOf(",");
-    if (i >= 0) t = int ? t.slice(0, i) : t.slice(0, i + 1) + t.slice(i + 1).replace(/,/g, "").slice(0, 2);
+    if (i >= 0) t = int ? t.slice(0, i) : t.slice(0, i + 1) + t.slice(i + 1).replace(/,/g, "").slice(0, 3);
     t = t.replace(/^0+(?=\d)/, "").slice(0, 12);
     setTxt(t);
-    onChange(Math.round((Number(t.replace(",", ".")) || 0) * 100) / 100);
+    onChange(Math.round((Number(t.replace(",", ".")) || 0) * 1000) / 1000);
   };
   return <input className={className} inputMode={int ? "numeric" : "decimal"} disabled={disabled} placeholder={int ? "0" : placeholder}
     value={focus ? txt : fmt(value)} onFocus={() => { setFocus(true); setTxt(value ? String(int ? Math.round(value) : value).replace(".", ",") : ""); }}
