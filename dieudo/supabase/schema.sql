@@ -36,7 +36,7 @@ $$;
 
 -- 1. Dữ liệu nghiệp vụ: mỗi phần tử của các mảng toàn cục trong prototype là 1 dòng
 create table if not exists public.dd_docs (
-  coll        text        not null,          -- jobs | orders | records | edit_reqs | incidents | trans | cont_reg | gate_log | calls | ship_orders | yard_moves
+  coll        text        not null,          -- jobs | orders | records | edit_reqs | incidents | trans | cont_reg | gate_log | calls | ship_orders | yard_moves | yard_rules
   id          text        not null,
   data        jsonb       not null,
   updated_at  timestamptz not null default now(),
