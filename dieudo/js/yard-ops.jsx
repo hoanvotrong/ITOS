@@ -25,21 +25,14 @@ const ydPlan = (list, targets) => {
   try {
     order.forEach(c => {
       ydReindex();
-      const old = c.pos, from = old ? ydLocStr(old) : "Chờ xếp bãi";
+      const old = c.pos, from = old ? ydLocStr(old, c) : "Chờ xếp bãi";
       const top = old && ydBlocked(c);
       if (top) { out.push({ c, from, err: list.some(x => x.no === top) ? `Bị cont ${tlContFmt(top)} đè — cont đó cũng không chuyển được` : `Bị cont ${tlContFmt(top)} đè (chưa có trong danh sách chuyển)` }); return; }
       c.pos = null; ydReindex(); /* nhấc cont lên: ô cũ trống */
-      let pos = null;
-      for (const b of targets) {
-        const blk = YD_BLK[b]; if (!blk) continue;
-        for (let tier = 1; tier <= YD_TIERS && !pos; tier++) for (let bay = 1; bay <= blk.rows && !pos; bay++) for (let lane = 1; lane <= YD_LANES && !pos; lane++) {
-          if (old && old.b === b && old.bay === bay && old.lane === lane && old.tier === tier) continue;
-          if (!ydCheck(c, b, bay, lane, tier)) pos = { b, bay, lane, tier };
-        }
-        if (pos) break;
-      }
-      if (!pos) { c.pos = old; out.push({ c, from, err: "Block đích hết chỗ phù hợp (loại cont / hàng-rỗng / lạnh)" }); return; }
-      c.pos = pos; out.push({ c, from, pos });
+      const slot = ydFindSlot(c, targets, old); /* ưu tiên ô không có cảnh báo quy tắc */
+      if (!slot) { c.pos = old; out.push({ c, from, err: "Block đích hết chỗ phù hợp (theo quy tắc xếp bãi)" }); return; }
+      const pos = { b: slot.b, bay: slot.bay, lane: slot.lane, tier: slot.tier };
+      c.pos = pos; out.push({ c, from, pos, warn: slot.warn });
     });
   } finally { saved.forEach(([c, p]) => { c.pos = p; }); ydReindex(); }
   return out;
@@ -81,7 +74,7 @@ const YD_LIST_W = [5, 14, 7, 5, 9, 11, 22, 15, 15, 12, 16, 12, 6, 7, 6, 5, 5, 13
 const ydListRow = (c, i) => {
   const jc = ydJobCont(c), p = c.pos, lc = ydOpenLc(c.no);
   return [i + 1, c.no, c.type || "", ydSize(c), ydFeTxt(c.fe), c.line || "", c.customer ? ddCus(c.customer).name : "", c.job || "", jc.booking || "", c.seal || jc.seal || "", jc.cond || "",
-    p ? "Trong bãi" : "Chờ xếp bãi", p ? (YD_BLK[p.b] || {}).yard || "" : "", p ? p.b : "", p ? p.bay : "", p ? p.lane : "", p ? p.tier : "", c.loc || "", c.gateInAt || "", ddDwell(c.gateInAt), c.via || "", lc ? lc.id : ""];
+    p ? "Trong bãi" : "Chờ xếp bãi", p ? (YD_BLK[p.b] || {}).yard || "" : "", p ? p.b : "", p ? ydPad(ydBayNo(p.bay, ydLen(c))) : "", p ? p.lane : "", p ? p.tier : "", c.loc || "", c.gateInAt || "", ddDwell(c.gateInAt), c.via || "", lc ? lc.id : ""];
 };
 const ydExportList = (rows, filterTxt) => ddLoadXlsx().then(X => {
   const wb = X.utils.book_new();
@@ -110,7 +103,7 @@ const ydExportMap = ({ blocks, name, hlFn, filterTxt }) => ddLoadXlsx().then(X =
     const merges = [];
     for (let tier = top; tier >= 1; tier--) {
       aoa.push([`TẦNG ${tier}`]);
-      aoa.push(["Cột \\ Hàng", ...Array.from({ length: blk.rows }, (_, i) => ydPad(i + 1))]);
+      aoa.push(["Cột \\ Hàng", ...Array.from({ length: blk.rows }, (_, i) => ydPad(ydBayNo(i + 1)))]);
       for (let lane = 1; lane <= YD_LANES; lane++) {
         const r = aoa.length, row = [`C${lane}`];
         for (let bay = 1; bay <= blk.rows; bay++) {
@@ -250,7 +243,7 @@ const DdYardMoveModal = ({ conts, onClose, onDone }) => {
             <tbody>{plan.map((p, i) => <tr key={p.c.no} style={{ background: p.err ? "var(--st-danger-bg, #FEF2F2)" : undefined }}>
               <td className="muted">{p.pos ? ok.indexOf(p) + 1 : "—"}</td><td className="mono" style={{ fontWeight: 600 }}>{tlContFmt(p.c.no)}</td><td style={{ fontSize: 12 }}>{p.c.type} · {ydFeTxt(p.c.fe)}</td>
               <td className="mono" style={{ fontSize: 12 }}>{p.from}</td>
-              <td style={{ fontSize: 12 }}>{p.pos ? <b className="mono">{ydLocStr(p.pos)}</b> : <span style={{ color: "var(--st-danger)" }}>{p.err}</span>}</td></tr>)}</tbody>
+              <td style={{ fontSize: 12 }}>{p.pos ? <><b className="mono">{ydLocStr(p.pos, p.c)}</b>{p.warn && p.warn.length > 0 && <div style={{ color: "var(--st-warning)", fontSize: 11 }}>⚠ {p.warn.join("; ")}</div>}</> : <span style={{ color: "var(--st-danger)" }}>{p.err}</span>}</td></tr>)}</tbody>
           </table></div>
           <div className="muted" style={{ fontSize: 11.5, marginTop: 8 }}>Thứ tự # = thứ tự chuyển (cont tầng trên đi trước). {mode === "order" ? "Vị trí dự kiến được giữ khi xác nhận nếu ô còn trống; nếu đã bị chiếm, hệ thống tự chọn ô trống khác trong block đích." : ""}</div>
         </div>
@@ -359,7 +352,7 @@ const DdYardLcList = ({ flash, refresh, onHistory }) => {
     const wb = X.utils.book_new();
     X.utils.book_append_sheet(wb, ydSheet(X, `LỆNH LUÂN CHUYỂN ${lc.id}`, `Tạo ${lc.at} bởi ${ddPerson(lc.by).name} · đích ${ydLcTarget(lc)}${lc.truck ? ` · xe kéo ${lc.truck}` : ""}${lc.note ? ` · ${lc.note}` : ""}`,
       ["STT", "Số cont", "Loại", "Hàng/Rỗng", "Hãng", "Từ vị trí", "Đến (dự kiến)", "Đã chuyển tới", "Lúc", "Người xác nhận"],
-      lc.items.map((it, i) => { const c = DD_CONT_REG[it.no] || {}; return [i + 1, it.no, c.type || "", ydFeTxt(c.fe), c.line || "", it.from, it.plan ? ydLocStr(it.plan) : "", it.skip ? "Bỏ qua" : it.to || "", it.at || "", it.by ? ddPerson(it.by).name : ""]; }),
+      lc.items.map((it, i) => { const c = DD_CONT_REG[it.no] || {}; return [i + 1, it.no, c.type || "", ydFeTxt(c.fe), c.line || "", it.from, it.plan ? ydLocStr(it.plan, c) : "", it.skip ? "Bỏ qua" : it.to || "", it.at || "", it.by ? ddPerson(it.by).name : ""]; }),
       [5, 14, 8, 10, 11, 13, 14, 14, 17, 18]), "Lệnh luân chuyển");
     X.writeFile(wb, `${lc.id}.xlsx`);
   });
@@ -392,7 +385,7 @@ const DdYardLcList = ({ flash, refresh, onHistory }) => {
                   <tr key={it.no}>
                     <td className="muted">{i + 1}</td>
                     <td><button className="mono" style={{ fontWeight: 700, background: "none", border: 0, padding: 0, cursor: "pointer" }} onClick={() => onHistory(it.no)}>{tlContFmt(it.no)}</button></td>
-                    <td style={{ fontSize: 12 }}>{c.type} · {ydFeTxt(c.fe)}</td><td className="mono" style={{ fontSize: 12 }}>{it.from}</td><td className="mono" style={{ fontSize: 12 }}>{it.plan ? ydLocStr(it.plan) : "—"}</td>
+                    <td style={{ fontSize: 12 }}>{c.type} · {ydFeTxt(c.fe)}</td><td className="mono" style={{ fontSize: 12 }}>{it.from}</td><td className="mono" style={{ fontSize: 12 }}>{it.plan ? ydLocStr(it.plan, c) : "—"}</td>
                     <td style={{ fontSize: 12 }}>{it.skip ? <span className="muted">Bỏ qua</span> : it.to ? <><b className="mono">{it.to}</b><div className="muted" style={{ fontSize: 11 }}>{it.at} · {ddPerson(it.by).name}</div></> : top ? <span style={{ color: "var(--st-warning)" }}>Bị {tlContFmt(top)} đè</span> : <span className="muted">Chưa chuyển</span>}</td>
                     <td>{lc.status === "open" && !it.to && !it.skip && ydCanMove() && <div className="row" style={{ gap: 4, justifyContent: "flex-end" }}>
                       <button className="btn btn-sm ghost" onClick={() => skip(lc, it)}>Bỏ qua</button>
@@ -473,4 +466,78 @@ const DdYardReport = ({ onHistory, flash }) => {
   );
 };
 
-Object.assign(window, { DD_YARD_MOVES, ydExportMap, ydPlan, ydLcDo, ydLcTarget, ydHistory, DdContHistory, DdYardMoveModal, DdYardList, DdYardLcList, DdYardReport });
+
+/* =================== TAB QUY TẮC XẾP BÃI ===================
+   KHTH / TP chọn chế độ từng quy tắc (Chặn / Cảnh báo / Tắt) + ngưỡng đầy block.
+   Cont đang nằm sai quy tắc KHÔNG bị chuyển tự động — chỉ liệt kê để xử lý dần. */
+const YD_MODE_BADGE = { block: "danger", warn: "warning", off: "neutral" };
+const DdYardRules = ({ flash, refresh, onLocate }) => {
+  const [, force] = React.useState(0);
+  const can = ydCanMove();
+  const cfg = ydRuleCfg();
+  const [pct, setPct] = React.useState(String(ydFillPct()));
+  const [only, setOnly] = React.useState("");
+  const save = (modes, fillPct, text) => {
+    const cur = DD_YARD_RULES.cfg || {};
+    DD_YARD_RULES.cfg = { modes: { ...(cur.modes || {}), ...modes }, fillPct: fillPct != null ? fillPct : (cur.fillPct || 85), at: ddNow(), by: DD_ME.id, log: [{ at: ddNow(), by: DD_ME.id, text }, ...(cur.log || [])].slice(0, 50) };
+    ydReindex(); force(n => n + 1); refresh && refresh(); flash(`Đã lưu: ${text}`);
+  };
+  const setMode = (r, m) => { if (m !== ydMode(r.id)) save({ [r.id]: m }, null, `${r.code} ${r.name} → ${YD_RULE_MODES[m]}`); };
+  const savePct = () => { const n = Math.round(Number(pct)); if (!(n >= 50 && n <= 100)) return flash("Ngưỡng đầy block phải từ 50 đến 100%"); if (n !== ydFillPct()) save({}, n, `Ngưỡng đầy block → ${n}%`); };
+  const reset = () => { if (window.confirm("Đưa tất cả quy tắc về mặc định?")) save(Object.fromEntries(YD_RULES.map(r => [r.id, r.def])), 85, "Đưa về mặc định"); };
+  const audit = ydAudit();
+  const cnt = (id) => audit.filter(a => a.v.some(x => x.id === id)).length;
+  const rows = only ? audit.filter(a => a.v.some(x => x.id === only)) : audit;
+  const exportAudit = () => ddLoadXlsx().then(X => {
+    const wb = X.utils.book_new();
+    X.utils.book_append_sheet(wb, ydSheet(X, "CONT ĐANG NẰM SAI QUY TẮC XẾP BÃI", `Xuất lúc ${ddNow()} · ${rows.length} cont${only ? ` · lọc ${YD_RULES.find(r => r.id === only).code}` : ""}`,
+      ["STT", "Số cont", "Loại", "Hàng/Rỗng", "Hãng tàu", "Job", "Vị trí", "Quy tắc", "Chế độ", "Chi tiết"],
+      rows.flatMap((a, i) => a.v.map((x, k) => [k ? "" : i + 1, k ? "" : a.c.no, k ? "" : a.c.type, k ? "" : ydFeTxt(a.c.fe), k ? "" : a.c.line || "", k ? "" : a.c.job || "", k ? "" : a.c.loc, YD_RULES.find(r => r.id === x.id).code, YD_RULE_MODES[x.mode], x.msg])),
+      [5, 14, 7, 9, 11, 15, 13, 8, 10, 50]), "Sai quy tắc");
+    X.writeFile(wb, `Cont_sai_quy_tac_${ydStamp()}.xlsx`);
+  }).catch(e => flash(e.message || "Không xuất được"));
+  return (
+    <div style={{ padding: 14, display: "flex", flexDirection: "column", gap: 14 }}>
+      <div className="row" style={{ gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+        <div style={{ fontSize: 13 }}><b>Chặn</b> = không cho xếp vào ô vi phạm · <b>Cảnh báo</b> = ô tô vàng, hỏi lại trước khi xếp và ghi vào lịch sử cont · <b>Tắt</b> = bỏ qua</div>
+        {can ? <button className="btn btn-sm ghost" style={{ marginLeft: "auto" }} onClick={reset}>Đưa về mặc định</button> : <span className="muted" style={{ marginLeft: "auto", fontSize: 12 }}>Chỉ KHTH / TP được chỉnh</span>}
+      </div>
+      <div className="tbl-wrap"><table className="tbl">
+        <thead><tr><th style={{ width: 60 }}>Mã</th><th style={{ width: 230 }}>Quy tắc</th><th>Nội dung</th><th style={{ width: 250 }}>Chế độ</th><th style={{ width: 110 }}>Cont đang sai</th></tr></thead>
+        <tbody>{YD_RULES.map(r => { const m = ydMode(r.id), n = cnt(r.id); return (
+          <tr key={r.id}>
+            <td className="mono" style={{ fontWeight: 700 }}>{r.code}</td>
+            <td style={{ fontWeight: 600 }}>{r.name}</td>
+            <td style={{ fontSize: 12.5 }}>{r.desc}{r.num && <div className="row" style={{ gap: 6, alignItems: "center", marginTop: 6 }}><span className="muted">Ngưỡng đầy:</span>
+              {can ? <><input className="input" style={{ width: 64, height: 28 }} inputMode="numeric" value={pct} onChange={e => setPct(e.target.value.replace(/\D/g, ""))} onKeyDown={e => e.key === "Enter" && savePct()} />%<button className="btn btn-sm" onClick={savePct}>Lưu</button></> : <b>{ydFillPct()}%</b>}</div>}</td>
+            <td>{can ? <div className="row" style={{ gap: 4 }}>{Object.entries(YD_RULE_MODES).map(([k, l]) => <button key={k} className={`btn btn-sm ${m === k ? (k === "block" ? "danger" : k === "warn" ? "accent" : "primary") : "ghost"}`} style={m === k ? { fontWeight: 700 } : undefined} onClick={() => setMode(r, k)}>{l}</button>)}</div>
+              : <span className={`badge ${YD_MODE_BADGE[m]}`}>{YD_RULE_MODES[m]}</span>}{m !== r.def && <div className="muted" style={{ fontSize: 11, marginTop: 3 }}>Mặc định: {YD_RULE_MODES[r.def]}</div>}</td>
+            <td>{m === "off" ? <span className="muted">—</span> : n ? <button className="btn btn-sm ghost" style={{ color: "var(--st-warning)", fontWeight: 700 }} onClick={() => setOnly(only === r.id ? "" : r.id)}>{n} cont</button> : <span style={{ color: "var(--st-success)" }}>0</span>}</td>
+          </tr>); })}</tbody>
+      </table></div>
+      <div className="muted" style={{ fontSize: 12 }}>Đã bỏ theo chốt 27/11: cont lạnh chỉ ở B1–B3 · khu E chỉ nhận rỗng · số tầng theo hàng/rỗng · khu riêng cont IMO. Chờ quyết: khu riêng cont hỏng / bị giữ / chờ kiểm hoá (B8). Chưa làm: nặng dưới nhẹ trên (C6) — cont chưa có dữ liệu trọng lượng VGM.{cfg.at ? ` · Lần chỉnh gần nhất: ${cfg.at} · ${ddPerson(cfg.by).name}` : ""}</div>
+
+      <div className="card" style={{ padding: 0 }}>
+        <div className="row" style={{ gap: 10, padding: "10px 14px", alignItems: "center", flexWrap: "wrap", borderBottom: "1px solid var(--line)" }}>
+          <b>Cont đang nằm sai quy tắc</b><span className="muted" style={{ fontSize: 12 }}>{rows.length} cont{only ? ` · lọc ${YD_RULES.find(r => r.id === only).code}` : ""} · không tự chuyển, xử lý dần bằng đảo chuyển / luân chuyển</span>
+          {only && <button className="btn btn-sm ghost" onClick={() => setOnly("")}>Bỏ lọc</button>}
+          <button className="btn btn-sm" style={{ marginLeft: "auto" }} disabled={!rows.length} onClick={exportAudit}><Icon name="download" size={13}/> Xuất Excel</button>
+        </div>
+        <div className="tbl-wrap" style={{ maxHeight: 420, overflowY: "auto" }}><table className="tbl">
+          <thead><tr><th style={{ width: 130 }}>Số cont</th><th style={{ width: 120 }}>Vị trí</th><th style={{ width: 120 }}>Loại</th><th style={{ width: 100 }}>Hãng</th><th>Vi phạm</th><th style={{ width: 110 }}></th></tr></thead>
+          <tbody>
+            {rows.length === 0 && <tr><td colSpan={6} className="muted" style={{ textAlign: "center", padding: 20 }}>Không có cont nào nằm sai quy tắc đang bật</td></tr>}
+            {rows.slice(0, 300).map(a => <tr key={a.c.no}>
+              <td className="mono" style={{ fontWeight: 600 }}>{tlContFmt(a.c.no)}</td><td className="mono" style={{ fontSize: 12.5 }}>{a.c.loc}</td>
+              <td style={{ fontSize: 12 }}>{a.c.type} · {ydFeTxt(a.c.fe)}</td><td style={{ fontSize: 12 }}>{a.c.line}</td>
+              <td style={{ fontSize: 12 }}>{a.v.map(x => <div key={x.id}><span className={`badge ${YD_MODE_BADGE[x.mode]}`} style={{ marginRight: 6 }}>{YD_RULES.find(r => r.id === x.id).code}</span>{x.msg}</div>)}</td>
+              <td><button className="btn btn-sm ghost" onClick={() => onLocate(a.c)}>Xem trên sơ đồ</button></td></tr>)}
+          </tbody></table></div>
+        {rows.length > 300 && <div className="muted" style={{ textAlign: "center", padding: 10, fontSize: 12 }}>Đang hiện 300 / {rows.length} cont — xuất Excel để xem đủ</div>}
+      </div>
+      {(cfg.log || []).length > 0 && <div style={{ fontSize: 12 }}><div className="muted" style={{ marginBottom: 4 }}>Lịch sử chỉnh quy tắc</div>{cfg.log.slice(0, 8).map((l, i) => <div key={i} style={{ display: "flex", gap: 8 }}><span className="mono muted" style={{ width: 110 }}>{l.at}</span><span style={{ width: 140 }}>{ddPerson(l.by).name}</span><span>{l.text}</span></div>)}</div>}
+    </div>
+  );
+};
+
+Object.assign(window, { DD_YARD_MOVES, DdYardRules, ydExportMap, ydPlan, ydLcDo, ydLcTarget, ydHistory, DdContHistory, DdYardMoveModal, DdYardList, DdYardLcList, DdYardReport });

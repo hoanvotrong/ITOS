@@ -520,7 +520,7 @@ const TlPhone = ({ me, offline, onChange }) => {
 
   /* ---------- BÃI CONT: hạ bãi (chọn vị trí → chọn cont) · đảo chuyển ---------- */
   const YDOK = typeof YD_BLK !== "undefined";
-  const tlProbe = (b) => YD_REEFER.includes(b) ? { type: "40RF", fe: "F" } : b[0] === "E" ? { type: "40GP", fe: "E" } : { type: "40GP", fe: "F" }; /* dò ô trống vừa cả cont 40' */
+  const tlProbe = () => ({ no: "~probe", type: "40GP", fe: "E" }); /* dò ô trống vừa cả cont 40' */
   if (st.s === "yard" && o) {
     const R = Object.values(window.DD_CONT_REG || {});
     const pending = R.filter(c => c.inPort && !c.pos);
@@ -541,7 +541,7 @@ const TlPhone = ({ me, offline, onChange }) => {
               <div style={{ fontWeight: 700, margin: "6px 2px" }}><span className="mono">{lc.id}</span> → {ydLcTarget(lc)}{lc.truck ? <span className="tl-muted"> · xe {lc.truck}</span> : null}<div className="tl-muted">{lc.items.filter(i => i.to).length}/{lc.items.filter(i => !i.skip).length} cont{lc.note ? ` · ${lc.note}` : ""}</div></div>
               {lc.items.filter(i => !i.skip).map(it => { const c = DD_CONT_REG[it.no] || {}; const top = !it.to && c.pos ? (ydReindex(), ydBlocked(c)) : null; return (
                 <div key={it.no} className="tl-rec" style={{ opacity: it.to ? .55 : 1 }}>
-                  <div style={{ flex: 1, minWidth: 0 }}><b className="mono">{tlContFmt(it.no)}</b><div className="tl-muted">{c.type} · {it.from} → <b>{it.to || (it.plan ? ydLocStr(it.plan) : "—")}</b>{top ? ` · bị ${tlContFmt(top)} đè` : ""}</div></div>
+                  <div style={{ flex: 1, minWidth: 0 }}><b className="mono">{tlContFmt(it.no)}</b><div className="tl-muted">{c.type} · {it.from} → <b>{it.to || (it.plan ? ydLocStr(it.plan, c) : "—")}</b>{top ? ` · bị ${tlContFmt(top)} đè` : ""}</div></div>
                   {it.to ? <span className="tl-muted">✓ {(it.at || "").slice(-5)}</span>
                     : <button className="tl-link" disabled={!!top} onClick={() => { const w = ydLcDo(lc, it.no, me.id); onChange(); toast(w || `${tlContFmt(it.no)} → ${DD_CONT_REG[it.no].loc}`); }}>Đã chuyển</button>}
                 </div>); })}
@@ -568,8 +568,9 @@ const TlPhone = ({ me, offline, onChange }) => {
     const p = { bay: st.bay || 1, lane: st.lane || 1, tier: st.tier || 1 };
     const occ = blk && ydAt(st.b, p.bay, p.lane, p.tier);
     const why = mv && blk ? ydCheck(mv, st.b, p.bay, p.lane, p.tier) : null;
+    const warn = mv && blk && !why ? ydWarn(mv, st.b, p.bay, p.lane, p.tier) : [];
     const step = (k, d, max) => go("ypos", { ...st, ...p, [k]: Math.min(max, Math.max(1, p[k] + d)) });
-    const Stepper = ({ k, l, max }) => <div style={{ textAlign: "center" }}><div className="tl-muted">{l}</div><div style={{ display: "flex", alignItems: "center", gap: 3, justifyContent: "center" }}><button className="tl-sec" style={{ width: 32, height: 38, padding: 0, minWidth: 0 }} onClick={() => step(k, -1, max)}>−</button><b style={{ fontSize: 20, minWidth: 24 }}>{p[k]}</b><button className="tl-sec" style={{ width: 32, height: 38, padding: 0, minWidth: 0 }} onClick={() => step(k, 1, max)}>+</button></div></div>;
+    const Stepper = ({ k, l, max }) => <div style={{ textAlign: "center" }}><div className="tl-muted">{l}</div><div style={{ display: "flex", alignItems: "center", gap: 3, justifyContent: "center" }}><button className="tl-sec" style={{ width: 32, height: 38, padding: 0, minWidth: 0 }} onClick={() => step(k, -1, max)}>−</button><b style={{ fontSize: 20, minWidth: 24 }}>{k === "bay" ? ydPad(ydBayNo(p.bay)) : p[k]}</b><button className="tl-sec" style={{ width: 32, height: 38, padding: 0, minWidth: 0 }} onClick={() => step(k, 1, max)}>+</button></div></div>;
     body = (<>
       <Bar title={mv ? `Đảo chuyển ${tlContFmt(mv.no)}` : "Hạ bãi · Bước 1/2 · Vị trí"} sub={mv ? `Đang ở ${mv.loc}` : "Chọn khu → block → hàng / cột / tầng"} back={() => go("yard", { order: o.id, tab: mv ? "move" : "place" })} />
       <div className="tl-scroll">
@@ -580,10 +581,10 @@ const TlPhone = ({ me, offline, onChange }) => {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, margin: "14px 0 8px" }}>
             <Stepper k="bay" l="Hàng" max={blk.rows} /><Stepper k="lane" l="Cột" max={YD_LANES} /><Stepper k="tier" l="Tầng" max={YD_TIERS} />
           </div>
-          <div className="tl-confirm" style={{ padding: 10 }}><div className="tl-muted">Vị trí</div><div className="mono" style={{ fontSize: 24, fontWeight: 800 }}>{ydLocStr({ b: st.b, ...p })}</div>
-            <div className="tl-muted">{ydKind(st.b)} · {occ ? `đang có ${tlContFmt(occ)}` : "ô trống"}{!mv && !occ && ydCheck(tlProbe(st.b), st.b, p.bay, p.lane, p.tier) ? " · chỉ vừa cont 20'" : ""}</div>{why && <div className="tl-tag warn">{why}</div>}</div>
+          <div className="tl-confirm" style={{ padding: 10 }}><div className="tl-muted">Vị trí</div><div className="mono" style={{ fontSize: 24, fontWeight: 800 }}>{ydLocStr({ b: st.b, ...p }, mv || 1)}</div>
+            <div className="tl-muted">{ydKind(st.b)} · {occ ? `đang có ${tlContFmt(occ)}` : "ô trống"}{!mv && !occ && ydCheck(tlProbe(), st.b, p.bay, p.lane, p.tier) ? " · chỉ vừa cont 20'" : ""}{mv && ydLen(mv) === 2 ? ` · cont ${ydIs45(mv) ? "45" : "40"}' chiếm ô ${ydPad(ydBayNo(p.bay))} + ${ydPad(ydBayNo(p.bay + 1))}` : ""}</div>{why && <div className="tl-tag warn">{why}</div>}{warn.map((w, i) => <div key={i} className="tl-tag warn" style={{ background: "#FEF3C7", color: "#92400E" }}>⚠ {w}</div>)}</div>
           {mv
-            ? <button className="tl-main" disabled={!!why} onClick={() => { ydPlace(mv, { b: st.b, ...p }, me.id, "Đảo chuyển (tally)"); onChange(); toast(`${tlContFmt(mv.no)} → ${mv.loc}`); go("yard", { order: o.id, tab: "move" }); }}>XÁC NHẬN ĐẢO CHUYỂN</button>
+            ? <button className="tl-main" disabled={!!why} onClick={() => { if (!ydConfirmWarn(mv, { b: st.b, ...p })) return; ydPlace(mv, { b: st.b, ...p }, me.id, "Đảo chuyển (tally)"); onChange(); toast(`${tlContFmt(mv.no)} → ${mv.loc}`); go("yard", { order: o.id, tab: "move" }); }}>XÁC NHẬN ĐẢO CHUYỂN</button>
             : <button className="tl-main" disabled={!!occ} onClick={() => go("ycont", { ...st, ...p })}>TIẾP · CHỌN CONT</button>}
         </>)}
       </div>
@@ -596,10 +597,10 @@ const TlPhone = ({ me, offline, onChange }) => {
       <Bar title="Hạ bãi · Bước 2/2 · Chọn cont" sub={`Vị trí ${ydLocStr(pos)}`} back={() => go("ypos", st)} />
       <div className="tl-scroll">
         {pending.length === 0 && <div className="tl-empty">Không còn cont chưa có vị trí</div>}
-        {pending.map(c => { const why = ydCheck(c, pos.b, pos.bay, pos.lane, pos.tier); return (
+        {pending.map(c => { const why = ydCheck(c, pos.b, pos.bay, pos.lane, pos.tier), warn = why ? [] : ydWarn(c, pos.b, pos.bay, pos.lane, pos.tier); return (
           <div key={c.no} className="tl-rec" style={{ opacity: why ? .55 : 1 }}>
-            <div style={{ flex: 1, minWidth: 0 }}><b className="mono">{tlContFmt(c.no)}</b><div className="tl-muted">{c.type} · {c.fe === "F" ? "Hàng" : "Rỗng"} · {c.line}{why ? ` · ${why}` : ""}</div></div>
-            <button className="tl-link" disabled={!!why} onClick={() => { ydPlace(c, pos, me.id, "Hạ bãi (tally)"); onChange(); toast(`Đã hạ bãi ${tlContFmt(c.no)} → ${c.loc}`); go("yard", { order: o.id, tab: "place" }); }}>{why ? "—" : "Xác nhận hạ bãi"}</button>
+            <div style={{ flex: 1, minWidth: 0 }}><b className="mono">{tlContFmt(c.no)}</b><div className="tl-muted">{c.type} · {c.fe === "F" ? "Hàng" : "Rỗng"} · {c.line}{why ? ` · ${why}` : ""}{ydLen(c) === 2 && !why ? ` · vị trí ${ydLocStr(pos, c)}` : ""}</div>{warn.length > 0 && <div style={{ color: "#B45309", fontSize: 12 }}>⚠ {warn.join("; ")}</div>}</div>
+            <button className="tl-link" disabled={!!why} onClick={() => { if (!ydConfirmWarn(c, pos)) return; ydPlace(c, pos, me.id, "Hạ bãi (tally)"); onChange(); toast(`Đã hạ bãi ${tlContFmt(c.no)} → ${c.loc}`); go("yard", { order: o.id, tab: "place" }); }}>{why ? "—" : "Xác nhận hạ bãi"}</button>
           </div>); })}
       </div>
     </>);

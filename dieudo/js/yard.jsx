@@ -1,8 +1,8 @@
 /* Điều độ khai thác — Bãi container: sơ đồ bãi ICD VNL
    Sơ đồ vẽ lại từ bản vẽ "MB BÃI ICD 25.09.2026 - PA2" (repo ITOS, screens-hungthai.jsx):
    5 khu A–E, 81 block, sức chứa thiết kế 12.386 TEU.
-   Vị trí cont: Block – Hàng (bay) – Cột (1..4) – Tầng (1..5). Cont 40' chiếm 2 hàng liền nhau.
-   Đã chốt (25/11): tối đa 5 tầng. Giả định cần xác nhận: 4 cột mỗi hàng; block lạnh B1–B3; khu E chỉ cont rỗng.
+   Vị trí cont: Block – Hàng (bay: 20' số lẻ 01,03…; 40'/45' số chẵn) – Cột (1..4) – Tầng (1..5). Cont 40' chiếm 2 ô 20' liền nhau.
+   Đã chốt (25/11): tối đa 5 tầng. Giả định cần xác nhận: 4 cột mỗi hàng. Quy tắc xếp cont: YD_RULES — KHTH/TP bật tắt trên màn hình.
    Hệ thống là nơi ghi vị trí chính (phương án A) — xếp bãi, đảo chuyển ghi tại đây. */
 
 const YD_YARDS = {
@@ -47,7 +47,7 @@ const YD_BLOCKS = (() => {
   return out;
 })();
 const YD_BLK = Object.fromEntries(YD_BLOCKS.map(b => [b.id, b]));
-const ydKind = (b) => YD_REEFER.includes(b) ? "Lạnh" : b && b[0] === "E" ? "Rỗng (depot)" : "Hàng khô / tổng hợp";
+const ydKind = (b) => YD_REEFER.includes(b) ? "Có ổ cắm lạnh (giả định)" : b && b[0] === "E" ? "Depot" : "Tổng hợp";
 
 const ydLine = (a, b) => ({ A: a, ang: Math.atan2(b.y - a.y, b.x - a.x), L: Math.hypot(b.x - a.x, b.y - a.y) });
 const YD_QUAY_MAIN = ydLine({ x: 607, y: 622 }, { x: 905, y: 228 });
@@ -59,64 +59,160 @@ const YD_BERTHS = [
 ];
 const ydDeg = (r) => r * 180 / Math.PI;
 
-/* ---------- Vị trí & chỉ mục ô ---------- */
+/* ---------- Vị trí & chỉ mục ô ----------
+   Đánh số hàng (bay) theo kiểu cảng: ô 20' thứ i hiển thị số lẻ 2i−1 (01, 03, 05…);
+   cont 40'/45' nằm giữa 2 ô 20' mang số chẵn (ô 1+2 → 02, ô 2+3 → 04). Dữ liệu vẫn lưu theo chỉ số ô (pos.bay = i). */
 const ydLen = (c) => (c.type || "").startsWith("4") ? 2 : 1;
 const ydTeu = (c) => ydLen(c);
+const ydIs45 = (c) => (c.type || "").startsWith("45");
 const ydPad = (n) => String(n).padStart(2, "0");
-const ydLocStr = (p) => p ? `${p.b}-${ydPad(p.bay)}-${p.lane}-${p.tier}` : null;
-let YD_IDX = null;
+const ydBayNo = (bay, L = 1) => L === 2 ? bay * 2 : bay * 2 - 1;
+const ydLocStr = (p, c) => p ? `${p.b}-${ydPad(ydBayNo(p.bay, typeof c === "number" ? c : c ? ydLen(c) : 1))}-${p.lane}-${p.tier}` : null;
+let YD_IDX = null, YD_BAYSZ = null, YD_BTEU = null;
 const ydInYard = () => Object.values(window.DD_CONT_REG || {}).filter(c => c.inPort && c.pos);
 const ydReindex = () => {
-  YD_IDX = new Map();
-  ydInYard().forEach(c => { for (let k = 0; k < ydLen(c); k++) YD_IDX.set(`${c.pos.b}|${c.pos.bay + k}|${c.pos.lane}|${c.pos.tier}`, c.no); });
+  YD_IDX = new Map(); YD_BAYSZ = new Map(); YD_BTEU = {};
+  ydInYard().forEach(c => {
+    const L = ydLen(c), sig = L === 1 ? "20" : `40@${c.pos.bay}`;
+    for (let k = 0; k < L; k++) {
+      YD_IDX.set(`${c.pos.b}|${c.pos.bay + k}|${c.pos.lane}|${c.pos.tier}`, c.no);
+      const bk = `${c.pos.b}|${c.pos.bay + k}`; if (!YD_BAYSZ.has(bk)) YD_BAYSZ.set(bk, new Map()); YD_BAYSZ.get(bk).set(c.no, sig);
+    }
+    YD_BTEU[c.pos.b] = (YD_BTEU[c.pos.b] || 0) + ydTeu(c);
+    const loc = ydLocStr(c.pos, c); if (c.loc !== loc) c.loc = loc; /* chuẩn hoá vị trí theo cách đánh số lẻ/chẵn */
+  });
   return YD_IDX;
 };
 const ydAt = (b, bay, lane, tier) => (YD_IDX || ydReindex()).get(`${b}|${bay}|${lane}|${tier}`);
 
-/* Kiểm tra xếp cont c vào ô (b, bay, lane, tier) — trả về lý do nếu không hợp lệ */
+/* ---------- Quy tắc xếp bãi ----------
+   Mỗi quy tắc có chế độ: "block" (không cho xếp) · "warn" (cảnh báo, vẫn cho xếp) · "off" (tắt).
+   KHTH / TP chỉnh ở tab "Quy tắc xếp bãi"; lưu trong yard_rules/cfg. */
+const YD_RULES = [
+  { id: "size", code: "B1", name: "Chồng đúng cỡ 20' / 40'", desc: "20' chỉ xếp lên 20'; 40' chỉ xếp thẳng lên đúng 1 cont 40' — không xếp 20' lên 40', không để 40' đè 2 cont 20' hoặc lệch hàng", def: "block" },
+  { id: "s45", code: "B2", name: "45' chỉ chồng với 45'", desc: "Không xếp 45' lên 40' và ngược lại", def: "block" },
+  { id: "fe", code: "B3", name: "Không xếp cont hàng lên cont rỗng", desc: "Cont nặng không đè lên cont nhẹ", def: "block" },
+  { id: "frot", code: "B5", name: "Không đè lên Flat rack / Open top", desc: "Không xếp cont nào lên trên cont FR, OT", def: "block" },
+  { id: "baysz", code: "B6", name: "Mỗi hàng chỉ 1 cỡ cont", desc: "Hàng đã có cont 20' thì không xếp 40' và ngược lại (tính mọi cột, mọi tầng của hàng đó)", def: "block" },
+  { id: "line", code: "C1", name: "Cùng ngăn cùng hãng tàu", desc: "Cảnh báo khi xếp lên cont khác hãng tàu; gợi ý ưu tiên block có cùng hãng", def: "warn" },
+  { id: "group", code: "C2–C3", name: "Gom theo job / khách hàng", desc: "Cảnh báo khi xếp lên cont khác job; gợi ý ưu tiên block có cont cùng job, cùng khách hàng", def: "warn" },
+  { id: "pick", code: "C4", name: "Không đè cont sắp lấy", desc: "Cảnh báo khi xếp lên cont (ở bất kỳ tầng dưới) đang có lệnh luân chuyển hoặc lệnh hãng tàu lấy ra còn hiệu lực", def: "warn" },
+  { id: "fill", code: "C5", name: "Lấp đầy block đang dở", desc: "Gợi ý ưu tiên block đang xếp dở thay vì mở block mới; cảnh báo khi block vượt ngưỡng đầy", def: "warn", num: true },
+];
+const YD_RULE_MODES = { block: "Chặn", warn: "Cảnh báo", off: "Tắt" };
+const DD_YARD_RULES = DD_BOOT.docs.yard_rules || (DD_BOOT.docs.yard_rules = {});
+const ydRuleCfg = () => DD_YARD_RULES.cfg || {};
+const ydMode = (id) => (ydRuleCfg().modes || {})[id] || YD_RULES.find(r => r.id === id).def;
+const ydFillPct = () => Number(ydRuleCfg().fillPct) || 85;
+const ydOutOrder = (no) => {
+  if (typeof DD_SHIP_ORDERS === "undefined" || typeof DD_SHIP_ORDER_TYPES === "undefined") return null;
+  return DD_SHIP_ORDERS.find(o => (o.conts || []).includes(no) && (DD_SHIP_ORDER_TYPES[o.type] || {}).dir === "out" && !(o.validTo && ddD(o.validTo) < ddD(ddToday())));
+};
+/* Đánh giá quy tắc khi đặt cont c vào ô (b, bay, lane, tier) — giả định ô hợp lệ về mặt vật lý.
+   Trả về [{ id, mode, msg }] các quy tắc bị vi phạm (bỏ quy tắc đang tắt). opts.audit: kiểm tra cont đang nằm sẵn ở ô đó. */
+const ydRules = (c, b, bay, lane, tier, opts = {}) => {
+  const out = [], L = ydLen(c), R = window.DD_CONT_REG || {};
+  const add = (id, msg) => { const mode = ydMode(id); if (mode !== "off" && !out.some(x => x.id === id)) out.push({ id, mode, msg }); };
+  const under = tier > 1 ? [...new Set(Array.from({ length: L }, (_, k) => ydAt(b, bay + k, lane, tier - 1)).filter(Boolean))].map(n => R[n]).filter(Boolean) : [];
+  under.forEach(u => {
+    const uL = ydLen(u);
+    if (under.length > 1) add("size", `Cont ${ydIs45(c) ? "45'" : "40'"} không được đè lên 2 cont`);
+    else if (uL !== L) add("size", L === 1 ? "Không xếp 20' lên cont 40'/45'" : "Không xếp 40' lên cont 20'");
+    else if (u.pos.bay !== bay) add("size", "40' phải đặt thẳng lên 1 cont 40' (đang lệch hàng)");
+    else if (L === 2 && ydIs45(c) !== ydIs45(u)) add("s45", ydIs45(c) ? "Không xếp 45' lên cont 40'" : "Không xếp 40' lên cont 45'");
+    if (c.fe !== "E" && u.fe === "E") add("fe", `Không xếp cont hàng lên cont rỗng ${tlContFmt(u.no)}`);
+    if (/FR|OT/.test(u.type || "")) add("frot", `Không xếp đè lên cont ${u.type} ${tlContFmt(u.no)}`);
+    if (c.line && u.line && c.line !== "—" && u.line !== "—" && c.line !== u.line) add("line", `Xếp lên cont hãng ${u.line} (cont này hãng ${c.line})`);
+    if (c.job && u.job && c.job !== u.job) add("group", `Xếp lên cont khác job (${u.job})`);
+  });
+  const sig = L === 1 ? "20" : `40@${bay}`;
+  if (!YD_BAYSZ) ydReindex();
+  for (let k = 0; k < L; k++) {
+    const m = YD_BAYSZ.get(`${b}|${bay + k}`); let bad = null;
+    if (m) for (const [no, s] of m) if (no !== c.no && s !== sig) { bad = s; break; }
+    if (bad && opts.audit) { /* kiểm tra cont đang nằm sẵn: chỉ báo cont thuộc nhóm cỡ ít hơn trong hàng đó */
+      const n = {}; m.forEach(s => { n[s] = (n[s] || 0) + 1; });
+      if ((n[sig] || 0) > Math.max(...Object.entries(n).filter(([s]) => s !== sig).map(([, v]) => v))) bad = null;
+    }
+    if (bad) { add("baysz", bad === "20" ? `Hàng ${ydPad(ydBayNo(bay + k))} đang xếp cont 20'` : sig === "20" ? `Hàng ${ydPad(ydBayNo(bay))} đang thuộc vị trí cont 40'` : `Lệch với cont 40' cùng hàng (vị trí ${ydPad(ydBayNo(Number(bad.slice(3)), 2))})`); break; }
+  }
+  if (ydMode("pick") !== "off") for (let t = tier - 1; t >= 1; t--) {
+    const nos = [...new Set(Array.from({ length: L }, (_, k) => ydAt(b, bay + k, lane, t)).filter(Boolean))];
+    const lcOf = (n) => typeof ydOpenLc === "function" ? ydOpenLc(n) : null;
+    const hit = nos.find(n => lcOf(n) || ydOutOrder(n));
+    if (hit) { const lc = lcOf(hit), so = ydOutOrder(hit); add("pick", `Đè lên ${tlContFmt(hit)} đang có ${lc ? `lệnh luân chuyển ${lc.id}` : `lệnh lấy ${so.id}`}`); break; }
+  }
+  if (!opts.audit && YD_BLK[b]) {
+    const teu = ((YD_BTEU || {})[b] || 0) + (c.pos && c.pos.b === b ? 0 : ydTeu(c)), pct = Math.round(teu / YD_BLK[b].cap * 100);
+    if (pct > ydFillPct()) add("fill", `Block ${b} sẽ đầy ${pct}% (ngưỡng ${ydFillPct()}%)`);
+  }
+  return out;
+};
+
+/* Kiểm tra xếp cont c vào ô (b, bay, lane, tier) — trả về lý do nếu không được xếp (vật lý + quy tắc "Chặn") */
 const ydCheck = (c, b, bay, lane, tier) => {
   const blk = YD_BLK[b]; if (!blk) return "Block không tồn tại";
   const L = ydLen(c);
-  if (bay < 1 || bay + L - 1 > blk.rows) return L === 2 ? "Cont 40' cần 2 hàng liền nhau" : "Ngoài phạm vi block";
+  if (bay < 1 || bay + L - 1 > blk.rows) return L === 2 ? "Cont 40' cần 2 ô 20' liền nhau" : "Ngoài phạm vi block";
   if (tier > YD_TIERS) return `Vượt ${YD_TIERS} tầng`;
-  const rf = (c.type || "").includes("RF");
-  if (rf && !YD_REEFER.includes(b)) return "Cont lạnh phải xếp block có ổ cắm (B1–B3)";
-  if (!rf && YD_REEFER.includes(b)) return "Block lạnh chỉ dành cho cont lạnh";
-  if (b[0] === "E" && c.fe !== "E") return "Khu depot chỉ nhận cont rỗng";
   for (let k = 0; k < L; k++) {
     const o = ydAt(b, bay + k, lane, tier); if (o && o !== c.no) return "Ô đã có cont";
     if (tier > 1) { const u = ydAt(b, bay + k, lane, tier - 1); if (!u || u === c.no) return "Tầng dưới chưa có cont đỡ"; }
   }
-  return null;
+  const hard = ydRules(c, b, bay, lane, tier).find(r => r.mode === "block");
+  return hard ? hard.msg : null;
 };
+/* Cảnh báo (quy tắc chế độ "Cảnh báo") khi xếp vào ô đã hợp lệ */
+const ydWarn = (c, b, bay, lane, tier) => ydRules(c, b, bay, lane, tier).filter(r => r.mode === "warn").map(r => r.msg);
 const ydBlocked = (c) => { if (!c.pos) return null; for (let k = 0; k < ydLen(c); k++) { const t = ydAt(c.pos.b, c.pos.bay + k, c.pos.lane, c.pos.tier + 1); if (t) return t; } return null; };
-const ydFirstFree = (c, b) => {
-  const blk = YD_BLK[b]; if (!blk) return null;
-  for (let tier = 1; tier <= YD_TIERS; tier++) for (let bay = 1; bay <= blk.rows; bay++) for (let lane = 1; lane <= YD_LANES; lane++)
-    if (!ydCheck(c, b, bay, lane, tier)) return { b, bay, lane, tier };
-  return null;
+/* Tìm ô trống hợp lệ trong các block: ưu tiên ô không có cảnh báo; không có thì lấy ô hợp lệ đầu tiên (kèm warn) */
+const ydFindSlot = (c, blocks, skip) => {
+  let fb = null;
+  for (const b of blocks) {
+    const blk = YD_BLK[b]; if (!blk) continue;
+    for (let tier = 1; tier <= YD_TIERS; tier++) for (let bay = 1; bay <= blk.rows; bay++) for (let lane = 1; lane <= YD_LANES; lane++) {
+      if (skip && skip.b === b && skip.bay === bay && skip.lane === lane && skip.tier === tier) continue;
+      if (ydCheck(c, b, bay, lane, tier)) continue;
+      const warn = ydWarn(c, b, bay, lane, tier);
+      if (!warn.length) return { b, bay, lane, tier, warn };
+      if (!fb) fb = { b, bay, lane, tier, warn };
+    }
+  }
+  return fb;
 };
+const ydFirstFree = (c, b) => ydFindSlot(c, [b]);
 const ydBlockTeu = (b) => ydInYard().filter(c => c.pos.b === b).reduce((s, c) => s + ydTeu(c), 0);
 
-/* Gợi ý block: đúng loại khu, ưu tiên block đang có cùng hãng tàu, còn chỗ, ít đầy */
+/* Gợi ý block: còn chỗ hợp lệ; ưu tiên cùng hãng tàu (C1), cùng job / khách hàng (C2–C3), block đang xếp dở (C5) */
 const ydSuggest = (c, n = 3) => {
-  const all = ydInYard();
+  const all = ydInYard(), fillOn = ydMode("fill") !== "off", lim = ydFillPct() / 100;
   return YD_BLOCKS.map(b => {
     const inB = all.filter(x => x.pos.b === b.id);
     const teu = inB.reduce((s, x) => s + ydTeu(x), 0), pct = teu / b.cap;
     const same = inB.filter(x => x.line === c.line).length, sameFe = inB.filter(x => x.fe === c.fe).length;
+    const sameJob = c.job ? inB.filter(x => x.job === c.job).length : 0, sameCus = c.customer ? inB.filter(x => x.customer === c.customer).length : 0;
     const slot = ydFirstFree(c, b.id);
-    return { b: b.id, slot, pct, same, score: slot ? (same * 3 + sameFe * 0.5 - pct * 60) : -1e9 };
+    let score = (ydMode("line") !== "off" ? same * 3 : same) + sameFe * 0.5 + (ydMode("group") !== "off" ? sameJob * 4 + sameCus * 2 : 0);
+    score += fillOn ? (pct >= lim ? -80 : pct > 0 ? 20 + pct * 40 : 0) : -pct * 60;
+    if (slot && slot.warn.length) score -= 30 * slot.warn.length;
+    return { b: b.id, slot, pct, same, sameJob, score: slot ? score : -1e9 };
   }).filter(x => x.slot).sort((a, b) => b.score - a.score).slice(0, n);
 };
 
+/* Ghi vị trí mới. Trả về các cảnh báo đã bỏ qua (được lưu kèm lịch sử di chuyển). */
 const ydPlace = (c, pos, by, note) => {
-  const from = c.pos ? ydLocStr(c.pos) : "Chờ xếp bãi";
-  c.pos = { ...pos }; c.loc = ydLocStr(pos);
-  c.moves = c.moves || []; c.moves.unshift({ at: ddNow(), by, from, to: c.loc, note: note || null });
-  if (c.job) ddJobLog(c.job, `${from === "Chờ xếp bãi" ? "Hạ bãi" : "Đảo chuyển"} ${tlContFmt(c.no)} → ${c.loc}${note ? ` · ${note}` : ""}`, by);
+  const from = c.pos ? ydLocStr(c.pos, c) : "Chờ xếp bãi";
+  const warn = ydWarn(c, pos.b, pos.bay, pos.lane, pos.tier);
+  c.pos = { b: pos.b, bay: pos.bay, lane: pos.lane, tier: pos.tier }; c.loc = ydLocStr(c.pos, c);
+  c.moves = c.moves || []; c.moves.unshift({ at: ddNow(), by, from, to: c.loc, note: note || null, ...(warn.length ? { warn } : {}) });
+  if (c.job) ddJobLog(c.job, `${from === "Chờ xếp bãi" ? "Hạ bãi" : "Đảo chuyển"} ${tlContFmt(c.no)} → ${c.loc}${note ? ` · ${note}` : ""}${warn.length ? ` · bỏ qua cảnh báo: ${warn.join("; ")}` : ""}`, by);
   ydReindex();
+  return warn;
 };
+/* Xác nhận cảnh báo trước khi xếp (trả về true nếu được xếp) */
+const ydConfirmWarn = (c, pos) => { const w = ydWarn(c, pos.b, pos.bay, pos.lane, pos.tier); return !w.length || window.confirm(`Cảnh báo quy tắc xếp bãi:\n• ${w.join("\n• ")}\n\nVẫn xếp ${tlContFmt(c.no)} vào ${ydLocStr(pos, c)}?`); };
+/* Cont đang nằm sai quy tắc (kiểm tra lại theo cấu hình hiện tại) */
+const ydAudit = () => { ydReindex(); return ydInYard().map(c => ({ c, v: ydRules(c, c.pos.b, c.pos.bay, c.pos.lane, c.pos.tier, { audit: true }) })).filter(x => x.v.length); };
 
 /* ---------- Sơ đồ ---------- */
 const ydHeat = (pct) => pct <= 0 ? "#E6ECF2" : pct < 0.4 ? "#BFE3D0" : pct < 0.65 ? "#7CC8A4" : pct < 0.85 ? "#F2C063" : "#E5735C";
@@ -169,16 +265,21 @@ const YD_LINE_COL = { Maersk: "#3B82F6", ONE: "#EC4899", "CMA CGM": "#1E3A8A", "
 function YdBayView({ b, tier, setTier, sel, onCont, placing, onSlot, hlFn }) {
   const blk = YD_BLK[b]; ydReindex();
   const cell = 26;
+  const [even, setEven] = React.useState(() => { try { return localStorage.getItem("yd-even") === "1"; } catch (e) { return false; } });
+  const togEven = () => { const v = !even; setEven(v); try { localStorage.setItem("yd-even", v ? "1" : "0"); } catch (e) {} };
+  const pickSlot = (pos) => { if (ydConfirmWarn(placing, pos)) onSlot(pos); };
   return (
     <div>
-      <div className="row" style={{ gap: 6, marginBottom: 8, alignItems: "center" }}>
+      <div className="row" style={{ gap: 6, marginBottom: 8, alignItems: "center", flexWrap: "wrap" }}>
         <span className="muted" style={{ fontSize: 12 }}>Tầng</span>
         {Array.from({ length: YD_TIERS }, (_, i) => i + 1).map(t => <button key={t} className={`btn btn-sm ${tier === t ? "primary" : ""}`} style={{ minWidth: 32 }} onClick={() => setTier(t)}>{t}</button>)}
-        <span className="muted" style={{ fontSize: 11.5, marginLeft: "auto" }}>Hàng 01–{ydPad(blk.rows)} · cột 1–{YD_LANES}</span>
+        <label className="muted" style={{ fontSize: 11.5, marginLeft: "auto", display: "inline-flex", gap: 4, alignItems: "center", cursor: "pointer" }} title="Số chẵn = vị trí cont 40'/45' (nằm giữa 2 ô 20')"><input type="checkbox" checked={even} onChange={togEven} />Hiện số chẵn</label>
+        <span className="muted" style={{ fontSize: 11.5 }}>Hàng 01–{ydPad(ydBayNo(blk.rows))} · cột 1–{YD_LANES}</span>
       </div>
       <div style={{ overflowX: "auto", paddingBottom: 6 }}>
         <div style={{ display: "grid", gridTemplateColumns: `28px repeat(${blk.rows}, ${cell}px)`, gap: 2, width: "max-content" }}>
-          <div></div>{Array.from({ length: blk.rows }, (_, i) => <div key={i} className="mono muted" style={{ fontSize: 9.5, textAlign: "center" }}>{ydPad(i + 1)}</div>)}
+          <div></div>{Array.from({ length: blk.rows }, (_, i) => <div key={i} className="mono muted" style={{ fontSize: 9.5, textAlign: "center", position: "relative" }}>{ydPad(ydBayNo(i + 1))}
+            {even && i < blk.rows - 1 && <span style={{ position: "absolute", right: -7, top: -9, fontSize: 8, color: "#B45309", width: 12, textAlign: "center" }}>{ydPad(ydBayNo(i + 1, 2))}</span>}</div>)}
           {Array.from({ length: YD_LANES }, (_, li) => li + 1).map(lane => (
             <React.Fragment key={lane}>
               <div className="mono muted" style={{ fontSize: 10, alignSelf: "center" }}>C{lane}</div>
@@ -189,14 +290,15 @@ function YdBayView({ b, tier, setTier, sel, onCont, placing, onSlot, hlFn }) {
                 const L = c ? ydLen(c) : 1, is45 = c && (c.type || "").startsWith("45");
                 const why = placing && !no ? ydCheck(placing, b, bay, lane, tier) : "x";
                 const ok = placing && !no && !why;
+                const warn = ok ? ydWarn(placing, b, bay, lane, tier) : [];
                 const isSel = c && sel === c.no;
-                const bg = c ? (YD_LINE_COL[c.line] || "#64748B") : ok ? "#BBF7D0" : "#F1F5F9";
+                const bg = c ? (YD_LINE_COL[c.line] || "#64748B") : ok ? (warn.length ? "#FDE68A" : "#BBF7D0") : "#F1F5F9";
                 const dim = c && hlFn && !hlFn(c);
                 return (
-                  <div key={bay} title={c ? `${tlContFmt(c.no)} · ${c.type} · ${c.fe === "F" ? "Hàng" : "Rỗng"} · ${c.line} · ${ydLocStr(c.pos)}${L === 2 ? ` (chiếm hàng ${ydPad(bay)}–${ydPad(bay + 1)})` : ""}` : ok ? "Chọn ô này" : placing ? why : `${b}-${ydPad(bay)}-${lane}-${tier} · trống`}
-                    onClick={() => c ? onCont(c.no) : ok && onSlot({ b, bay, lane, tier })}
+                  <div key={bay} title={c ? `${tlContFmt(c.no)} · ${c.type} · ${c.fe === "F" ? "Hàng" : "Rỗng"} · ${c.line} · ${ydLocStr(c.pos, c)}${L === 2 ? ` (chiếm ô ${ydPad(ydBayNo(bay))} + ${ydPad(ydBayNo(bay + 1))})` : ""}` : ok ? `Chọn ô ${ydLocStr({ b, bay, lane, tier }, placing)}${warn.length ? `\nCảnh báo: ${warn.join("; ")}` : ""}` : placing ? why : `${b}-${ydPad(ydBayNo(bay))}-${lane}-${tier} · trống`}
+                    onClick={() => c ? onCont(c.no) : ok && pickSlot({ b, bay, lane, tier })}
                     style={{ gridColumn: L === 2 ? "span 2" : undefined, height: cell, borderRadius: 3, background: bg, opacity: dim ? 0.25 : 1, cursor: c || ok ? "pointer" : "default", boxSizing: "border-box", border: is45 ? "2px dashed rgba(255,255,255,.9)" : undefined,
-                      outline: isSel ? "2px solid #DC2626" : ok ? "1px dashed #16A34A" : "none", outlineOffset: -1,
+                      outline: isSel ? "2px solid #DC2626" : ok ? `1px dashed ${warn.length ? "#B45309" : "#16A34A"}` : "none", outlineOffset: -1,
                       color: "#fff", fontSize: 8.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Geist Mono',monospace" }}>
                     {c ? <>{is45 ? "45" : L === 2 ? "40" : "20"}{c.fe === "E" ? "E" : ""}{L === 2 && <span style={{ fontWeight: 500, opacity: .85, marginLeft: 3 }}>{c.no.slice(-4, -1)}</span>}</> : ""}
                   </div>);
@@ -208,7 +310,8 @@ function YdBayView({ b, tier, setTier, sel, onCont, placing, onSlot, hlFn }) {
       <div className="row" style={{ gap: 10, flexWrap: "wrap", marginTop: 6, fontSize: 11 }}>
         {Object.entries(YD_LINE_COL).map(([l, col]) => <span key={l} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><i style={{ width: 9, height: 9, borderRadius: 2, background: col, display: "inline-block" }}></i>{l}</span>)}
         {placing && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><i style={{ width: 9, height: 9, borderRadius: 2, background: "#BBF7D0", border: "1px dashed #16A34A", display: "inline-block" }}></i>Ô hợp lệ</span>}
-        <span className="muted" style={{ marginLeft: "auto" }}>1 ô = vị trí 20' · 40' = khối 2 ô · 45' viền nét đứt · chữ E = rỗng</span>
+        {placing && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><i style={{ width: 9, height: 9, borderRadius: 2, background: "#FDE68A", border: "1px dashed #B45309", display: "inline-block" }}></i>Được xếp nhưng có cảnh báo</span>}
+        <span className="muted" style={{ marginLeft: "auto" }}>1 ô = vị trí 20' (số lẻ) · 40' = khối 2 ô (số chẵn) · 45' viền nét đứt · chữ E = rỗng</span>
       </div>
     </div>
   );
@@ -260,9 +363,9 @@ const DdYardMapScreen = ({ go }) => {
   const startPlace = (c, b) => { setPlacing(c); setSel(c.no); const s = ydSuggest(c, 1)[0]; const blk = b || (s && s.b); if (blk) { setPick(blk); setView(YD_BLK[blk].yard); setTier((ydFirstFree(c, blk) || { tier: 1 }).tier); } setTab("map"); };
   const doPlace = (pos) => {
     const c = placing; const moving = !!c.pos;
-    ydPlace(c, pos, DD_ME.id, moving ? "Đảo chuyển" : "Hạ bãi");
+    const warn = ydPlace(c, pos, DD_ME.id, moving ? "Đảo chuyển" : "Hạ bãi");
     if (moving && vas && c.customer) { const ct = ddActiveContracts(c.customer)[0]; DD_VAS.unshift({ id: ddNewId("DV"), no: c.no, customer: c.customer, type: "Xếp dỡ / đảo chuyển", qty: 1, unit: "lượt", at: ddNow(), by: DD_ME.id, contract: ct ? ct.id : null }); }
-    setPlacing(null); setTier(pos.tier); refresh(); flash(`${tlContFmt(c.no)} → ${c.loc}${moving && vas && c.customer ? " · đã ghi dịch vụ đảo chuyển" : ""}`);
+    setPlacing(null); setTier(pos.tier); refresh(); flash(`${tlContFmt(c.no)} → ${c.loc}${moving && vas && c.customer ? " · đã ghi dịch vụ đảo chuyển" : ""}${warn.length ? ` · đã ghi nhận ${warn.length} cảnh báo` : ""}`);
   };
 
   const Kpi = ({ l, v, d, c }) => <div className="card" style={{ padding: "10px 14px" }}><div className="muted" style={{ fontSize: 11.5 }}>{l}</div><div style={{ fontSize: 20, fontWeight: 700, color: c }}>{v}</div><div className="muted" style={{ fontSize: 11 }}>{d}</div></div>;
@@ -296,10 +399,11 @@ const DdYardMapScreen = ({ go }) => {
       )}
 
       <div className="card">
-        <DdTabs tab={tab} setTab={setTab} tabs={[["map", "Sơ đồ bãi", YD_BLOCKS.length], ["list", "Danh sách cont", inYard.length + pending.length], ["pending", "Chờ xếp bãi", pending.length], ["lc", "Lệnh luân chuyển", openLc], ["report", "Báo cáo tồn bãi", null], ["vas", "Dịch vụ cộng thêm", DD_VAS.length]]} />
+        <DdTabs tab={tab} setTab={setTab} tabs={[["map", "Sơ đồ bãi", YD_BLOCKS.length], ["list", "Danh sách cont", inYard.length + pending.length], ["pending", "Chờ xếp bãi", pending.length], ["lc", "Lệnh luân chuyển", openLc], ["report", "Báo cáo tồn bãi", null], ["rules", "Quy tắc xếp bãi", null], ["vas", "Dịch vụ cộng thêm", DD_VAS.length]]} />
         {tab === "list" && <DdYardList flash={flash} onLocate={locate} onHistory={setHist} onMove={(conts, done) => setMoving({ conts, done })} />}
         {tab === "lc" && <DdYardLcList flash={flash} refresh={refresh} onHistory={setHist} />}
         {tab === "report" && <DdYardReport flash={flash} onHistory={setHist} />}
+        {tab === "rules" && <DdYardRules flash={flash} refresh={refresh} onLocate={locate} />}
         {tab === "map" && (
           <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 470px", minHeight: 640 }}>
             <div style={{ borderRight: "1px solid var(--line)", display: "flex", flexDirection: "column" }}>
@@ -323,7 +427,7 @@ const DdYardMapScreen = ({ go }) => {
               </div>
               <div className="row" style={{ gap: 12, padding: "8px 12px", fontSize: 11, borderTop: "1px solid var(--line)", flexWrap: "wrap" }}>
                 {hlOn ? <span className="muted">Màu đậm = nhiều cont khớp bộ lọc</span> : [["#E6ECF2", "Trống"], ["#BFE3D0", "< 40%"], ["#7CC8A4", "40–65%"], ["#F2C063", "65–85%"], ["#E5735C", "> 85%"]].map(([c, l]) => <span key={l} style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><i style={{ width: 10, height: 10, background: c, borderRadius: 2, display: "inline-block" }}></i>{l}</span>)}
-                <span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><i style={{ width: 10, height: 10, border: "1px dashed #2563EB", borderRadius: 2, display: "inline-block" }}></i>Block lạnh (B1–B3, giả định)</span>
+                <span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><i style={{ width: 10, height: 10, border: "1px dashed #2563EB", borderRadius: 2, display: "inline-block" }}></i>Block có ổ cắm lạnh (B1–B3, giả định)</span>
               </div>
             </div>
             <div style={{ padding: 14, display: "flex", flexDirection: "column", gap: 12, overflowY: "auto", maxHeight: 760 }}>
@@ -380,7 +484,7 @@ const DdYardMapScreen = ({ go }) => {
         )}
         {tab === "vas" && <DdYardScreen go={go} embed />}
       </div>
-      <div className="muted" style={{ fontSize: 11.5, marginTop: 8 }}>Sức chứa theo bản vẽ thiết kế. Tối đa 5 tầng. Giả định cần xác nhận: mỗi hàng 4 cột; block lạnh B1–B3; khu E chỉ cont rỗng (OI-KT-20…22).</div>
+      <div className="muted" style={{ fontSize: 11.5, marginTop: 8 }}>Sức chứa theo bản vẽ thiết kế. Tối đa 5 tầng. Hàng đánh số lẻ (01, 03, 05…) cho vị trí 20'; cont 40'/45' mang số chẵn ở giữa (02, 04…). Giả định cần xác nhận: mỗi hàng 4 cột.</div>
       {hist && <DdContHistory no={hist} onClose={() => setHist(null)} onLocate={locate} />}
       {moving && <DdYardMoveModal conts={moving.conts} onClose={() => setMoving(null)} onDone={(m) => { moving.done && moving.done(); setMoving(null); setSel(null); refresh(); flash(m); }} />}
       <KdToast text={toast} />
@@ -388,4 +492,4 @@ const DdYardMapScreen = ({ go }) => {
   );
 };
 
-Object.assign(window, { DdYardMapScreen, YD_BLOCKS, ydReindex, ydLocStr, ydSuggest, ydInYard });
+Object.assign(window, { DdYardMapScreen, YD_BLOCKS, YD_RULES, ydReindex, ydLocStr, ydSuggest, ydInYard, ydRules, ydCheck, ydWarn, ydAudit, ydBayNo });
